@@ -1,0 +1,20 @@
+!!!
+%html
+  %head
+    %meta{:'http-equiv' => 'Content-Type', :content => 'text/html; charset=UTF-8'}
+    
+    // jQuery   
+    %script{:type => 'text/javascript', :src => 'libs/jquery-1.5.1.min.js'}
+
+    //%link{:rel => 'stylesheet', :type => 'text/css', :href => 'themes/smoothness/jquery-ui-theme.css'}
+    
+    // DinoJS
+    %script{:type => 'text/javascript', :src => 'libs/dino-js/dino-js.js'}
+    %link{:rel => 'stylesheet', :type => 'text/css', :href => 'libs/dino-js/dino-js.css'}
+    // DinoJS Theme
+    %link{:rel => 'stylesheet', :type => 'text/css', :href => 'themes/default/dino-theme.css'}
+    // LED Iconset
+    %link{:rel => 'stylesheet', :type => 'text/css', :href => '../iconsets/led/led-iconset.css'}
+
+  = yield
+    

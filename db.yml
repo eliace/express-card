@@ -1,0 +1,16 @@
+
+development:
+  adapter: mysql
+  host: localhost
+  username: medic
+  password: 123456
+  database: medic
+  reconnect: true
+  
+development_pgsql:
+  adapter: postgresql
+  host: localhost
+  username: medic
+  password: 123456
+  database: medic
+  
