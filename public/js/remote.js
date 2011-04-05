@@ -53,14 +53,20 @@ Dino.declare('Medic.remote.Collection', 'Dino.events.Observer', {
 	load_all: function() {
 		var target = {
 			chain: [].concat(arguments),
-			to: function(ds) {	this.chain.push(ds)	},
-			then: function(f) {	this.chain.push(f)	},
+			to: function(ds) {	
+				this.chain.push(ds)	
+			},
+			then: function(f) {	
+				console.log('then');
+				this.chain.push(f)	
+			},
 			ready: function(json) {
+				console.log(this.chain);
 				Dino.each(this.chain, function(t){
 					if(Dino.isFunction(t)) t.call(this, json);
 					else if(t instanceof Dino.data.DataSource) t.set(json);
 					else if(Dino.isPlainObject(t)) Dino.merge(t, json);
-				});				
+				});
 			}
 		};
 		

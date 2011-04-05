@@ -1216,7 +1216,7 @@ input.l-icon-only.r-icon-only, span.l-icon-only.r-icon-only {
 	padding: 0;
 	border: 1px solid #aaa;
 	text-align: right;
-	display: block
+/*	display: block*/
 }
 
 .dino-text-editor.focus {

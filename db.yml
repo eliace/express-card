@@ -1,7 +1,7 @@
 
 development:
   adapter: mysql
-  host: localhost
+  host: 172.30.0.63
   username: medic
   password: 123456
   database: medic

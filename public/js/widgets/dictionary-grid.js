@@ -8,6 +8,16 @@ Dino.declare('Medic.widgets.DictionaryGrid', 'Dino.widgets.Grid', {
 		content: {
 			height: 'auto'
 		},
+		tableModel: {
+			cell: {
+				extensions: [Dino.Editable],
+				events: {
+					'dblclick': function(e, w) {
+						if(w.options.editable) w.startEdit();
+					}
+				}
+			}
+		},
 		components: {
 			controls: {
 				weight: 1,
@@ -15,17 +25,23 @@ Dino.declare('Medic.widgets.DictionaryGrid', 'Dino.widgets.Grid', {
       	cls: 'dino-border-bottom',
 				defaultItem: {
 					dtype: 'text-button',
-					cls: 'plain'
+					cls: 'plain',
+					onAction: function() {
+						this.parent.parent.events.fire('on'+this.tag);
+					}
 				},
 				items: [{
 					text: 'Добавить',
-					icon: 'led-icon-add'
+					icon: 'led-icon-add',
+					tag: 'Add'
 				}, {
 					text: 'Удалить',
-					icon: 'led-icon-delete'
+					icon: 'led-icon-delete',
+					tag: 'Delete'
 				}, {
 					text: 'Обновить',
-					icon: 'led-icon-refresh'
+					icon: 'led-icon-refresh',
+					tag: 'Refresh'
 				}]
 			},					
 			pager: {
@@ -33,6 +49,12 @@ Dino.declare('Medic.widgets.DictionaryGrid', 'Dino.widgets.Grid', {
       	cls: 'dino-border-top'
 			}					
 		}				
+	},
+	
+	$init: function() {
+		Medic.widgets.DictionaryGrid.superclass.$init.apply(this, arguments);
+		
+		this.editBuffer = new Dino.utils.UpdateBuffer();
 	}
 	
 }, 'dictionary-grid');

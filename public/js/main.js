@@ -7,13 +7,17 @@ var Dialogs = {};
 
 var DataSources = {
 	Patients: new Dino.data.ArrayDataSource(),
+	AnalysisGroups: new Dino.data.ArrayDataSource(),
 	Analyses: new Dino.data.ArrayDataSource(),
 	Drugs: new Dino.data.ArrayDataSource()
 };
 
 var Remote = {};
 
-Remote.Patients = new Medic.remote.Collection('patients'),
+Remote.Patients = new Medic.remote.Collection('patients');
+Remote.AnalysisGroups = new Medic.remote.Collection('analysis_groups');
+Remote.Analyses = new Medic.remote.Collection('analyses');
+
 Remote.Patient = Remote.Patients.object([
 	'name',
 	'sex',
@@ -24,7 +28,10 @@ Remote.Patient = Remote.Patients.object([
 	'admission_date',
 	'admission_weight', 
 ]);
-
+Remote.Analisis = Remote.Analyses.object([
+	'name',
+	'analysis_group_id'
+]);
 
 $(document).ready(function(){
 
@@ -70,7 +77,7 @@ $(document).ready(function(){
 						});
 						
 					}
-					else if(e.target.tag == 'analyses') {
+					else if(e.target.tag == 'analyses') {						
 						Dialogs.AnalysesDialog.open();
 					}
 					else if(e.target.tag == 'drugs') {

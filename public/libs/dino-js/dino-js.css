@@ -160,6 +160,7 @@ p {
 .dino-dropdown-box {
 	position: absolute;
 	display: none;
+	z-index: 10001;
 /*
  	background-color: white;
 	padding: 2px 5px;
@@ -286,6 +287,10 @@ p {
 	z-index: 10000;
 }
 
+
+.dino-select-field {
+	position: relative;
+}
 
 
 /*

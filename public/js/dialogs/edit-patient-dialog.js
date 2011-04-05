@@ -5,7 +5,7 @@ Dialogs.EditPatientDialog = $.dino({
 	title: 'Пациент',
 	content: {
 		dtype: 'box',
-		layout: 'simple-form-layout',
+		layout: 'form-layout',
 		items: [{
 			dtype: 'textfield',
 			label: 'Номер',

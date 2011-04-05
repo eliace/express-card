@@ -4,8 +4,8 @@ body {
 	margin: 0;
 	padding: 3px;
 	background-color: #eee;
-	font-size: 10pt;
 	overflow: hidden;
+	font-size: 9pt;
 }
 
 body input {

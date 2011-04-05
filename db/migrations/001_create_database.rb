@@ -4,9 +4,9 @@ class CreateDatabase < ActiveRecord::Migration
   
   class User < ActiveRecord::Base
   end
-  class Appointment < ActiveRecord::Base
-  end
   class Patient < ActiveRecord::Base
+  end
+  class AnalysisGroup < ActiveRecord::Base
   end
   
   def self.up
@@ -167,6 +167,9 @@ class CreateDatabase < ActiveRecord::Migration
 		
 		Patient.create(:name => 'Вася', :patient_no => 1, :diagnosis => 'Воспаление межушного ганглия');
 		
+		AnalysisGroup.create(:name => 'Клинические');
+		AnalysisGroup.create(:name => 'Биохимические');
+		AnalysisGroup.create(:name => 'Бактериологические');
 		
 
     
