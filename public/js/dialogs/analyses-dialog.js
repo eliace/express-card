@@ -49,6 +49,7 @@ Dialogs.AnalysesDialog = $.dino({
 				onAdd: function() {
 					
 					var obj = {
+						id: 'temp_'+Dino.timestamp(),
 						name: 'Новый анализ',
 						analysis_group_id: null
 					};
@@ -56,19 +57,58 @@ Dialogs.AnalysesDialog = $.dino({
 					this.data.add(obj);
 					this.editBuffer.add(obj);
 					
+				},
+				onDelete: function(){
+					var self = this;
+          this.selection.each(function(item){
+            var val = item.data.val();
+            self.editBuffer.del(val);
+            item.data.del();
+          });
+					this.selection.clear();
+				},
+				onUpdate: function(e) {
+					this.editBuffer.upd(e.row.data.get());					
 				}
 			}
 		},
 	},
 	onOpen: function() {
-		
-		// загружаем группы анализов
-		Remote.AnalysisGroups.load_all().then(function(json){
-			analysisGroups.set(array_to_hash(json, 'id', 'name')); //TODO рутинная опреация
-		});
-		
+
+		analysisGroups.set(array_to_hash(DataSources.AnalysisGroups.get(), 'id', 'name')); //TODO рутинная опреация
+
+		// загружаем анализы
+		Remote.Analyses.load_all().to(DataSources.Analyses);
+
+//		// загружаем группы анализов
+//		Remote.AnalysisGroups.load_all().then(function(json){
+//			analysisGroups.set(array_to_hash(json, 'id', 'name')); //TODO рутинная опреация
+//			
+//			// загружаем анализы
+//			Remote.Analyses.load_all().to(DataSources.Analyses);
+//		});
+				
+	},
+	onClose: function(e) {
+		if(e.button == 'save') {
+			this.save();
+		}
 	},
 	headerButtons: ['close'],
-	buttons: ['ok', 'cancel']
+	buttons: ['save', 'cancel']
 });
 
+
+
+Dialogs.AnalysesDialog.save = function() {
+	this.content.grid.editBuffer.flush(function(val, action){
+		
+		if(action == 'Delete')
+			Remote.Analysis.remove(val);			
+		else if(action == 'Add')
+			Remote.Analysis.create(val);			
+		else if(action == 'Update')
+			Remote.Analysis.update(val);			
+		
+  });
+}

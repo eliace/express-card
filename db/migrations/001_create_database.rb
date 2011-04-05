@@ -8,6 +8,16 @@ class CreateDatabase < ActiveRecord::Migration
   end
   class AnalysisGroup < ActiveRecord::Base
   end
+  class DrugSolvent < ActiveRecord::Base
+  end
+  class DrugEffect < ActiveRecord::Base
+  end
+  class DrugUnit < ActiveRecord::Base
+  end
+  class DrugGroup < ActiveRecord::Base
+  end
+  class DrugCategory < ActiveRecord::Base
+  end
   
   def self.up
     
@@ -50,16 +60,20 @@ class CreateDatabase < ActiveRecord::Migration
 
     add_foreign_key(:drug_solvents, :drug_effects)
 
-    # Группы препаратов
-    create_table :drug_groups do |t|
-      t.string :name
-      t.integer :parent_id
-    end
-
     # Категории препаратов (препараты, питание и др.)
     create_table :drug_categories do |t|
       t.string :name
     end
+
+    # Группы препаратов
+    create_table :drug_groups do |t|
+      t.string :name
+      t.integer :parent_id
+      t.references :drug_category
+    end
+
+    add_foreign_key(:drug_groups, :drug_categories)
+
 
     # Единицы измерения препаратов
     create_table :drug_units do |t|
@@ -69,7 +83,7 @@ class CreateDatabase < ActiveRecord::Migration
 		# Препараты (препараты, питание)
     create_table :drugs do |t|
       t.string :name																# наименование
-      t.references :drug_category									# категория
+#      t.references :drug_category									# категория
       t.references :drug_group											# группа
 			t.references :drug_effect										# эффект (калорийность, электролиты и др.)
 			t.references :drug_unit											# единицы измерения 
@@ -77,7 +91,7 @@ class CreateDatabase < ActiveRecord::Migration
 			t.float :content															# содержание в растворе	
 		end
   
-    add_foreign_key(:drugs, :drug_categories)
+#    add_foreign_key(:drugs, :drug_categories)
     add_foreign_key(:drugs, :drug_groups)
     add_foreign_key(:drugs, :drug_solvents)
     add_foreign_key(:drugs, :drug_effects)
@@ -98,67 +112,6 @@ class CreateDatabase < ActiveRecord::Migration
 
     add_foreign_key(:analyses, :analysis_groups)
 
-=begin
-
-		# группы питания
-    create_table :nutrition_groups do |t|
-      t.string :name
-      t.integer :parent_id
-#      t.references :appointment
-#      t.boolean :deleted, :default => false
-    end
-    
-#    add_foreign_key(:nutrition_groups, :appointments)
-
-		# питание
-    create_table :nutritions do |t|
-      t.string :name
-      t.references :nutrition_group
-#      t.references :appointment
-      t.float :proteins
-      t.float :fats
-      t.float :carbohydrates
-      t.float :calories
-#      t.boolean :deleted, :default => false
-    end
-
-    add_foreign_key(:nutritions, :nutrition_groups)
-#    add_foreign_key(:nutritions, :appointments)
-
-
-		# группы препаратов
-    create_table :drug_groups do |t|
-      t.string :name
-      t.integer :parent_id
-#      t.references :appointment
-      t.boolean :deleted, :default => false
-    end
-    
-#    add_foreign_key(:drug_groups, :appointments)
-
-		# препараты
-    create_table :drugs do |t|
-      t.string :name
-      t.references :drug_group
-      t.references :appointment
-      t.boolean :deleted, :default => false
-    end
-
-    add_foreign_key(:drugs, :drug_groups)
-    add_foreign_key(:drugs, :appointments)
-
-
-#    create_table :scheduled_analyses do |t|
-#      t.references :patient
-#      t.references :analysis
-#      t.date :from_date
-#      t.integer :regularity
-#    end
-#
-#    add_foreign_key(:scheduled_analyses, :patients)
-#    add_foreign_key(:scheduled_analyses, :analyses)
-
-=end
 
 
 		#
@@ -171,7 +124,20 @@ class CreateDatabase < ActiveRecord::Migration
 		AnalysisGroup.create(:name => 'Биохимические');
 		AnalysisGroup.create(:name => 'Бактериологические');
 		
-
+		DrugUnit.create(:name => 'мг');
+		DrugUnit.create(:name => 'мкг');
+		DrugUnit.create(:name => 'мл');
+		DrugUnit.create(:name => 'ЕД');
+    
+    DrugSolvent.create(:name => 'вода', :drug_effect_id => DrugEffect.create.id);
+    DrugSolvent.create(:name => 'глюкоза', :drug_effect_id => DrugEffect.create.id);
+    DrugSolvent.create(:name => 'NaCl', :drug_effect_id => DrugEffect.create.id);
+    
+    DrugCategory.create(:name => 'Питание');
+    DrugCategory.create(:name => 'Препараты');
+    
+#    DrugGroup.create();
+    
     
   end
   

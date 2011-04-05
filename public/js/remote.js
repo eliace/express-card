@@ -10,19 +10,30 @@ Dino.declare('Medic.remote.Object', 'Dino.events.Observer', {
 	},
 	
 	save: function(val, callback) {
-		var path = (this.source) ? this.source.path() : '';
-		
+		('id' in val) ? this.update(val, callback) : this.create(val, callback);
+	},
+	
+	create: function(val, callback) {
 		var fields = {};
 		Dino.each(this.attributes, function(name){ fields[name] = val[name]; });
 
-		if(val.id) {
-			// если ID определен, то этот объект требуется обновить
-			return $.post(path + '/' + val.id, {_serialized: $.toJSON(fields)}, callback, 'json');
-		}
-		else {
-			//TODO здесь должно быть создание нового объекта
-			return $.post(path, {_method: 'put', _serialized: $.toJSON(fields)}, callback, 'json');
-		}		
+		$.post(this.path(), {_method: 'put', _serialized: $.toJSON(fields)}, callback, 'json');		
+	},
+
+	update: function(val, callback) {
+		var fields = {};
+		Dino.each(this.attributes, function(name){ fields[name] = val[name]; });
+
+		$.post(this.path() + '/' + val.id, {_serialized: $.toJSON(fields)}, callback, 'json');
+	},
+	
+	remove: function(arg, callback) {
+		var id = Dino.isPlainObject(arg) ? id = arg.id : arg;
+		$.post(this.path() + '/' + id, {_method: 'delete'}, callback, 'json');
+	},
+	
+	path: function() {
+		return (this.source) ? this.source.path() : '';
 	}
 	
 });
@@ -57,11 +68,9 @@ Dino.declare('Medic.remote.Collection', 'Dino.events.Observer', {
 				this.chain.push(ds)	
 			},
 			then: function(f) {	
-				console.log('then');
 				this.chain.push(f)	
 			},
 			ready: function(json) {
-				console.log(this.chain);
 				Dino.each(this.chain, function(t){
 					if(Dino.isFunction(t)) t.call(this, json);
 					else if(t instanceof Dino.data.DataSource) t.set(json);

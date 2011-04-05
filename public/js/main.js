@@ -28,7 +28,7 @@ Remote.Patient = Remote.Patients.object([
 	'admission_date',
 	'admission_weight', 
 ]);
-Remote.Analisis = Remote.Analyses.object([
+Remote.Analysis = Remote.Analyses.object([
 	'name',
 	'analysis_group_id'
 ]);
@@ -100,5 +100,7 @@ $(document).ready(function(){
 
 
 	Remote.Patients.load_all().to(DataSources.Patients);
+	
+	Remote.AnalysisGroups.load_all().to(DataSources.AnalysisGroups);
 
 });

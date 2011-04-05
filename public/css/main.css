@@ -5,7 +5,7 @@ body {
 	padding: 3px;
 	background-color: #eee;
 	overflow: hidden;
-	font-size: 9pt;
+	font-size: 12px;
 }
 
 body input {
@@ -13,7 +13,13 @@ body input {
 }
 
 
+.dino-grid-row {
+	height: 17px;
+}
 
+.dino-text-editor input{
+	font-size: 12px;
+}
 
 /*
  * DATEFIELD
