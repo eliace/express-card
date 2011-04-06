@@ -30,8 +30,14 @@ Dino.declare('Medic.widgets.DictionaryGrid', 'Dino.widgets.Grid', {
 						if(w.options.editable) w.startEdit();
 					}
 				},
-				onEdit: function(){
-					this.getParent(Dino.widgets.Grid).events.fire('onUpdate', {row: this.getRow()});
+				onEdit: function(e){
+					var grid = this.getParent(Dino.widgets.Grid);
+					grid.editBuffer.upd(this.getRow().data.get());
+					
+					if(e.reason == 'enterKey') {
+						var nextCell = this.getRow().getColumn(this.index+1);
+						if(nextCell && nextCell.options.editable) nextCell.startEdit();
+					}
 				}
 			}
 		},
@@ -46,7 +52,26 @@ Dino.declare('Medic.widgets.DictionaryGrid', 'Dino.widgets.Grid', {
 					dtype: 'text-button',
 					cls: 'plain',
 					onAction: function() {
-						this.parent.parent.events.fire('on'+this.tag);
+						
+						var grid = this.parent.parent;
+						
+//						grid.events.fire('on'+this.tag);
+						
+						if(this.tag == 'Add') {
+							var obj = grid.options.objectFactory();
+							
+							grid.data.add(obj);
+							grid.editBuffer.add(obj);							
+						}
+						else if(this.tag == 'Delete') {
+		          grid.selection.each(function(item){
+		            var val = item.data.val();
+		            grid.editBuffer.del(val);
+		            item.data.del();
+		          });
+							grid.selection.clear();							
+						}
+						
 					}
 				},
 				items: [{

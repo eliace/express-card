@@ -10,8 +10,8 @@ class CreateDatabase < ActiveRecord::Migration
   end
   class DrugSolvent < ActiveRecord::Base
   end
-  class DrugEffect < ActiveRecord::Base
-  end
+#  class DrugEffect < ActiveRecord::Base
+#  end
   class DrugUnit < ActiveRecord::Base
   end
   class DrugGroup < ActiveRecord::Base
@@ -44,21 +44,21 @@ class CreateDatabase < ActiveRecord::Migration
       t.boolean :dismissed, :default => false		# выписан (aka удален)
     end
     
-		# Учитываемые эффекты препаратов
-		create_table :drug_effects do |t|
-      t.float :proteins
-      t.float :fats
-      t.float :carbohydrates
-      t.float :calories
-		end
+#		# Учитываемые эффекты препаратов
+#		create_table :drug_effects do |t|
+#      t.float :proteins
+#      t.float :fats
+#      t.float :carbohydrates
+#      t.float :calories
+#		end
 
 		# Растворители
 		create_table :drug_solvents do |t|
 			t.string :name
-			t.references :drug_effect
+			t.text :effects
 		end
 
-    add_foreign_key(:drug_solvents, :drug_effects)
+#    add_foreign_key(:drug_solvents, :drug_effects)
 
     # Категории препаратов (препараты, питание и др.)
     create_table :drug_categories do |t|
@@ -85,16 +85,17 @@ class CreateDatabase < ActiveRecord::Migration
       t.string :name																# наименование
 #      t.references :drug_category									# категория
       t.references :drug_group											# группа
-			t.references :drug_effect										# эффект (калорийность, электролиты и др.)
+#			t.references :drug_effect										# эффект (калорийность, электролиты и др.)
 			t.references :drug_unit											# единицы измерения 
       t.references :drug_solvent										# раствор
-			t.float :content															# содержание в растворе	
+			t.float :content															# содержание в растворе
+			t.text :effects
 		end
   
 #    add_foreign_key(:drugs, :drug_categories)
     add_foreign_key(:drugs, :drug_groups)
     add_foreign_key(:drugs, :drug_solvents)
-    add_foreign_key(:drugs, :drug_effects)
+#    add_foreign_key(:drugs, :drug_effects)
     add_foreign_key(:drugs, :drug_units)
   
 
@@ -120,6 +121,7 @@ class CreateDatabase < ActiveRecord::Migration
 		
 		Patient.create(:name => 'Вася', :patient_no => 1, :diagnosis => 'Воспаление межушного ганглия');
 		
+		AnalysisGroup.create(:name => '');
 		AnalysisGroup.create(:name => 'Клинические');
 		AnalysisGroup.create(:name => 'Биохимические');
 		AnalysisGroup.create(:name => 'Бактериологические');
@@ -129,12 +131,13 @@ class CreateDatabase < ActiveRecord::Migration
 		DrugUnit.create(:name => 'мл');
 		DrugUnit.create(:name => 'ЕД');
     
-    DrugSolvent.create(:name => 'вода', :drug_effect_id => DrugEffect.create.id);
-    DrugSolvent.create(:name => 'глюкоза', :drug_effect_id => DrugEffect.create.id);
-    DrugSolvent.create(:name => 'NaCl', :drug_effect_id => DrugEffect.create.id);
+    DrugSolvent.create(:name => 'вода');
+    DrugSolvent.create(:name => 'глюкоза');
+    DrugSolvent.create(:name => 'NaCl');
     
-    DrugCategory.create(:name => 'Питание');
-    DrugCategory.create(:name => 'Препараты');
+    DrugGroup.create(:name => '');
+    DrugGroup.create(:name => 'Питание');
+    DrugGroup.create(:name => 'Антибиотики');
     
 #    DrugGroup.create();
     
@@ -148,7 +151,7 @@ class CreateDatabase < ActiveRecord::Migration
     drop_table :drug_units
     drop_table :drug_categories
     drop_table :drug_solvents
-    drop_table :drug_effects
+#    drop_table :drug_effects
     drop_table :analyses
     drop_table :analysis_groups
     

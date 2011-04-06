@@ -1,6 +1,16 @@
 
 
 
+Dino.data.DataSource.prototype.get_by_id = function(id) {
+	var arr = this.val();
+	for(var i in arr){
+		if(arr[i]['id'] == id) return arr[i];
+	}
+	return null;	
+}
+
+
+
 
 var Pages = {};
 var Dialogs = {};
@@ -9,6 +19,10 @@ var DataSources = {
 	Patients: new Dino.data.ArrayDataSource(),
 	AnalysisGroups: new Dino.data.ArrayDataSource(),
 	Analyses: new Dino.data.ArrayDataSource(),
+	DrugUnits: new Dino.data.ArrayDataSource(),
+	DrugSolvents: new Dino.data.ArrayDataSource(),
+	DrugCategories: new Dino.data.ArrayDataSource(),
+	DrugGroups: new Dino.data.ArrayDataSource(),
 	Drugs: new Dino.data.ArrayDataSource()
 };
 
@@ -17,6 +31,12 @@ var Remote = {};
 Remote.Patients = new Medic.remote.Collection('patients');
 Remote.AnalysisGroups = new Medic.remote.Collection('analysis_groups');
 Remote.Analyses = new Medic.remote.Collection('analyses');
+Remote.DrugUnits = new Medic.remote.Collection('drug_units');
+Remote.DrugSolvents = new Medic.remote.Collection('drug_solvents');
+Remote.DrugCategories = new Medic.remote.Collection('drug_categories');
+Remote.DrugGroups = new Medic.remote.Collection('drug_groups');
+Remote.Drugs = new Medic.remote.Collection('drugs');
+
 
 Remote.Patient = Remote.Patients.object([
 	'name',
@@ -32,6 +52,24 @@ Remote.Analysis = Remote.Analyses.object([
 	'name',
 	'analysis_group_id'
 ]);
+Remote.Drug = Remote.Drugs.object([
+	'name',
+	'drug_group_id',
+	'drug_unit_id',
+	'drug_solvent_id',
+	'effects',
+	'content'
+]);
+
+
+
+function array_to_hash(arr, key, val) {
+	hash = {}; 
+	Dino.each(arr, function(item){ hash[item[key]] = item[val]; });
+	return hash;
+}
+
+
 
 $(document).ready(function(){
 
@@ -102,5 +140,9 @@ $(document).ready(function(){
 	Remote.Patients.load_all().to(DataSources.Patients);
 	
 	Remote.AnalysisGroups.load_all().to(DataSources.AnalysisGroups);
+	Remote.DrugUnits.load_all().to(DataSources.DrugUnits);
+	Remote.DrugSolvents.load_all().to(DataSources.DrugSolvents);
+	Remote.DrugCategories.load_all().to(DataSources.DrugCategories);
+	Remote.DrugGroups.load_all().to(DataSources.DrugGroups);
 
 });

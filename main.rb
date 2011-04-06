@@ -8,6 +8,7 @@ require 'json'
 require 'records'
 require 'ajax/patients'
 require 'ajax/analyses'
+require 'ajax/drugs'
 
 
 

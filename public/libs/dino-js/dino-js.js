@@ -456,10 +456,7 @@ var Dino = (function(){
 	D.ne = function(obj, item, i) {
 		return obj != item;
 	};
-	
-	
-	
-	
+		
 	/**
 	 * @constructor
 	 * @memberOf Dino
@@ -1270,7 +1267,7 @@ Dino.declare('Dino.data.DataSource', 'Dino.events.Observer', /**@lends Dino.data
 	find: function(criteria) {
 		return Dino.find(this.items, criteria);
 	},
-	
+
 	has_source: function(item) {
 		var src = this;
 		while(src) {
@@ -6561,7 +6558,8 @@ Dino.declare('Dino.widgets.Editor', 'Dino.widgets.ComboField', {
 		components: {
 			input: {
         updateOnValueChange: true,
-				autoFit: true
+				autoFit: true,
+				changeOnEnter: false
 //				onValueChanged: function(e) {
 //					if(this.parent.parent) this.parent.parent.stopEdit(e.reason);
 //				}
@@ -6619,14 +6617,22 @@ Dino.declare('Dino.widgets.TextEditor', 'Dino.widgets.Editor', {
 
 
 
+
+/**
+ * По умолчанию редактор получает список кортежей, содержащих ключ и отображаемое значение
+ * 
+ * 
+ * @param {Object} val
+ */
 Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.Editor', {
 	
 	defaultOptions: {
 		components: {
 			input: {
 				readOnly: true,
-				format: function(val) { 
-					return (val === '' || val === undefined) ? '' : this.parent.dropdown.data.get(val); 
+				format: function(val) {
+					if(val === '' || val === undefined || val === null) return '';
+					return this.parent.options.formatValue.call(this.parent, val);
 				}
 			},			
       button: {
@@ -6649,7 +6655,9 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.Editor', {
 						events: {
 							'click': function(e, w) {
 								var dd = w.parent.parent;
-								dd.parent.setValue(w.data.id);
+								dd.parent.events.fire('onSelect', {target: w});
+								dd.parent.setValue( dd.parent.options.selectValue.call(dd.parent, w) );
+//								dd.parent.setValue(w.data.get(dd.parent.options.dropdownModel.id));
 		          	dd.hide();
 							}
 						}						
@@ -6665,9 +6673,11 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.Editor', {
 				}
 			}
 		},
+		formatValue: function(val) { return this.dropdown.data.get(val); },
+		selectValue: function(w){ return w.data.id; },
 		onKeyDown: function(e) {
 			if(e.keyCode == 40) this.showDropdown();
-		},		
+		},
 		dropdownOnClick: true,
 		dropdownOnFocus: false
 	},
@@ -7025,6 +7035,10 @@ Dino.declare('Dino.panels.TabPanel', 'Dino.Widget', /** @lends Dino.panels.TabPa
  */
 Dino.declare('Dino.widgets.form.InputField', Dino.Widget, /** @lends Dino.widgets.form.InputField.prototype */{
 	
+	defaultOptions: {
+		changeOnEnter: true
+	},
+	
 	$opt: function(o) {
 		Dino.widgets.form.InputField.superclass.$opt.call(this, o);
 		
@@ -7037,10 +7051,11 @@ Dino.declare('Dino.widgets.form.InputField', Dino.Widget, /** @lends Dino.widget
 
 		var self = this;
 		
-		if(o.changeOnBlur) 
+		if(o.changeOnBlur) {
 			this.el.blur(function() { 
 				self.setValue(self.el.val(), 'blur'); 
-			});
+			});			
+		}
 		
 		if(o.rawValueOnFocus){
 			this.el.focus(function() { self.hasFocus = true; self.el.val(self.getRawValue()) });
@@ -7053,11 +7068,10 @@ Dino.declare('Dino.widgets.form.InputField', Dino.Widget, /** @lends Dino.widget
 		Dino.widgets.form.InputField.superclass.$events.call(this, self);
 
 		this.el.keydown(function(e) {
-			if(e.keyCode == 13) 
+			if(e.keyCode == 13 && self.options.changeOnEnter) 
 				self.setValue( self.el.val(), 'enterKey');
 			else if(e.keyCode == 27) 
 				self.el.val(self.getValue());
-//			self.setValue( self.el.val());
 		});
 		
 //		this.el.change(function() {
@@ -9930,13 +9944,17 @@ Dino.declare('Dino.utils.UpdateBuffer', 'Dino.events.Observer', {
 			if('onUpdate' in o) this.events.reg('onUpdate', o.onUpdate);			
 		}
 		
+		this.id_counter = 1;
 	},
 	
 	add: function(val) {
+		// если ID не указан, то задаем временный
+		if(!('id' in val)) val.id = 'temp-'+this.id_counter++;
+
 		this.buffer[val.id] = {event: 'Add', value: val};
 	},
 
-	upd: function(val) {
+	upd: function(val) {		
 		if(val.id in this.buffer)
 			this.buffer[val.id].value = val;
 		else
