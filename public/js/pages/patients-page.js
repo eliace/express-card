@@ -53,23 +53,31 @@ Pages.PatientsPage = $.dino({
 						dtype: 'box',
 						layout: 'float-layout',
 						tag: 'buttons',
+						defaultItem: {
+							dtype: 'action-icon',
+							cls: 'dino-clickable patient-control',
+							onAction: function() {
+								
+								if(this.tag == 'patient-analyses') {
+									Dialogs.PatientAnalysesDialog.open();
+								}
+								
+							}
+						},
 						items: [/*{
-							dtype: 'box',
 							cls: 'info-button patient-control dino-clickable',
 							tooltip: 'Карта пациента',
 						}, */{
-							dtype: 'box',
-							cls: 'roster-button patient-control dino-clickable',
+							cls: 'roster-button',
 							tooltip: 'Заполнить экспресс-карту',
 						}, {
-							dtype: 'box',
-							cls: 'analysis-button patient-control dino-clickable',
+							cls: 'analysis-button',
 							tooltip: 'Назначить анализы',
+							tag: 'patient-analyses'
 						}, {
-							dtype: 'box',
-							cls: 'discharge-button patient-control dino-clickable',
+							cls: 'discharge-button',
 							tooltip: 'Выписать',
-						}]
+						}],
 					}]
 				}]		
 			}			

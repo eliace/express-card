@@ -1459,55 +1459,12 @@ Dino.declare('Dino.data.ObjectDataSource', 'Dino.data.DataSource', /** @lends Di
 
 
 
-//Dino.droppable = [];
 
 /**
  * @name Dino.widgets
  * @namespace
  */
 
-var profiler = {
-	enabled: false,
-	
-	results: {},
-	counters: {},
-	
-	clear: function(name) {
-		delete this.results[name];
-		delete this.counters[name];
-	},
-	
-	start: function(name) {
-		this.counters[name] = {};
-		if(!(name in this.results)) this.results[name] = {};
-		// инициализируем первоначальное значение
-		this.counters[name].times = [Dino.timestamp()];
-	},
-	
-	stop: function(name) {
-		var c = this.counters[name];
-		var r = this.results[name];
-		var t = c.times[0];
-		for(var i = 1; i < c.times.length; i++) {
-			var key = c.times[i][0];
-			if(!(key in r)) r[key] = 0;
-			r[key] += c.times[i][1] - t;
-			t = c.times[i][1];
-		}
-	},
-	
-	tick: function(counter, name) {
-		this.counters[counter].times.push([name, Dino.timestamp()]);
-	},
-	
-	print_result: function(counter) {
-		var a = [];
-		var tot = 0;
-		Dino.each(this.results[counter], function(dt, i){ a.push(''+i+': '+dt); tot+=dt; });
-		return a.join(', ') + ' ('+tot+')';
-	}
-	
-};
 
 
 /**
@@ -1574,10 +1531,13 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		var o = this.options;
 		
 		if(!this.constructor.NO_REBUILD_SKELETON) {
+			var prevDefaultOptions = null;
 			Dino.hierarchy(this.constructor, function(clazz){
+				if(clazz.defaultOptions == prevDefaultOptions) return;
 				// следуюющие две строчки реализуют синонимизацию defaultOptions и skeleton
 				if('defaultOptions' in clazz) Dino.utils.overrideOpts(o, clazz.defaultOptions);
-				if('skeleton' in clazz) Dino.utils.overrideOpts(o, clazz.skeleton); 
+				if('skeleton' in clazz) Dino.utils.overrideOpts(o, clazz.skeleton);
+				prevDefaultOptions = clazz.defaultOptions; 
 			});
 			this.constructor.NO_REBUILD_SKELETON = true;
 			this.constructor.prototype.defaultOptions = Dino.deep_copy(o);
@@ -5086,7 +5046,7 @@ Dino.Focusable.focusManager = {
 	},
 	
 	input: function(e) {
-		if(this.current) this.current.events.fire('onKeyDown', {keyCode: e.keyCode, baseEvent: e});
+		if(this.current) this.current.events.fire('onKeyDown', {keyCode: e.keyCode}, e);
 		if(e.keyCode == 27) this.leave();
 	}
 	
@@ -5097,7 +5057,7 @@ $(window).click(function(){
 	Dino.Focusable.focusManager.leave();
 });
 
-$(window).keydown(function(e){
+$(window).bind('keypress', function(e){
 	Dino.Focusable.focusManager.input(e);
 });
 
@@ -6558,11 +6518,7 @@ Dino.declare('Dino.widgets.Editor', 'Dino.widgets.ComboField', {
 		components: {
 			input: {
         updateOnValueChange: true,
-				autoFit: true,
-				changeOnEnter: false
-//				onValueChanged: function(e) {
-//					if(this.parent.parent) this.parent.parent.stopEdit(e.reason);
-//				}
+				autoFit: true
 			}			
 		},
 		extensions: [Dino.Focusable],
@@ -6579,26 +6535,7 @@ Dino.declare('Dino.widgets.Editor', 'Dino.widgets.ComboField', {
 		onKeyDown: function(e) {
 			if(e.keyCode == 13) this.parent.stopEdit('enterKey');
 		}
-	}
-	
-	
-//	destroy: function() {
-//		Dino.widgets.Editor.superclass.destroy.apply(this, arguments);
-//		$(window).unbind('keypress', this.keyHandler);
-//	},
-	
-//	$afterRender: function() {
-//		Dino.widgets.Editor.superclass.$afterRender.apply(this, arguments);
-//			if(this.options.focusOnRender) this.setFocus();			
-//	}
-	
-//	keyHandler: function(e) {
-//		if(e.keyCode == 27) e.data.parent.stopEdit('escKey');
-//		else if(e.keyCode == 13) {
-//			if(e.data.parent) e.data.parent.stopEdit('enterKey');
-//		}
-//	}
-	
+	}	
 	
 });
 
@@ -6608,10 +6545,6 @@ Dino.declare('Dino.widgets.Editor', 'Dino.widgets.ComboField', {
 
 
 Dino.declare('Dino.widgets.TextEditor', 'Dino.widgets.Editor', {
-	
-	defaultOptions: {
-		
-	}
 	
 }, 'text-editor');
 
@@ -6629,7 +6562,7 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.Editor', {
 	defaultOptions: {
 		components: {
 			input: {
-				readOnly: true,
+				readOnly: true,				
 				format: function(val) {
 					if(val === '' || val === undefined || val === null) return '';
 					return this.parent.options.formatValue.call(this.parent, val);
@@ -7035,10 +6968,6 @@ Dino.declare('Dino.panels.TabPanel', 'Dino.Widget', /** @lends Dino.panels.TabPa
  */
 Dino.declare('Dino.widgets.form.InputField', Dino.Widget, /** @lends Dino.widgets.form.InputField.prototype */{
 	
-	defaultOptions: {
-		changeOnEnter: true
-	},
-	
 	$opt: function(o) {
 		Dino.widgets.form.InputField.superclass.$opt.call(this, o);
 		
@@ -7068,10 +6997,12 @@ Dino.declare('Dino.widgets.form.InputField', Dino.Widget, /** @lends Dino.widget
 		Dino.widgets.form.InputField.superclass.$events.call(this, self);
 
 		this.el.keydown(function(e) {
-			if(e.keyCode == 13 && self.options.changeOnEnter) 
-				self.setValue( self.el.val(), 'enterKey');
-			else if(e.keyCode == 27) 
-				self.el.val(self.getValue());
+			if(!self.options.readOnly) {
+				if(e.keyCode == 13) 
+					self.setValue( self.el.val(), 'enterKey');
+				else if(e.keyCode == 27) 
+					self.el.val(self.getValue());				
+			}
 		});
 		
 //		this.el.change(function() {
@@ -10007,3 +9938,47 @@ Dino.format_date = function(date) {
 	if(day < 10) day = '0'+day;
 	return Dino.format('%s-%s-%s',day, month, year);
 }
+
+
+var profiler = {
+	enabled: false,
+	
+	results: {},
+	counters: {},
+	
+	clear: function(name) {
+		delete this.results[name];
+		delete this.counters[name];
+	},
+	
+	start: function(name) {
+		this.counters[name] = {};
+		if(!(name in this.results)) this.results[name] = {};
+		// инициализируем первоначальное значение
+		this.counters[name].times = [Dino.timestamp()];
+	},
+	
+	stop: function(name) {
+		var c = this.counters[name];
+		var r = this.results[name];
+		var t = c.times[0];
+		for(var i = 1; i < c.times.length; i++) {
+			var key = c.times[i][0];
+			if(!(key in r)) r[key] = 0;
+			r[key] += c.times[i][1] - t;
+			t = c.times[i][1];
+		}
+	},
+	
+	tick: function(counter, name) {
+		this.counters[counter].times.push([name, Dino.timestamp()]);
+	},
+	
+	print_result: function(counter) {
+		var a = [];
+		var tot = 0;
+		Dino.each(this.results[counter], function(dt, i){ a.push(''+i+': '+dt); tot+=dt; });
+		return a.join(', ') + ' ('+tot+')';
+	}
+	
+};

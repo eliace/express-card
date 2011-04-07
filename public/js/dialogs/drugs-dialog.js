@@ -50,7 +50,7 @@ Dialogs.DrugsDialog = $.dino({
 						dropdownData: DataSources.DrugSolvents
 					}, {
 						header: 'Доля',
-						dataId: 'drug_content',
+						dataId: 'content',
 						format: function(val) { return (val) ? ''+val+'%' : ''; },
 						width: 60
 					}]
