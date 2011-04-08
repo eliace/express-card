@@ -26,6 +26,10 @@ get '/analyses' do
 	case query
 		when 'all'
 			Analysis.all.to_json
+		when 'classification'
+			arr = AnalysisGroup.all.as_json(:include => :analyses)
+			arr << arr.shift  # фикс для того, чтобы группа "другие" оказалась в конце
+			JSON.generate arr
 	end
 	
 end

@@ -7,7 +7,7 @@ end
 
 
 class AnalysisGroup < ActiveRecord::Base
-	
+	has_many :analyses
 end
 
 

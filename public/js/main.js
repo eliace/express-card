@@ -23,7 +23,8 @@ var DataSources = {
 	DrugSolvents: new Dino.data.ArrayDataSource(),
 	DrugCategories: new Dino.data.ArrayDataSource(),
 	DrugGroups: new Dino.data.ArrayDataSource(),
-	Drugs: new Dino.data.ArrayDataSource()
+	Drugs: new Dino.data.ArrayDataSource(),
+	PatientAnalyses: new Dino.data.ArrayDataSource(),
 };
 
 var Remote = {};
@@ -36,6 +37,7 @@ Remote.DrugSolvents = new Medic.remote.Collection('drug_solvents');
 Remote.DrugCategories = new Medic.remote.Collection('drug_categories');
 Remote.DrugGroups = new Medic.remote.Collection('drug_groups');
 Remote.Drugs = new Medic.remote.Collection('drugs');
+Remote.PatientAnalyses = new Medic.remote.Collection('patient_analyses');
 
 
 Remote.Patient = Remote.Patients.object([

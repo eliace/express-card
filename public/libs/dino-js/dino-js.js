@@ -2262,7 +2262,9 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 //			this.states.set( this.getStateValue() );
 //		}
 		
-		this.children.each(function(child) { child.$dataChanged(); });		
+		this.children.each(function(child) { child.$dataChanged(); });	
+		
+//		this.events.fire('onDataChanged');
 	}
 	
 });
@@ -2824,7 +2826,7 @@ Dino.declare('Dino.Container', 'Dino.Widget', /** @lends Dino.Container.prototyp
 		this.layout.rebuild();
 		
 		
-		this.events.fire('onDataBound');
+//		this.events.fire('onDataBound');
 		
 		
 		
@@ -3049,7 +3051,8 @@ Dino.utils.overrideProp = function(o, srcObj, i) {
 		o[i] = p;
 	}
 	else if(i[i.length-1] == '!') {
-		i = i.substr(0, i.length-1);
+		j = i.substr(0, i.length-1);
+		if(j in o) i = j;
 		o[i] = p;
 	}
 	else if(i[i.length-1] == '+') {
@@ -4456,6 +4459,7 @@ Dino.containers.Tabs = Dino.declare('Dino.containers.Tabs', 'Dino.containers.Box
 Dino.containers.DropDownBox = Dino.declare('Dino.containers.DropDownBox', 'Dino.containers.Box', /** @lends Dino.containers.DropDownBox.prototype */ {
 	
 	defaultOptions: {
+		html: '<div autoheight="ignore"></div>',
 		effects: {
 			'show': 'none',
 			'hide': 'none',
@@ -4471,12 +4475,23 @@ Dino.containers.DropDownBox = Dino.declare('Dino.containers.DropDownBox', 'Dino.
 		Dino.containers.DropDownBox.superclass.$init.apply(this, arguments);
 		  
 		var self = this;
-		// создаем прозрачную панель для перехвата событий
-    this.glass_panel =  $('<div class="dino-glass-pane"></div>');
-    this.glass_panel.bind('click', function(e){
-      self.hide();
-			e.stopPropagation();
-    });
+		
+		this.glass_box = $.dino({
+			dtype: 'glass-box',
+			events: {
+				'click': function(e) {
+		      self.hide();
+					e.stopPropagation();					
+				}
+			}						
+		});//(o.glassBox instanceof Dino.Widget) ? o.glassBox : $.dino(o.glassBox);
+		
+//		// создаем прозрачную панель для перехвата событий
+//    this.glass_panel =  $('<div class="dino-glass-pane"></div>');
+//    this.glass_panel.bind('click', function(e){
+//      self.hide();
+//			e.stopPropagation();
+//    });
 		
 		this.el.bind('mouseleave', function(){ 
 			if(self.options.hideOn == 'hoverOut') self.hide(); 
@@ -4484,6 +4499,7 @@ Dino.containers.DropDownBox = Dino.declare('Dino.containers.DropDownBox', 'Dino.
 
 		this.el.bind('click', function(e){ 
 			 e.stopPropagation();
+			 e.preventDefault();
 		});
 		
 	},
@@ -4513,9 +4529,8 @@ Dino.containers.DropDownBox = Dino.declare('Dino.containers.DropDownBox', 'Dino.
 		this.isShown = true;
 
 		if (this.options.hideOn == 'outerClick') {
-						
 			// добавляем прозрачную панель в документ
-			$('body').append(this.glass_panel);
+			$('body').append(this.glass_box.el);
 		}
 		
 		this.events.fire('onShow');
@@ -4525,7 +4540,7 @@ Dino.containers.DropDownBox = Dino.declare('Dino.containers.DropDownBox', 'Dino.
 		
 		if(this.options.hideOn == 'outerClick') {
 			// удаляем прозрачную панель
-	    this.glass_panel.detach();
+	    this.glass_box.el.detach();
 		}
 		
 		var effects = this.options.effects;
@@ -4642,14 +4657,20 @@ Dino.containers.GroupBox = Dino.declare('Dino.containers.GroupBox', 'Dino.Contai
 
 Dino.declare('Dino.containers.GlassBox', 'Dino.containers.Box', {
 	
-	defaultClass: 'dino-glass-box',
+//	defaultClass: 'dino-glass-box',
 	
 	defaultOptions: {
+		html: '<div class="dino-glass-box" autoheight="ignore"/>',
 		events: {
 			'mousedown': function(e) {
 				e.preventDefault();
 				return false;
 			}
+			
+//    this.glass_panel.bind('click', function(e){
+//      self.hide();
+//			e.stopPropagation();
+//    });
 		}
 	}
 	
@@ -5361,64 +5382,6 @@ Dino.widgets.Button = Dino.declare('Dino.widgets.Button', 'Dino.Widget', /** @le
 
 
 
-/*
-Dino.declare('Dino.widgets.TextButton', 'Dino.widgets.Button', {
-	
-	defaultCls: 'dino-text-button',
-	
-	defaultOptions: {
-		components: {
-			leftIcon: {
-				dtype: 'icon',
-				cls: 'dino-hidden'
-			},
-			content: {
-				dtype: 'text'
-			},
-			rightIcon: {
-				dtype: 'icon',
-				cls: 'dino-hidden'
-			}		
-		},
-		text: false
-	},
-	
-	
-	$init: function() {
-		
-//		if('leftIcon' in o) {
-//			 
-//		}
-		
-		
-	},
-	
-	
-	$opt: function(o) {
-		
-		if('icon' in o) {
-			this.content.el.toggleClass('l-icon', !(!o.icon));
-			this.leftIcon.el.toggleClass('dino-hidden', !o.icon);
-			if( Dino.isString(o.icon) ) this.leftIcon.states.set(o.icon);
-		}
-		
-		if('text' in o) {
-			this.content.el.toggleClass('no-text', !o.text);
-			if( Dino.isString(o.text) ) this.content.opt('text', o.text);			
-		}
-		
-	}
-	
-	
-	
-}, 'text-button');
-*/
-
-
-
-
-
-
 
 
 
@@ -5604,8 +5567,6 @@ Dino.widgets.TextButton = Dino.declare('Dino.widgets.TextButton', 'Dino.widgets.
 
 Dino.declare('Dino.widgets.IconButton', 'Dino.widgets.Button', {
 	
-//	$html: function() { return '<span></span>'; },
-	
 	defaultOptions: {
 		cls: 'dino-icon-button',
 		content: {
@@ -5624,28 +5585,6 @@ Dino.declare('Dino.widgets.IconButton', 'Dino.widgets.Button', {
 			}
 		}
 	},
-/*	
-	$init: function(o) {
-		
-		if('leftIcon' in o) {
-			Dino.utils.override$opts(o, {
-				content: {
-					showLeftIcon: true,
-					leftIconCls: o.leftIcon
-				}
-			});
-		}
-		
-		if('text' in o) {
-			Dino.utils.override$opts(o, {
-				content: {
-					text: o.text
-				}
-			});
-		}
-		
-	}
-*/	
 
 	$opt: function(o) {
 		Dino.widgets.IconButton.superclass.$opt.apply(this, arguments);
@@ -5656,35 +5595,47 @@ Dino.declare('Dino.widgets.IconButton', 'Dino.widgets.Button', {
 		
 	}
 
-
-
 }, 'icon-button');
 
 
 
-
-
-/*
-Dino.declare('Dino.widgets.LinkButton', Dino.Widget, {
-
-	defaultCls: 'dc-link-button',
+Dino.declare('Dino.widgets.DropdownButton', 'Dino.widgets.TextButton', {
 	
-	render$html: function() { return '<a href=""></a>'; },
-	
-	build: function(o) {
-		Dino.widgets.LinkButton.superclass.build.call(this, o);
-		
-		this.image = 
-	},
-	
-	options: function(o) {
-		Dino.widgets.LinkButton.superclass.options.call(this, o);
-		
+	defaultOptions: {
+		components: {
+			dropdown: {
+				dtype: 'menu-dropdown-box',
+				style: {'display': 'none'},
+//				renderTo: 'body',
+				menuModel: {
+					item: {
+						content: {
+							dataId: 'name'							
+						},
+						onAction: function() {
+							this.getParent(Dino.widgets.DropdownButton).events.fire('onSelect', {target: this});
+						}
+					}
+				}
+			}
+		},
+		onAction: function() {
+			
+			var dd = this.dropdown;
+
+			$('body').append(dd.el);
+			
+			var offset = this.el.offset();
+			dd.show(offset.left, offset.top + this.el.outerHeight());
+			
+//			dd.show(0, this.el.outerHeight());
+			
+		}
 	}
 	
 	
-}, 'link-button');
-*/
+}, 'dropdown-button');
+
 
 /**
  * @class
@@ -6533,7 +6484,9 @@ Dino.declare('Dino.widgets.Editor', 'Dino.widgets.ComboField', {
 			}
 		},
 		onKeyDown: function(e) {
-			if(e.keyCode == 13) this.parent.stopEdit('enterKey');
+			if(e.keyCode == 13) {
+				this.parent.stopEdit('enterKey');
+			}
 		}
 	}	
 	
@@ -8093,62 +8046,90 @@ Dino.widgets.TreeTableCell = Dino.declare('Dino.widgets.TreeTableCell', 'Dino.wi
 
 
 
+
+
+
+
+
 /**
  * @class
  * @extends Dino.Widget
  */
-Dino.widgets.MenuItem = Dino.declare('Dino.widgets.MenuItem', 'Dino.Widget', /** @lends Dino.widgets.MenuItem.prototype */{
+Dino.widgets.MenuItem = Dino.declare('Dino.widgets.MenuItem', 'Dino.containers.Box', /** @lends Dino.widgets.MenuItem.prototype */{
 	
-	$html: function() { return '<div></div>'; },
+//	$html: function() { return '<div></div>'; },
+	defaultCls: 'dino-menu-item',
 	
 	defaultOptions: {
 		showOnEnter: true,
 		hideOnLeave: true,
+		layout:'dock-layout',
 		components: {
-//			// содержимое эелемента меню (текст, виджет и др.)
-			content: {
-				weight: 1,
-				dtype: 'text',
-				onAction: function(e) {
-					this.parent.events.fire('onAction', {'target': this.parent});
-				}		
-//				dtype: 'text-item'
-			},
 			// выпадающее подменю
+			content: {
+				dtype: 'text'
+			},
+			icon: {
+				dtype: 'icon',
+				cls: 'dino-icon-right',
+				dock: 'right',
+				state: 'hidden'
+			},
 			submenu: {
-				dtype: 'dropdown-box',
-				defaultItem: {
-					dtype: 'menu-item',
-					onAction: function(e) {
-						this.parent.parent.events.fire('onAction', {'target': e.target});
-					},					
-					isLeaf: true
-				},
-				offset: [-1, 1]
+				dtype: 'menu-dropdown-box',
+				dataId: 'children',
+				binding: function(val) {
+					if(val) this.parent.states.set('submenu');
+				}
+			}
+		},
+		states: {
+			'submenu': function(on) {
+				if(this.icon) this.icon.states.toggle('hidden', !on);
+			}
+		},
+		events: {
+			'click': function(e, w) {
+				var event = new Dino.events.CancelEvent();
+				w.events.fire('onAction', event);
+				if(!event.isCanceled) w.hideSubmenu(true);
 			}
 		}
 	},
 	
-	$init: function() {
-		Dino.widgets.MenuItem.superclass.$init.apply(this, arguments);
+	$init: function(o) {
 		
-		var o = this.options;
+		if('menuModel' in o) {
+			Dino.utils.overrideOpts(o, o.menuModel.item);
+			o.components.submenu.menuModel = o.menuModel;
+		}		
+		
+		Dino.widgets.MenuItem.superclass.$init.apply(this, arguments);
 		
 		if('submenu' in o){
 			o.components.submenu.items = o.submenu;
-			this.states.set('has-submenu');
+			//FIXME подозрительный код, потому что состояние submenu влияет на компонент icon, которого пока не создано
+			this.states.set('submenu');
+			o.components.icon.state = '';
 		}
 
 //		if('submenuWidth' in o){
 //			o.components.submenu.width = o.submenuWidth;
 //		}
 		
-		if('subItem' in o.defaults){
-			Dino.utils.overrideOpts(o.components.submenu.defaultItem, o.defaults.subItem, {defaults: {'subItem': o.defaults.subItem}});
-		}
-		
+//		if('subItem' in o.defaults){
+//			Dino.utils.overrideOpts(o.components.submenu.defaultItem, o.defaults.subItem, {defaults: {'subItem': o.defaults.subItem}});
+//		}		
 		
 	},
+	
+	
+	$opt: function(o) {
+		Dino.widgets.MenuItem.superclass.$opt.apply(this, arguments);
+		
+		if('text' in o) this.content.opt('text', o.text);
+	},
+	
 	
 	$events: function(self) {
 		Dino.widgets.MenuItem.superclass.$events.apply(this, arguments);
@@ -8189,22 +8170,110 @@ Dino.widgets.MenuItem = Dino.declare('Dino.widgets.MenuItem', 'Dino.Widget', /**
 			if(this.submenu.options.anchor == 'bottom')
 				this.submenu.show( 0, $(this.el).height());
 			else
-				this.submenu.show( $(this.el).width(), 0);
+				this.submenu.show( $(this.el).outerWidth(), 0);
 		}
 	},
 	
 	hideSubmenu: function(hideAll) {
 		if(this.hasSubmenu()){
 			this.submenu.hide();
-			this.events.fire('onSubmenuHide');			
-		}		
-		if(hideAll && this.options.isLeaf)
-			this.parent.parent.hideSubmenu(true);
+			this.events.fire('onSubmenuHide');
+		}
+		if(hideAll) {
+			if(this.parent instanceof Dino.containers.MenuDropdownBox) this.parent.hideAll();
+		}
+//		if(hideAll) {// && this.options.isLeaf)
+//			var parentMenuItem = this.getParent(Dino.widgets.MenuItem);
+//			if(parentMenuItem) parentMenuItem.hideSubmenu(true);
+//		}	
+//			if(this.parent)this.parent.parent.hideSubmenu(true);
 	}
 	
 	
 	
 }, 'menu-item');
+
+
+
+
+
+
+
+Dino.declare('Dino.containers.MenuDropdownBox', 'Dino.containers.DropDownBox', {
+	
+	defaultCls: 'dino-menu-dropdown',
+	
+	defaultOptions: {
+		cls: 'dino-menu-shadow',
+		hideOn: 'hoverOut',
+		offset: [-1, 1],
+		dynamic: true,
+		style: {'overflow-y': 'visible'},
+		defaultItem: {
+			dtype: 'menu-item'
+		}
+	},
+	
+	
+	$init: function(o) {
+		
+		if('menuModel' in o) {
+			Dino.utils.overrideOpts(o, o.menuModel.dropdown);
+			o.defaultItem.menuModel = o.menuModel;
+		}		
+		
+		Dino.containers.MenuDropdownBox.superclass.$init.apply(this, arguments);
+				
+//		if('defaultItem' in o)
+//			Dino.utils.overrideOpts(o.defaultItem.components.submenu.defaultItem, o.defaultItem);//o.defaults.subItem, {defaults: {'subItem': o.defaults.subItem}});
+		
+	},
+	
+	hideAll: function() {
+		this.hide();
+		if(this.parent instanceof Dino.widgets.MenuItem) this.parent.hideSubmenu(true)
+	}
+	
+	
+//	defaultOptions: {
+//		html: '<table cellspacing="0" cellpadding="0" border="0"><tbody/></table>',
+//		defaultItem: {
+//			dtype: 'box',
+//			html: '<tr/>',
+//			cls: 'menu-item',
+//			defaultItem: {
+//				dtype: 'box',
+//				html: '<td/>'
+//			},
+//			items: [{
+//				width: 24
+//			}, {
+//				dtype: 'text',							
+//				width: 16
+//			}, {
+//			}]
+//		}
+//	}
+	
+	
+	
+}, 'menu-dropdown-box');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8285,19 +8354,26 @@ Dino.widgets.CheckMenuItem = Dino.declare('Dino.widgets.CheckMenuItem', 'Dino.wi
  * @class
  * @extends Dino.containers.DropDownBox
  */
-Dino.widgets.ContextMenu = Dino.declare('Dino.widgets.ContextMenu', 'Dino.containers.DropDownBox', /** @lends Dino.widgets.ContextMenu.prototype */{
+Dino.widgets.ContextMenu = Dino.declare('Dino.widgets.ContextMenu', 'Dino.containers.MenuDropdownBox', /** @lends Dino.widgets.ContextMenu.prototype */{
 	
 	defaultOptions: {
-		hideOn: 'hoverOut',
+//		hideOn: 'hoverOut',
 		baseCls: 'dino-context-menu',
 		renderTo: 'body',
-		defaultItem: {
-			dtype: 'text-menu-item',
-			onAction: function(e) {
-				this.parent.events.fire('onAction', {target: e.target});
-				this.parent.hide();
-			}			
+		menuModel: {
+			item: {
+				onAction: function() {
+					this.getParent(Dino.widgets.ContextMenu).events.fire('onSelect', {target: this});
+				}
+			}
 		},
+//		defaultItem: {
+//			dtype: 'menu-item',
+//			onAction: function(e) {
+//				this.parent.events.fire('onAction', {target: e.target});
+//				this.parent.hide();
+//			}			
+//		},
 		offset: [-2, -2]
 	}
 	

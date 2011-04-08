@@ -114,6 +114,16 @@ class CreateDatabase < ActiveRecord::Migration
     add_foreign_key(:analyses, :analysis_groups)
 
 
+		create_table :patient_analyses do |t|
+			t.references :patient
+			t.references :analysis
+			t.integer :interval
+			t.date :from_date
+		end
+
+    add_foreign_key(:patient_analyses, :analyses)
+    add_foreign_key(:patient_analyses, :patients)
+
 
 		#
 		# Заполняем базу данных тестовыми данными
@@ -122,9 +132,9 @@ class CreateDatabase < ActiveRecord::Migration
 		Patient.create(:name => 'Вася', :patient_no => 1, :diagnosis => 'Воспаление межушного ганглия');
 		
 		AnalysisGroup.create(:name => '');
-		AnalysisGroup.create(:name => 'Клинические');
-		AnalysisGroup.create(:name => 'Биохимические');
-		AnalysisGroup.create(:name => 'Бактериологические');
+		AnalysisGroup.create(:name => 'Клинический');
+		AnalysisGroup.create(:name => 'Биохимический');
+		AnalysisGroup.create(:name => 'Бактериологический');
 		
 		DrugUnit.create(:name => 'мг');
 		DrugUnit.create(:name => 'мкг');
@@ -146,6 +156,8 @@ class CreateDatabase < ActiveRecord::Migration
   
   def self.down
 
+    drop_table :patient_analyses
+
     drop_table :drugs
     drop_table :drug_groups
     drop_table :drug_units
@@ -154,7 +166,8 @@ class CreateDatabase < ActiveRecord::Migration
 #    drop_table :drug_effects
     drop_table :analyses
     drop_table :analysis_groups
-    
+
+
 #    drop_table :appointments
 
     drop_table :users

@@ -57,8 +57,8 @@ Dino.declare('Medic.remote.Collection', 'Dino.events.Observer', {
 		return new Medic.remote.Object(this, attrs);
 	},
 
-	load: function(query, callback) {
-		$.getJSON(this.path(), {'query': query}, callback)
+	load: function(query, params, callback) {
+		$.getJSON(this.path(), Dino.merge({'query': query}, params), callback)
 	},
 	
 	load_all: function() {
