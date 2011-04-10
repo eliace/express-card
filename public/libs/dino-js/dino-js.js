@@ -3475,9 +3475,10 @@ Dino.declare('Dino.layouts.PlainLayout', Dino.Layout, /** @lends Dino.layouts.Pl
 	
 	update: function() {
 		if(this.container.options.height == 'auto'){
+
+			if(!this.el.is(":visible")) return;
 			
 			this.el.height(0);
-//			if(!this.el.is(":visible")) return;
 			
 //			this.el.hide();
 			
@@ -3893,6 +3894,134 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 		delay: 300,
 		initialWidth: 200,
 		initialHeight: 200,
+		updateMode: 'manual',
+		html: '<div class="dino-window-content" autoheight="true"/>'
+	},
+	
+	
+	attach: function() {
+		Dino.layouts.WindowLayout.superclass.attach.apply(this, arguments);
+		
+		var o = this.options;
+		
+		this.overlay_el = $('<div class="dino-overlay" autoheight="ignore"></div>');
+						
+		this.overlay_el.mousedown(function(e){ e.preventDefault(); return false; });
+		
+	},
+	
+	detach: function() {
+		Dino.layouts.WindowLayout.superclass.detach.apply(this, arguments);
+		this.container.el.empty();
+	},
+	
+	
+	reset: function() {
+
+		var w0 = this.options.initialWidth;
+		var h0 = this.options.initialHeight;
+		
+		this.container.el.css({
+			width: w0, 
+			height: h0,
+			'margin-left': -w0/2,
+			'margin-top': -h0/2
+		});
+	},
+	
+	
+	open: function() {
+
+		$('body').append(this.overlay_el);
+		
+		this.reset();
+		this.container.el.show();
+		
+	},
+	
+	
+	close: function() {
+		
+		this.overlay_el.detach();
+		this.container.el.hide();
+	},
+	
+	
+	update: function(callback) {
+		
+		var box = this.el;
+		var wnd = this.container.el;
+		
+		box.css({'visibility': 'hidden'});
+		
+		var w0 = wnd.width();
+		var h0 = wnd.height();
+		wnd.css({width: '', height: ''});
+		
+//		this.container.el.show();
+		
+				
+		var w = this.container.options.width || box.outerWidth(true);
+		var h = this.container.options.height || box.outerHeight(true);
+		
+		// если указана высота в %, ее еще надо рассчитать
+		if(Dino.isString(w) && w[w.length-1] == '%') 
+			w = this.container.el.parent().width() * parseFloat(w.substr(0, w.length-1))/100;
+		if(Dino.isString(h) && h[h.length-1] == '%') 
+			h = this.container.el.parent().height() * parseFloat(h.substr(0, h.length-1))/100;
+		
+		box.css('display', 'none');
+		
+		var o = this.options;
+		
+//		wnd.width(w0);
+//		wnd.height(h0);
+
+		wnd.css('width', w0);
+		wnd.css('height', h0);
+		wnd.css('margin-left', -w0/2);
+		wnd.css('margin-top', -h0/2);
+//		wnd.width(w0);
+//		wnd.height(h0);
+
+//		wnd.css({'visibility': 'visible'});
+		
+//		console.log(Dino.format("%s, %s", w0, h0));
+		
+		var self = this;
+		
+		wnd.animate({'width': w, 'margin-left': -w/2, 'height': h, 'margin-top': -h/2}, o.delay, function(){
+			// делаем окно видимым
+			box.css({'visibility': '', 'display': 'block'});
+			// вызываем функцию-сигнал о том, что окно отображено
+			if(callback) callback.call(self);
+			// обновляем компоновку окна
+			self.container.$layoutChanged();
+		});
+		
+		
+		box.focus();
+		
+	}
+		
+	
+}, 'window-layout');
+
+
+
+
+
+
+
+
+/*
+Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layouts.PlainLayout', {
+	
+	defaultOptions: {
+		name: 'window',
+		delay: 300,
+		initialWidth: 200,
+		initialHeight: 200,
 		updateMode: 'manual'
 	},
 	
@@ -3918,26 +4047,6 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 		this.container.el.empty();
 	},
 	
-//	insert: function(item, i) {
-//		
-//	},
-//	
-//	remove: function(item) {
-//	},
-//
-//	clear: function() {
-//		this.el.detach();
-//	},
-	
-	
-//	show: function() {
-//		this.el.css({'visibility': 'hidden'});
-//		this.container.el.show();
-//	},
-//	
-//	hide: function() {
-//		this.container.el.hide();		
-//	},
 	
 	reset: function() {
 
@@ -3958,7 +4067,6 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 		var wnd = this.window_el;
 		
 		box.css({'visibility': 'hidden'});
-//		wnd.css({'visibility': 'hidden'});
 		
 		var w0 = wnd.width();
 		var h0 = wnd.height();
@@ -4006,6 +4114,9 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 		
 	
 }, 'window-layout');
+*/
+
+
 /**
  * @class
  * @extends Dino.layouts.PlainLayout
@@ -5616,6 +5727,9 @@ Dino.declare('Dino.widgets.DropdownButton', 'Dino.widgets.TextButton', {
 							this.getParent(Dino.widgets.DropdownButton).events.fire('onSelect', {target: this});
 						}
 					}
+				},
+				onHide: function() {
+					this.parent.states.clear('selected');
 				}
 			}
 		},
@@ -5628,6 +5742,7 @@ Dino.declare('Dino.widgets.DropdownButton', 'Dino.widgets.TextButton', {
 			var offset = this.el.offset();
 			dd.show(offset.left, offset.top + this.el.outerHeight());
 			
+			this.states.set('selected');
 //			dd.show(0, this.el.outerHeight());
 			
 		}
@@ -6772,7 +6887,7 @@ Dino.declare('Dino.panels.TabPanel', 'Dino.Widget', /** @lends Dino.panels.TabPa
 				weight: 1,
 				dtype: 'tabs',
 				defaultItem: {
-					cls: 'dino-bg-3 dino-border-all dino-corner-top',
+					cls: 'dino-bg-3 dino-border-all',// dino-corner-top',
 					content: {
 						dtype: 'text-item'
 //						selectable: false
@@ -6824,7 +6939,8 @@ Dino.declare('Dino.panels.TabPanel', 'Dino.Widget', /** @lends Dino.panels.TabPa
 			if(o.tabPosition == 'bottom'){
 				Dino.utils.overrideOpts(this.options, {
 					components: {
-						tabs: {weight: 2},
+						tabs: {weight: 3},
+						tabFooter: {weight: 2},
 						pages: {weight: 1}
 					}
 				});
@@ -6841,8 +6957,8 @@ Dino.declare('Dino.panels.TabPanel', 'Dino.Widget', /** @lends Dino.panels.TabPa
 	},
 	
 	
-	$afterRender: function() {
-		Dino.panels.TabPanel.superclass.$afterRender.apply(this, arguments);
+	$afterBuild: function() {
+		Dino.panels.TabPanel.superclass.$afterBuild.apply(this, arguments);
 		
 		// активируем закладку
 		if(!this.tabs.currentTab) this.tabs.setActiveTab(0);
@@ -9042,8 +9158,7 @@ Dino.widgets.Dialog = Dino.declare('Dino.widgets.Dialog', 'Dino.widgets.Panel', 
 		this.events.fire('onBeforeOpen');
 
 		var self = this;
-		this.layout.reset();
-		this.el.show();
+		this.layout.open();
 		this.layout.update(function(){
 			self.events.fire('onOpen');
 		});
@@ -9059,7 +9174,7 @@ Dino.widgets.Dialog = Dino.declare('Dino.widgets.Dialog', 'Dino.widgets.Panel', 
 		this.events.fire('onClose', e);
 		
 		if(!e.isCanceled) {
-			this.el.hide();
+			this.layout.close();
 			if(this.options.destroyOnClose) this.destroy();
 			if(this.dialogResult && this.resultCallback) this.resultCallback.call(this, this.dialogResult);
 		}
@@ -10012,7 +10127,7 @@ Dino.format_date = function(date) {
 	if(month < 10) month = '0'+month;
 	var day = date.getDate();
 	if(day < 10) day = '0'+day;
-	return Dino.format('%s-%s-%s',day, month, year);
+	return Dino.format('%s-%s-%s', year, month,day);
 }
 
 

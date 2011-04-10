@@ -61,6 +61,9 @@ Pages.PatientsPage = $.dino({
 								if(this.tag == 'patient-analyses') {
 									Dialogs.PatientAnalysesDialog.open();
 								}
+								else if(this.tag == 'express-card') {
+									Dialogs.ExpressCardDialog.open();									
+								}
 								
 							}
 						},
@@ -70,11 +73,12 @@ Pages.PatientsPage = $.dino({
 						}, */{
 							cls: 'roster-button',
 							tooltip: 'Заполнить экспресс-карту',
-						}, {
+							tag: 'express-card'							
+						}/*, {
 							cls: 'analysis-button',
 							tooltip: 'Назначить анализы',
 							tag: 'patient-analyses'
-						}, {
+						}*/, {
 							cls: 'discharge-button',
 							tooltip: 'Выписать',
 						}],

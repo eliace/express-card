@@ -7,10 +7,11 @@ Dialogs.AnalysesDialog = $.dino({
 	title: 'Справочник "Анализы"',
 	renderTo: 'body',
 	data: DataSources.Analyses,
+	height: '90%',
 	content: {
 		dtype: 'box',
 		width: 700,
-		height: 600,
+//		height: 600,
 		components: {
 			grid: {
 				dtype: 'dictionary-grid',

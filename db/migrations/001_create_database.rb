@@ -114,15 +114,22 @@ class CreateDatabase < ActiveRecord::Migration
     add_foreign_key(:analyses, :analysis_groups)
 
 
-		create_table :patient_analyses do |t|
+
+		create_table :express_cards do |t|
 			t.references :patient
+			t.float :weight
+		end
+
+
+		create_table :express_card_analyses do |t|
+			t.references :express_card
 			t.references :analysis
 			t.integer :interval
 			t.date :from_date
 		end
 
-    add_foreign_key(:patient_analyses, :analyses)
-    add_foreign_key(:patient_analyses, :patients)
+    add_foreign_key(:express_card_analyses, :express_cards)
+    add_foreign_key(:express_card_analyses, :analyses)
 
 
 		#
@@ -156,7 +163,9 @@ class CreateDatabase < ActiveRecord::Migration
   
   def self.down
 
-    drop_table :patient_analyses
+    drop_table :express_card_analyses
+
+		drop_table :express_card
 
     drop_table :drugs
     drop_table :drug_groups
