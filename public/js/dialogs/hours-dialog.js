@@ -64,8 +64,10 @@ Dialogs.HoursDialog = $.dino({
 //						this.states.toggle('selected');
 //						}
 						'click': function(e, w) {
-							if(e.button == 0)
-								w.states.toggle('selected');
+							if(e.button == 0) {
+								w.states.toggle('selected');								
+								w.data.set(( w.states.is('selected') ) ? '' : null);
+							}
 						}
 					},
 					onClick: function(e) {
@@ -73,14 +75,13 @@ Dialogs.HoursDialog = $.dino({
 							if(this.states.is('selected')) this.startEdit();
 					},
 					binding: function(val) {
-						this.el.text((val == null || val == undefined) ? '' : val);
+						this.el.text((val === null || val === undefined) ? '' : val);
 //						this.states.toggle('selected', !(!val));
 					},
-					states: {
-						'selected': function(on) {
-							this.data.set((on) ? '' : null);
-						}
-					}					
+//					states: {
+//						'selected': function(on) {
+//						}
+//					}					
 				},
 				items: [
 					{dataId:0}, 
@@ -113,6 +114,12 @@ Dialogs.HoursDialog = $.dino({
 	},
 	headerButtons: ['close'],
 	buttons: ['ok', 'cancel'],
+	onOpen: function() {
+		var doses = this.data.val();
+		for(var i = 0; i < doses.length; i++) {
+			this.content.values.getItem(i).states.toggle('selected', !(doses[i] === null || doses[i] === undefined));
+		}
+	},
 	onClose: function(e) {
 		if(e.button == 'ok') this.dialogResult = this.data.val();
 	}

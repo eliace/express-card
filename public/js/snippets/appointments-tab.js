@@ -24,7 +24,7 @@ function calc_appointment_dose(row) {
 
 	row.data.set('weight_dose', total/ec.calc_weight);
 	
-	row.getColumn(2).states.toggle('disabled', (n == 0));
+	row.getColumn(2).states.toggle('disabled', (total > 0 && n == 0));
 	
 	row.$dataChanged();
 	
@@ -52,6 +52,7 @@ Snippets.AppointmentsTab = {
 			items: [{
 				dtype: 'textfield',
 				label: 'Расчетный вес',
+				rawValueOnFocus: true,
 				dataId: 'calc_weight',
 				format: function(val) { return (val) ? ''+val+' кг' : ''; },
 				onValueChanged: function() {
@@ -196,7 +197,23 @@ Snippets.AppointmentsTab = {
 							this.states.toggle('selected', (val[this.index] != null));
 						}
 					},
-					items: [{}, {}, {innerText: '12'}, {}, {}, {}, {}, {}, {innerText: '18'}, {}, {}, {}, {}, {}, {innerText: '24'}, {}, {}, {}, {}, {}, {innerText: '6'}, {}, {}, {cls: 'last'}]
+					items: [{}, {}, {innerText: '12'}, {}, {}, {}, {}, {}, {innerText: '18'}, {}, {}, {}, {}, {}, {innerText: '24'}, {}, {}, {}, {}, {}, {innerText: '6'}, {}, {}, {cls: 'last'}],
+					contextMenu: {
+						dtype: 'context-menu',
+						items: [
+							{text: '12-18-24-6', tag: '2-8-14-20'},
+							{text: '16-3', tag: '6-17'},
+						],
+						onSelect: function(e) {
+							var w = this.sourceWidget;
+							var doses = new Array(24);
+							var s = e.target.tag;
+							var s_a = s.split('-');
+							Dino.each(s_a, function(n){ doses[parseInt(n)] = ''; });
+							w.data.set(doses);
+							calc_appointment_dose( w.parent.getRow() );							
+						}
+					}
 				},
 				editable: false
 			}, {
