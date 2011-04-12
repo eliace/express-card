@@ -45,6 +45,7 @@ Dino.declare('Medic.widgets.DateField', 'Dino.widgets.ComboField', {
 Dino.declare('Medic.widgets.DateEditor', 'Dino.widgets.DropdownEditor', {
 	
 	defaultOptions: {
+		dropdownOnFocus: true,
     components: {
       input: {
         format: function(val){ return val; }

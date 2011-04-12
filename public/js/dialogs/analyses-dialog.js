@@ -15,6 +15,7 @@ Dialogs.AnalysesDialog = $.dino({
 		components: {
 			grid: {
 				dtype: 'dictionary-grid',
+				cls: 'dino-border-all',
 				tableModel: {
 					columns: [{
 						header: 'Наименование',

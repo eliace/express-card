@@ -59,6 +59,10 @@ get '/drugs' do
 	case query
 		when 'all'
 			Drug.all.to_json
+		when 'classification'
+			arr = DrugGroup.all.as_json(:include => :drugs)
+			arr << arr.shift  # фикс для того, чтобы группа "другие" оказалась в конце
+			JSON.generate arr
 	end
 	
 	

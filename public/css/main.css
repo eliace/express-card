@@ -17,6 +17,14 @@ body input {
 	height: 19px;
 }
 
+.dino-grid-row:hover {
+	background-color: transparent;
+}
+
+.dino-grid-row.selected:hover {
+	background-color: #ffc;
+}
+
 .dino-text-editor input{
 	font-size: 12px;
 }
@@ -204,4 +212,49 @@ body input {
 	background: #ddd;
 }
 
+
+
+
+
+.hour-cell {
+	border-right: 1px solid #aaa;
+	color: #666;
+	font-size: 9px;
+}
+
+.hour-cell.selected {
+	background-color: #fcc;
+}
+
+.hour-cell.last {
+	border-right: none;
+}
+
+
+
+.hour-cell-x {
+	border-right: 1px solid #aaa;
+	color: #444;
+	line-height: 24px;
+	text-align: center;
+}
+
+.hour-cell-x.selected {
+	background-color: #fcc;
+}
+
+.hour-cell-x.last {
+	border-right: none;
+}
+
+
+/*
+.hour-cell:hover {
+	background-color: #bbb;
+}
+
+.hour-cell.selected:hover {
+	background-color: #dcc;
+}
+*/
 

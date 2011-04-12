@@ -2,7 +2,7 @@
 
 
 class Patient < ActiveRecord::Base
-	
+	has_many :express_cards
 end
 
 
@@ -24,12 +24,9 @@ class DrugSolvent < ActiveRecord::Base
 	
 end
 
-class DrugCategory < ActiveRecord::Base
-	
-end
-
 class DrugGroup < ActiveRecord::Base
-	belongs_to :drug_category
+#	belongs_to :drug_category
+	has_many :drugs
 end
 
 class Drug < ActiveRecord::Base
@@ -38,3 +35,19 @@ class Drug < ActiveRecord::Base
 	belongs_to :drug_solvent
 end
 
+class ExpressCard < ActiveRecord::Base
+	belongs_to :patient
+end
+
+class ExpressCardAnalysis < ActiveRecord::Base
+	belongs_to :express_card
+end
+
+class ExpressCardAppointments < ActiveRecord::Base
+	belongs_to :express_card
+	belongs_to :appointment_group
+end
+
+class AppointmentGroup < ActiveRecord::Base
+#	has_many :drug_groups	
+end

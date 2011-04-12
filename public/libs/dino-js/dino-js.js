@@ -1004,7 +1004,8 @@ Dino.declare('Dino.data.DirtyEvent', 'Dino.events.Event', /** @lends Dino.events
 Dino.declare('Dino.data.DataSource', 'Dino.events.Observer', /**@lends Dino.data.DataSource.prototype */{
 	
 	classOptions: {
-		useDirty: false
+		useDirty: false,
+		oid: 'id'
 	},
 	
 	/**
@@ -1275,7 +1276,15 @@ Dino.declare('Dino.data.DataSource', 'Dino.events.Observer', /**@lends Dino.data
 			src = src.source;
 		}
 		return false;
+	},
+	
+	find_by_oid: function(oid) {
+		var result = null;
+		var oid_key = this.options.oid;
+		this.each(function(val){ if(val[oid_key] == oid) {result = val; return false;} });
+		return result;
 	}
+	
 		
 //	asArray: function() {
 //		return new Dino.data.ArrayDataSource(this);
@@ -3883,6 +3892,9 @@ Dino.layouts.FloatLayout = Dino.declare('Dino.layouts.FloatLayout', 'Dino.layout
 	
 	
 }, 'float-layout');
+Dino.topZ = 1;
+
+
 /**
  * @class
  * @extends Dino.layouts.PlainLayout
@@ -3932,6 +3944,10 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 	
 	open: function() {
 
+		var z = Dino.topZ++;
+		this.overlay_el.css('z-index', z*1000);
+		this.container.el.css('z-index', z*1000+1);
+	
 		$('body').append(this.overlay_el);
 		
 		this.reset();
@@ -3941,6 +3957,8 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 	
 	
 	close: function() {
+
+		Dino.topZ--;
 		
 		this.overlay_el.detach();
 		this.container.el.hide();
@@ -5120,17 +5138,48 @@ Dino.Droppable = function() {
 
 Dino.Clickable = function(o) {
 	
-	o.events = {
+	Dino.utils.overrideOpts(o, {events: {
 		'click': function(e, w) {
 			w.events.fire('onClick');
 		},
 		'dblclick': function(e, w) {
 			w.events.fire('onDoubleClick');
 		}
-	}
+	}});
 	
 }
 
+
+
+
+
+Dino.RClickable = function(o) {
+	
+	Dino.utils.overrideOpts(o, {events: {
+		'mousedown': function(e, w) {
+			// если нажата правая кнопка мыши
+			if(e.button == 2) {
+				Dino.RClickable.click_timestamp = Dino.timestamp();
+			}
+		},
+		'mouseup': function(e, w) {
+			// если отпущена правая кнопка мыши
+			if(e.button == 2) {
+				var t = Dino.timestamp()
+				if(t - Dino.RClickable.click_timestamp < 200) {
+					w.events.fire('onClick', {button: 2});					
+				}
+			}			
+		},
+		'contextmenu': function(e) {
+			return false;
+		}
+	}});
+	
+}
+
+
+Dino.RClickable.click_timestamp = 0;
 
 Dino.Focusable = function(o) {
 	
@@ -5163,9 +5212,12 @@ Dino.Focusable.focusManager = {
 	
 	enter: function(w) {
 		if(this.current == w) return;
-		if(this.current) this.current.states.clear('focus');
+		if (this.current) {
+			this.current.states.clear('focus');
+		}
 		this.current = w;
 		w.states.set('focus');
+		w.events.fire('onFocus');
 	},
 	
 	clear: function() {
@@ -5185,8 +5237,9 @@ Dino.Focusable.focusManager = {
 }
 
 
-$(window).click(function(){
-	Dino.Focusable.focusManager.leave();
+$(window).click(function(e){
+	// убираем фокус по щелчку левой кнопкой мыши
+	if(e.button == 0) Dino.Focusable.focusManager.leave();
 });
 
 $(window).bind('keypress', function(e){
@@ -5717,6 +5770,7 @@ Dino.declare('Dino.widgets.DropdownButton', 'Dino.widgets.TextButton', {
 			dropdown: {
 				dtype: 'menu-dropdown-box',
 				style: {'display': 'none'},
+				hideOn: 'outerClick',
 //				renderTo: 'body',
 				menuModel: {
 					item: {
@@ -6692,7 +6746,8 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.Editor', {
 			this.el.click(function(){	self.showDropdown(); });
 		}
 		if(o.dropdownOnFocus) {
-			this.el.focus(function(){	self.showDropdown(); });
+			this.events.reg('onFocus', function(){	self.showDropdown(); });
+//			this.el.focus(function(){	self.showDropdown(); });
 		}
 	},
 	
@@ -7646,6 +7701,11 @@ Dino.widgets.Grid = Dino.declare('Dino.widgets.Grid', 'Dino.Widget', /** @lends 
 		
 		
 //		var tableWidth = this.content.content.el.width();
+	},
+	
+	
+	eachRow: function(callback) {
+		this.content.content.eachRow(callback);
 	}
 	
 //	$dataChanged: function() {
@@ -8195,7 +8255,7 @@ Dino.widgets.MenuItem = Dino.declare('Dino.widgets.MenuItem', 'Dino.containers.B
 				dtype: 'menu-dropdown-box',
 				dataId: 'children',
 				binding: function(val) {
-					if(val) this.parent.states.set('submenu');
+					if(val && val.length > 0) this.parent.states.set('submenu');
 				}
 			}
 		},

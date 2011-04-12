@@ -9,7 +9,7 @@ Dino.data.DataSource.prototype.get_by_id = function(id) {
 	return null;	
 }
 
-
+var Snippets = {};
 
 
 var Pages = {};
@@ -24,7 +24,10 @@ var DataSources = {
 	DrugCategories: new Dino.data.ArrayDataSource(),
 	DrugGroups: new Dino.data.ArrayDataSource(),
 	Drugs: new Dino.data.ArrayDataSource(),
-	PatientAnalyses: new Dino.data.ArrayDataSource(),
+	AppointmentGroups: new Dino.data.ArrayDataSource(),
+	ExpressCards: new Dino.data.ArrayDataSource(),
+	ExpressCardAnalyses: new Dino.data.ArrayDataSource(),
+	ExpressCardAppointments: new Dino.data.ArrayDataSource(),
 };
 
 var Remote = {};
@@ -37,7 +40,10 @@ Remote.DrugSolvents = new Medic.remote.Collection('drug_solvents');
 Remote.DrugCategories = new Medic.remote.Collection('drug_categories');
 Remote.DrugGroups = new Medic.remote.Collection('drug_groups');
 Remote.Drugs = new Medic.remote.Collection('drugs');
-Remote.PatientAnalyses = new Medic.remote.Collection('patient_analyses');
+Remote.AppointmentGroups = new Medic.remote.Collection('appointment_groups');
+Remote.ExpressCard = new Medic.remote.Collection('express_card');
+Remote.ExpressCardAnalyses = new Medic.remote.Collection('express_card_analyses');
+Remote.ExpressCardAppointments = new Medic.remote.Collection('express_card_appointments');
 
 
 Remote.Patient = Remote.Patients.object([
@@ -144,7 +150,8 @@ $(document).ready(function(){
 	Remote.AnalysisGroups.load_all().to(DataSources.AnalysisGroups);
 	Remote.DrugUnits.load_all().to(DataSources.DrugUnits);
 	Remote.DrugSolvents.load_all().to(DataSources.DrugSolvents);
-	Remote.DrugCategories.load_all().to(DataSources.DrugCategories);
+//	Remote.DrugCategories.load_all().to(DataSources.DrugCategories);
 	Remote.DrugGroups.load_all().to(DataSources.DrugGroups);
+	Remote.AppointmentGroups.load_all().to(DataSources.AppointmentGroups);
 
 });

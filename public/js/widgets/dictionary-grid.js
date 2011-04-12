@@ -4,7 +4,7 @@
 Dino.declare('Medic.widgets.DictionaryGrid', 'Dino.widgets.Grid', {
 	
 	defaultOptions: {
-		cls: 'dino-border-all',
+//		cls: 'dino-border-all',
 		content: {
 			height: 'auto'
 		},

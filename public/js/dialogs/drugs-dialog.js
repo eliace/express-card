@@ -11,13 +11,14 @@ Dialogs.DrugsDialog = $.dino({
 	title: 'Справочник "Питание/препараты"',
 	renderTo: 'body',
 	data: DataSources.Drugs,
+	height: '80%',
 	content: {
 		dtype: 'box',
 		width: 900,
-		height: 600,
 		components: {
 			grid: {
 				dtype: 'dictionary-grid',
+				cls: 'dino-border-all',
 				tableModel: {
 					columns: [{
 						header: 'Наименование',

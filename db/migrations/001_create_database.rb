@@ -18,6 +18,8 @@ class CreateDatabase < ActiveRecord::Migration
   end
   class DrugCategory < ActiveRecord::Base
   end
+  class AppointmentGroup < ActiveRecord::Base
+  end
   
   def self.up
     
@@ -116,8 +118,8 @@ class CreateDatabase < ActiveRecord::Migration
 
 
 		create_table :express_cards do |t|
-			t.references :patient
-			t.float :weight
+			t.references :patient														# пациент
+			t.float :calc_weight															# расчетный вес
 		end
 
 
@@ -130,6 +132,22 @@ class CreateDatabase < ActiveRecord::Migration
 
     add_foreign_key(:express_card_analyses, :express_cards)
     add_foreign_key(:express_card_analyses, :analyses)
+
+
+
+    create_table :appointment_groups do |t|
+      t.string :name
+    end
+
+		create_table :express_card_appointments do |t|
+			t.references :express_card
+			t.references :drug
+			t.references :appointment_group
+		end
+
+    add_foreign_key(:express_card_appointments, :express_cards)
+    add_foreign_key(:express_card_appointments, :drugs)
+    add_foreign_key(:express_card_appointments, :appointment_groups)
 
 
 		#
@@ -155,6 +173,12 @@ class CreateDatabase < ActiveRecord::Migration
     DrugGroup.create(:name => '');
     DrugGroup.create(:name => 'Питание');
     DrugGroup.create(:name => 'Антибиотики');
+
+    AppointmentGroup.create(:name => '');
+    AppointmentGroup.create(:name => 'Энтерально');
+    AppointmentGroup.create(:name => 'В/в струйно');
+    AppointmentGroup.create(:name => 'В/в капельно');
+    AppointmentGroup.create(:name => 'Внутримышечно');
     
 #    DrugGroup.create();
     
@@ -164,6 +188,7 @@ class CreateDatabase < ActiveRecord::Migration
   def self.down
 
     drop_table :express_card_analyses
+    drop_table :express_card_appointments
 
 		drop_table :express_card
 
@@ -176,6 +201,7 @@ class CreateDatabase < ActiveRecord::Migration
     drop_table :analyses
     drop_table :analysis_groups
 
+    drop_table :appointment_groups
 
 #    drop_table :appointments
 
