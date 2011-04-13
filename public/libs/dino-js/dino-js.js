@@ -9238,6 +9238,8 @@ Dino.widgets.Dialog = Dino.declare('Dino.widgets.Dialog', 'Dino.widgets.Panel', 
 			if(this.options.destroyOnClose) this.destroy();
 			if(this.dialogResult && this.resultCallback) this.resultCallback.call(this, this.dialogResult);
 		}
+		
+		this.dialogButton = null;
 	}
 	
 	

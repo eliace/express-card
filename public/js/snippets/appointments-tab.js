@@ -201,12 +201,14 @@ Snippets.AppointmentsTab = {
 					contextMenu: {
 						dtype: 'context-menu',
 						items: [
+							{text: '12-15-18-21-24-3-6-9', tag: '2-5-8-11-14-17-20-23'},
 							{text: '12-18-24-6', tag: '2-8-14-20'},
-							{text: '16-3', tag: '6-17'},
+							{text: '12-24', tag: '2-14'},
 						],
 						onSelect: function(e) {
 							var w = this.sourceWidget;
-							var doses = new Array(24);
+							var doses = [];
+							doses[23] = undefined; //финт ушами
 							var s = e.target.tag;
 							var s_a = s.split('-');
 							Dino.each(s_a, function(n){ doses[parseInt(n)] = ''; });
