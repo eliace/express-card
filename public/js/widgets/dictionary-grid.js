@@ -76,15 +76,15 @@ Dino.declare('Medic.widgets.DictionaryGrid', 'Dino.widgets.Grid', {
 				},
 				items: [{
 					text: 'Добавить',
-					icon: 'led-icon-add',
+					icon: 'silk-icon-add',
 					tag: 'Add'
 				}, {
 					text: 'Удалить',
-					icon: 'led-icon-delete',
+					icon: 'silk-icon-delete',
 					tag: 'Delete'
 				}, {
 					text: 'Обновить',
-					icon: 'led-icon-refresh',
+					icon: 'silk-icon-arrow-refresh',
 					tag: 'Refresh'
 				}]
 			},					

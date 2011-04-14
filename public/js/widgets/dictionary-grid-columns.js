@@ -20,7 +20,7 @@ Dino.declare('Dino.widgets.DropdownGridColumn', 'Dino.widgets.TableCell', {
 					}					
 				},
 				button: {
-					cls: 'dino-icon-down',
+					cls: 'dino-icon-spinner-down',
 					height: 10
 				},
 				dropdown: {

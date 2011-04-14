@@ -12,7 +12,7 @@ Dino.declare('Medic.widgets.DateField', 'Dino.widgets.ComboField', {
 			},
 			button: {
 				dtype: 'icon-button',
-				icon: 'led-icon-calendar_1',
+				icon: 'silk-icon-date',
 				events: {
 					'click': function(e, w){
 						if(!w.states.is('disabled'))
@@ -51,7 +51,7 @@ Dino.declare('Medic.widgets.DateEditor', 'Dino.widgets.DropdownEditor', {
         format: function(val){ return val; }
       },
       button: {
-        cls: 'led-icon-calendar_1'
+        cls: 'silk-icon-date'
       }
     },
     onCreated: function() {

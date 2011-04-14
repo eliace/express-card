@@ -172,6 +172,8 @@ class CreateDatabase < ActiveRecord::Migration
     
     DrugGroup.create(:name => '');
     DrugGroup.create(:name => 'Питание');
+    DrugGroup.create(:name => 'Диуретики');
+    DrugGroup.create(:name => 'Противосудорожные');
     DrugGroup.create(:name => 'Антибиотики');
 
     AppointmentGroup.create(:name => '');

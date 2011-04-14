@@ -5,14 +5,14 @@ Dialogs.EditPatientDialog = $.dino({
 	title: 'Пациент',
 	content: {
 		dtype: 'box',
-		layout: 'form-layout',
+		layout: 'form',
 		items: [{
-			dtype: 'textfield',
+			dtype: 'input',
 			label: 'Номер',
 			dataId: 'patient_no',
 			changeOnBlur: true
 		}, {
-			dtype: 'textfield',
+			dtype: 'input',
 			label: 'Имя',
 			dataId: 'name',
 			changeOnBlur: true
@@ -20,25 +20,22 @@ Dialogs.EditPatientDialog = $.dino({
 			dtype: 'select',
 			label: 'Пол',
 			dataId: 'sex',
-			options: {
-				'male': 'муж',
-				'female': 'жен'
-			}
+			options: [['male', 'муж'], ['female', 'жен']]
 		}, {
 			dtype: 'datefield',
 			label: 'Дата рождения',
 			dataId: 'birth_date'
 		}, {
-			dtype: 'textfield',
+			dtype: 'input',
 			label: 'Вес при рождении',
 			dataId: 'birth_weight',
 			changeOnBlur: true
 		}, {
-			dtype: 'datefield',
+			dtype: 'input',
 			label: 'Дата поступления',
 			dataId: 'admission_date'
 		}, {
-			dtype: 'textfield',
+			dtype: 'input',
 			label: 'Вес при поступлении',
 			dataId: 'admission_weight',
 			changeOnBlur: true

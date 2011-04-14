@@ -31,7 +31,7 @@ Snippets.AnalysesTab = {
 			items: [{
 				dtype: 'dropdown-button',
 				tag: 'add-analysis',
-				xicon: 'dino-icon-down',
+				xicon: 'dino-icon-spinner-down',
 				text: 'Назначить анализ',
 				onSelect: function(e) {
 					var val = e.target.data.val();
@@ -41,7 +41,8 @@ Snippets.AnalysesTab = {
 						interval: 1,
 						from_date: Dino.format_date(new Date())
 					};
-					DataSources.ExpressCardAnalyses.add(obj);
+					
+					this.data.add(obj);
 				},
 				components: {
 					dropdown: {
@@ -61,7 +62,7 @@ Snippets.AnalysesTab = {
 						}
 					}
 				}
-			}]
+			}, {}, {state: 'hidden'}]
 		},
 		pager: {
 			state: 'hidden'
@@ -86,7 +87,7 @@ Snippets.AnalysesTab = {
 						format: function(val) { return Dino.find(intervalList, function(v) { return (v.id == val); }).name; }
 					},
           button: {
-            cls: 'dino-icon-down',
+            cls: 'dino-icon-spinner-down',
 						height: 10
           },
 					dropdown: {

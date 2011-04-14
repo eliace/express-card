@@ -15,7 +15,7 @@ Dialogs.HoursDialog = $.dino({
 		components: {
 			header: {
 				dtype: 'box',
-				layout: 'hbox-layout',
+				layout: 'hbox',
 				defaultItem: {
 					dtype: 'text',
 					width: 25,
@@ -50,7 +50,7 @@ Dialogs.HoursDialog = $.dino({
 			},
 			values: {
 				dtype: 'box',
-				layout: 'hbox-layout',
+				layout: 'hbox',
 				cls: 'dino-border-all dino-corner-all dino-panel-shadow',
 				defaultItem: {
 					dtype: 'box',

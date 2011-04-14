@@ -133,7 +133,7 @@ $(document).ready(function(){
 			},
 			content: {
 				dtype: 'box',
-				layout: 'stack-layout',
+				layout: 'stack',
 				items: [Pages.PatientsPage]
 			}
 		}

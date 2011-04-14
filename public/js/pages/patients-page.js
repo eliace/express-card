@@ -8,14 +8,14 @@ Pages.PatientsPage = $.dino({
 	components: {
 		list: {
 			dtype: 'box',
-			layout: 'float-layout',
+			layout: 'float',
 			data: DataSources.Patients,
 			dynamic: true,
 			height: 'auto',
 			defaultItem: {
 				dtype: 'box',
 				cls: 'patient-item dino-corner-all',
-				layout: 'float-layout',
+				layout: 'float',
 				updateOnValueChange: true,
 				items: [{
 					dtype: 'box',
@@ -51,7 +51,7 @@ Pages.PatientsPage = $.dino({
 						dataId: 'diagnosis'
 					}, {
 						dtype: 'box',
-						layout: 'float-layout',
+						layout: 'float',
 						tag: 'buttons',
 						defaultItem: {
 							dtype: 'action-icon',

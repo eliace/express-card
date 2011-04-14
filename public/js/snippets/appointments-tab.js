@@ -37,21 +37,28 @@ function calc_appointment_dose(row) {
 
 Snippets.AppointmentsTab = {
 	dtype: 'box',
-	layout: 'column-layout',
+	layout: 'column',
 	width: 1000,
 	tag: 'appointments',
 	items: [{
 		dtype: 'box',
 		cls: 'dino-border-all',
 		height: 'auto',
-//		style: {'margin-right': 3},
+		style: {'margin-right': 3},
 		width: 200,
 		content: {
 			dtype: 'box',
-			layout: 'simple-form-layout',
+			layout: 'form',
+			style: {'margin': 3},
 			items: [{
-				dtype: 'textfield',
+				dtype: 'text',
+				label: 'Текущий вес',
+				dataId: 'weight',
+				format: function(val) { return (val) ? ''+val+' кг' : ''; },
+			}, {
+				dtype: 'input',
 				label: 'Расчетный вес',
+				width: 50,
 				rawValueOnFocus: true,
 				dataId: 'calc_weight',
 				format: function(val) { return (val) ? ''+val+' кг' : ''; },
@@ -75,7 +82,7 @@ Snippets.AppointmentsTab = {
 				items: [{
 					dtype: 'dropdown-button',
 					tag: 'add-appointment',
-					xicon: 'dino-icon-down',
+					xicon: 'dino-icon-spinner-down',
 					text: 'Назначить препарат',
 					onSelect: function(e) {
 						var val = e.target.data.val();
@@ -110,7 +117,7 @@ Snippets.AppointmentsTab = {
 							}
 						}
 					}
-				}]
+				}, {}, {state: 'hidden'}]
 			},
 			pager: {
 				state: 'hidden'
@@ -138,7 +145,7 @@ Snippets.AppointmentsTab = {
 							format: function(val) { return (val === '' || val === null || val === undefined) ? '' : DataSources.AppointmentGroups.find_by_oid(val)['name']; }
 						},
 	          button: {
-	            cls: 'dino-icon-down',
+	            cls: 'dino-icon-spinner-down',
 							height: 10
 	          },
 						dropdown: {
@@ -171,7 +178,7 @@ Snippets.AppointmentsTab = {
 					dtype: 'box',
 					style: {'display': 'inline-block', 'line-height': '8px'},
 					cls: 'dino-border-all dino-corner-all dino-bg-3',
-					layout: 'hbox-layout',
+					layout: 'hbox',
 					defaultItem: {
 						width: 12,
 						height: 12,

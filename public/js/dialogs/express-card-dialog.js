@@ -12,7 +12,7 @@ Dialogs.ExpressCardDialog = $.dino({
 //	data: expressCard,
 	content: {
 		dtype: 'box',
-		layout: 'stack-layout',
+		layout: 'stack',
 		items: [Snippets.AnalysesTab, Snippets.AppointmentsTab]	
 	},
   buttonSet: {
@@ -42,6 +42,7 @@ Dialogs.ExpressCardDialog = $.dino({
 		
 		//TODO здесь нужно загружать экспресс-карту, но пока используем шаблон
 		var ec = {
+			weight: 3,
 			calc_weight: 3.1,
 			appointments: [],
 			analyses: []

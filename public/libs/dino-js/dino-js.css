@@ -1,9 +1,4 @@
 
-/*
-.clearfix {
-	clear: both;
-}
-*/
 
 
 .clearfix { zoom: 1 }
@@ -23,36 +18,10 @@ button::-moz-focus-inner {
 }
 
 
-.dino-hidden {
-	display: none !important;
+button {
+	position: relative;
+	padding: 3px 3px;
 }
-
-.dino-center-align {
-	display: block;
-	margin: 0 auto;
-}
-/*
-.dino-center-v {
-	vertical-align: middle;
-}
-*/
-
-
-
-.dino-widget-content {
-	background-color: #fff;
-}
-
-.dino-panel-content {
-	background-color: #eee;	
-}
-
-
-
-.dino-scrollable-v {
-	overflow-y: auto;
-}
-
 
 p {
 	margin: 0;
@@ -61,223 +30,24 @@ p {
 }
 
 
-/*.dino-toolbar .dino-button { display: inline-block; margin: 0 2px 0 2px; }*/
 
-.dino-toolbar-h .dino-toolbar-item { display: inline-block; }
-.dino-toolbar-v .dino-toolbar-item { display: block; }
-
-
-
-/*
- * TREE
- */
-
-.dino-tree-node.collapsed > ul {
-	display: none;
+.hidden {
+	display: none !important;
 }
 
-.dino-tree {
-	overflow: auto;
-}
-
-
-
-/*
- * TREE-GRID
- */
-
-.dino-tree-grid-item-button {
-	position: absolute;
-}
-
-.dino-tree-grid-item {
-	display: inline;
-	position: relative;
-}
-
-
-
-
-/*
- * Tabs
- */
-
-
-
-
-
-/*
-.dino-tab-button-active {
-	height: 25px !important;
-}
-
-.dino-tab-content {
-	position: relative;
-	height: 200px;
-	border-bottom: 1px solid #aaaaaa;
-	border-left: 1px solid #aaaaaa;
-	border-right: 1px solid #aaaaaa;
-}
-*/
-
-
-
-
-
-
-/*
-.dock-left-top {
-	left: 0;
-	top: 0;
-}
-
-.dock-left-center {
-	left: 0;
-	top: 50%;
-}
-
-.dock-left-bottom {
-	left: 0;
-	bottom: 0;
-}
-
-.dock-right-top {
-	right: 0;
-	top: 0;
-}
-
-.dock-right-center {
-	right: 0;
-	top: 50%;
-}
-
-.dock-right-bottom {
-	right: 0;
-	bottom: 0;
-}
-*/
-
-.dino-dropdown-box {
-	position: absolute;
-	display: none;
-	z-index: 10001;
-/*
- 	background-color: white;
-	padding: 2px 5px;
-	border: 1px solid #aaaaaa;
-*/	
-}
-
-
-
-.dino-text {
-}
-
-.dino-text-item {
-	position: relative;
-	display: inline;
-}
-
-
-
-
-/**
- * Меню
- */
-
-.dino-menu-item {
-	position: relative;
-}
-
-
-.dino-left-item {
-	left: 0;
-	top: 0;
-	position: absolute;
-}
-
-.dino-right-item {
-	right: 0;
-	top: 0;
-	position: absolute;
-}
-
-
-.dino-context-menu {
-	position: absolute;
-	display: none;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-.dino-growl {
-	cursor: pointer;
-}
-
-
-
-
-.dino-pager > * {
-	vertical-align: middle;
-}
-
-
-
-.dino-nowrap {
+.nowrap {
 	white-space: nowrap;
 	overflow: hidden;
-	position: relative;
+/*	position: relative;*/
 }
 
 
-/*
- * DIALOG
- */
-
-
-
-
-
-
-/*
- * COMBO FIELD
- */
-
-.dino-combofield {
-	display: inline-block;
-	line-height: 1px;
-	background-color: #fff;
-/*	padding: 1px;*/
+.dino-center-align {
+	display: block;
+	margin: 0 auto;
 }
 
 /*
-.dino-combofield > * {
-	display: inline-block !important;
-	vertical-align: middle;		
-}
-*/
-
-.dino-combofield > input {
-	padding: 0;
-	outline: none;
-	margin: 0;
-	border: none;
-}
-
-
-
-
-
 .dino-glass-pane {
 	position: absolute;
 	left: 0;
@@ -286,46 +56,127 @@ p {
 	bottom: 0;
 	z-index: 10000;
 }
+*/
 
 
-.dino-glass-box {
-	position: absolute;
+
+
+
+
+ 
+.dino-3c-layout {
+	position: relative;
+/*	width: 100%;*/
+}
+
+.dino-3c-left, .dino-3c-right { 
+	position: absolute; 
+}
+
+.dino-3c-left {
 	left: 0;
+	top: 0;
+}
+.dino-3c-right { 
 	right: 0;
 	top: 0;
-	bottom: 0;
-	z-index: 10000;
+}
+.dino-3c-center {
 }
 
 
 
-.dino-select-field {
-	position: relative;
+/**
+ * FORM LAYOUT
+ */
+
+
+[layout='form'] td.label {
+	text-align: right;
 }
+
+[layout='form'] tr {
+	line-height: 20pt;
+}
+
+[layout='form'] td.label label {
+	margin-right: 5px;
+}
+
+[layout='form'] > .dino-form-item-wrapper {
+	padding: 3px;
+}
+
+[layout='form'] > .dino-form-item-wrapper > label {
+	vertical-align: top;
+	text-align: right;
+	padding-right: 5px;
+}
+
+
 
 
 /*
-.dino-growl-box {
-	position: absolute;
-	right: 10px;
-	top: 10px;
-	background-color: rgba(255, 255, 255, .5);
-	z-index: 1000;
-	display: none;
-	-moz-border-radius: 6px; -webkit-border-radius: 6px; border-radius: 6px;
-	cursor: pointer;
-	border: 1px solid #cccccc;
-}
-
-
-.dino-fit {
-	position: absolute;
-	left: 0;
-	top: 0;
-	right: 0;
-	bottom: 0;
+[layout='simple-form'] > .dino-form-item-wrapper > label {
+	display: block;
 }
 */
+
+[layout='simple-form'] > .dino-form-item-wrapper {
+	padding: 3px;
+}
+
+
+
+
+
+
+/*
+ * DOCK LAYOUT
+ */ 
+
+[layout='dock'] {
+	position: relative;
+}
+
+.dock-left-top, .dock-left-center, .dock-left-bottom, .dock-right-top, .dock-right-center, .dock-right-bottom {
+	position: absolute;
+}
+
+[dock] {
+	position: absolute;	
+}
+
+[dock|="left"] {
+	left: 0;	
+}
+
+[dock|="right"] {
+	right: 0;	
+}
+
+[dock$="center"] {
+	top: 50%;
+}
+
+[dock|="center"] {
+	left: 50%;
+}
+
+[dock$="bottom"] {
+	bottom: 0;
+}
+ 
+ 
+
+/*
+ * FLOAT LAYOUT
+ */
+
+.float-item {
+	float: left;
+}
+
 
 /*
  * WINDOW LAYOUT
@@ -368,122 +219,6 @@ p {
 }
 
 
-
-
-/*
- * DOCK LAYOUT
- */ 
-
-[layout='dock'] {
-	position: relative;
-}
-
-.dock-left-top, .dock-left-center, .dock-left-bottom, .dock-right-top, .dock-right-center, .dock-right-bottom {
-	position: absolute;
-}
-
-[dock] {
-	position: absolute;	
-}
-
-[dock|="left"] {
-	left: 0;	
-}
-
-[dock|="right"] {
-	right: 0;	
-}
-
-[dock$="center"] {
-	top: 50%;
-}
-
-[dock|="center"] {
-	left: 50%;
-}
-
-[dock$="bottom"] {
-	bottom: 0;
-}
- 
- 
- 
- 
-/*
- * 3C LAYOUT
- */ 
- 
- 
-.dino-3c-layout {
-	position: relative;
-/*	width: 100%;*/
-}
-
-.dino-3c-left, .dino-3c-right { 
-	position: absolute; 
-}
-
-.dino-3c-left {
-	left: 0;
-	top: 0;
-}
-.dino-3c-right { 
-	right: 0;
-	top: 0;
-}
-.dino-3c-center {
-}
-
-
-
-/*
- * COLUMN LAYOUT
- */
-
-/*
-[layout='column'] {
-	display: table;
-	width: 100%;
-}
-
-
-[layout='column'] > div {
-	display: table-row;
-}
-
-
-[layout='column'] > div > div {
-	display: table-cell;
-	height: 100%;
-	vertical-align: top;
-}
-*/
-
-
-/*
- * FLOAT LAYOUT
- */
-
-.float-item {
-	float: left;
-}
-
-
-/*
- * FORM LAYOUT
- */
-
-[layout='form'] td.label {
-	text-align: right;
-}
-
-
-[layout='simple-form'] > .dino-form-item-wrapper > label {
-	display: block;
-}
- 
- 
- 
 /*
  * BORDER LAYOUT
  */ 
@@ -599,7 +334,6 @@ p {
 }
 
 
-
 /**
  * HBOX LAYOUT
  */
@@ -612,27 +346,260 @@ p {
 
  
 
-
-/* 
- * BUTTON 
+/*
+ * Tabs
  */
 
-.dino-button {
-	position: relative;
-	padding: 3px 3px;
+.dino-tabs-item {
+	color: #444;
+	text-shadow: 1px 1px 2px #fff;
 }
+
+.dino-tabs-item:hover {
+	color: #000;
+}
+
+/*
+.dino-tabs-item > span {
+	vertical-align: middle;
+}
+*/
+
+.dino-tabs {
+	font-size: 13px;	
+}
+
+
+.dino-tabs.top {
+/*	height: 25px;*/
+	position: relative;
+	margin: 0;
+	padding: 4px 0 2px;
+}
+
+.dino-tabs li {
+	text-align: center;
+	cursor: pointer;
+	list-style: none outside none;
+}
+
+.dino-tabs li.active {
+	background-color: #f8f8f8;
+	background-image: none;
+	font-weight: bold;
+}
+
+.dino-tabs.top li {
+/*	height: 24px;*/
+	padding: 2px 10px;
+	margin-left: 3px;
+/*	float: left;*/
+	display: inline;
+	border-bottom: 0 !important;
+	-moz-border-radius: 4px 4px 0 0; -webkit-border-radius: 4px 4px 0 0; border-radius: 4px 4px 0 0;
+}
+
+
+
+.dino-tabs.top li.active {
+	padding-bottom: 3px !important;
+	margin-top: -4px;
+	padding-top: 4px;
+}
+
+
+
+.dino-tabs.bottom {
+/*	height: 25px;*/
+	position: relative;
+	margin: 0;
+	padding: 2px 0 4px;
+}
+
+.dino-tabs.bottom {
+/*	margin-top:-1px;*/	
+}
+
+.dino-tabs.bottom li {
+/*	height: 24px;*/
+	padding: 2px 10px;
+	margin-left: 3px;
+/*	margin-top:1px;*/
+/*	float: left;*/
+	display: inline;
+	border-top: 0 !important;
+	-moz-border-radius: 0 0 4px 4px; -webkit-border-radius: 0 0 4px 4px; border-radius: 0 0 4px 4px;
+}
+
+.dino-tabs.bottom li.active {
+	padding-top: 3px;
+/*	margin-top:1px;*/
+	margin-bottom: -4px;
+	padding-bottom: 4px;
+/*	padding: 0 24px 4px 24px;*/
+}
+
+
+
+
+
+.dino-tabs.left {
+	height: 25px;
+	position: absolute;
+	margin: 0;
+	padding: 0;/* 0 0 4px;*/
+}
+
+.dino-tabs.left li {
+	margin-top: 3px;
+	border-right: 0 !important;
+}
+
+.dino-tabs.left li.active {
+	padding-right: 1px !important;
+}
+
+
+.dino-dropdown-box {
+	position: absolute;
+	display: none;
+	z-index: 10001;
+	font-size: 10pt;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+/**
+ * GROUP BOX
+ */
+
+.dino-group-box {
+	border: 1px solid #ccc;
+	-moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px;
+	padding: 5px;
+	position: relative;
+	margin-top: 10pt;
+}
+
+.dino-group-box-title {
+  color: #444444;
+  font-size: 10pt;
+}
+
+.dino-glass-box {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 10000;
+}
+
+/**
+ * CONTROLS
+ */
+
+.dino-control-box {
+/*	background-color: #eee;*/
+	padding: 3px;
+}
+
+.dino-control-box > * {
+	margin-right: 3px;
+}
+
+.dino-control-box.center {
+	text-align: center;
+}
+
+.dino-control-box.left {
+	text-align: left;
+}
+
+.dino-control-box.right {
+	text-align: right;
+}
+
+
+
+/*
+ * SPLIT
+ */
+
+.dino-split {
+	display: inline;
+	vertical-align: middle;
+/*	background: url(img/vsplit.png) repeat-y scroll 50% 50%;*/
+	margin: 0 3px;
+}
+
+
+
+
+button.plain {
+	background-color: #eee;
+	border: 1px solid #eee;
+}
+
+button.plain:hover {
+	border: 1px solid #ccc;	
+	background-color: #ddd;
+}
+
+button.plain.selected {
+	background-color: #ccc;
+}
+
 
 
 
 
 /*
- * SPLIT BUTTON
+ * Icons 
  */
 
-.dino-split-button {
-	position: relative;
-	display: inline-block;
+.dino-icon {
+	width: 16px;
+	height: 16px;
+/*	display: block;*/
+	background-position: 50% 50%;
 }
+
+.icon16 .dino-icon, .icon16.dino-icon {
+	width: 16px;
+	height: 16px;
+}
+
+.icon24 .dino-icon, .icon24.dino-icon {
+	width: 24px;
+	height: 24px;
+}
+
+.icon32 .dino-icon, .icon32.dino-icon {
+	width: 32px;
+	height: 32px;
+}
+
+.icon48 .dino-icon, .icon48.dino-icon {
+	width: 48px;
+	height: 48px;
+}
+
+
+/*
+[dock$=center][class~='dino-icon']  {	margin-top: -8px; }
+[dock^=center][class~='dino-icon'] { 	margin-left: -8px; }
+*/
+.dino-icon[dock$=center]  {	margin-top: -8px; }
+.dino-icon[dock^=center] { 	margin-left: -8px; }
+.icon16 .dino-icon[dock$=center], .icon16.dino-icon[dock$=center]  {	margin-top: -8px; }
+.icon16 .dino-icon[dock^=center], .icon16.dino-icon[dock^=center]  {	margin-left: -8px; }
+.icon24 .dino-icon[dock$=center], .icon24.dino-icon[dock$=center]  {	margin-top: -12px; }
+.icon24 .dino-icon[dock^=center], .icon24.dino-icon[dock^=center]  {	margin-left: -12px; }
+.icon32 .dino-icon[dock$=center], .icon32.dino-icon[dock$=center]  {	margin-top: -16px; }
+.icon32 .dino-icon[dock^=center], .icon32.dino-icon[dock^=center]  {	margin-left: -16px; }
+
+
 
 
 /*
@@ -647,4 +614,564 @@ p {
 	position: absolute;
 }
 
+
+
+
+/*
+ * TEXT ITEM
+ */
+
+.dino-text-item {
+	position: relative;
+	cursor: default;
+}
+
+
+input.l-icon, span.l-icon {
+	padding-left: 20px;
+}
+
+input.r-icon, span.r-icon {
+	padding-right: 20px;
+}
+
+input.l-icon-only, span.l-icon-only, input.r-icon-only, span.r-icon-only {
+/*	margin-left: 16px;*/
+	padding: 0 8px;
+}
+
+
+input.l-icon-only.r-icon-only, span.l-icon-only.r-icon-only {
+	padding: 0 16px;
+}
+
+
+
+.dino-list-box {
+	background-color: #fff;
+	overflow-y: auto;
+}
+
+.dino-list-box-item {
+	display: block;
+}
+
+.dino-list-box-item:hover {
+	background-color: #f4f4f4;;
+}
+
+.dino-list-box-item.selected {
+	background-color: #bdf;
+}
+
+
+
+
+/*
+ * COMBO FIELD
+ */
+
+.dino-combo-field {
+	display: inline-block;
+	line-height: 1px;
+	background-color: #fff;
+/*	padding: 1px;*/
+}
+
+.dino-combo-field > input {
+	padding: 0;
+	outline: none;
+	margin: 0;
+	border: none;
+}
+
+
+
+.dino-select-field {
+	position: relative;
+}
+
+
+/*
+ * EDITORS
+ */
+
+.dino-text-editor {
+	outline: none;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #aaa;
+	text-align: right;
+	display: block;
+}
+
+.dino-text-editor.focus {
+	border-color: #68f;	
+}
+
+
+
+
+/*
+ * LOADING
+ */
+
+.dino-loading-overlay {
+	background-color: #eee;
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10001;
+}	
+
+.dino-loading-message {
+  left: 50%;
+  margin-left: -57px;
+  margin-top: -10px;
+  position: absolute;
+	background-color: #fff;
+  top: 50%;
+	border: 2px solid #ccc;
+	padding: 3px 5px;
+	z-index: 101;
+}
+
+
+
+
+/*
+ * PAGER
+ */
+
+.dino-pager {
+	background-color: #eee;
+	padding: 3px;
+	font-size: 10pt;
+}
+
+.dino-pager > * {
+	vertical-align: middle;
+}
+
+.dino-pager > span {
+	margin: 0 3px;
+}
+
+
+
+
+
+
+/*
+ * TEXT BUTTON
+ */
+
+.dino-text-button > span {
+	padding: 0 3px;
+}
+
+
+/*
+ * ICON BUTTON
+ */
+
+.dino-icon-button {
+	border: 1px solid #eee;
+	background-color: #eee;
+	margin: 0;
+}
+
+.dino-icon-button:hover {
+	border-color: #ccc;	
+	background-color: #e8e8e8;	
+}
+
+.dino-icon-button.clicked {
+	background-color: #ddd;	
+}
+
+.dino-icon-button.disabled:hover {
+	background-color: transparent;
+	border: 1px solid transparent;
+}
+
+.dino-icon-button.disabled > * {
+	opacity: .3;
+}
+
+.dino-icon-button.disabled.clicked {
+	background-color: #eee;
+}
+
+
+
+/*
+ * DIALOG
+ */
+
+.dino-overlay {
+	opacity: 0.4;
+	background-color: black;
+	z-index: 1000;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;	
+}	
+
+
+.dino-window {
+/*	position: absolute;*/
+	z-index: 1100;
+	background-color: #fff;
+/*	padding: 5px;*/
+}
+
+
+
+.dino-dialog-shadow {
+	-moz-box-shadow: 0 0 .7em #aaa;
+	-webkit-box-shadow: 0 0 .7em #aaa;
+	box-shadow: 0 0 .7em #aaa;
+}
+
+.dino-dialog .dino-window-content {
+	border: 1px solid #aaa;
+	background-color: #eee;
+}
+
+.dino-dialog-header {
+	padding: 3px 6px;
+	
+	background: url(img/ui-bg_highlight-soft_75_cccccc_1x100.png) repeat-x scroll 50% 50% #CCCCCC;
+	border-bottom: 1px solid #aaa;
+	
+	text-shadow: 1px 1px 3px #ccc;
+	color: #444;
+	text-align:center;
+	
+	overflow: hidden;	
+}
+
+.dino-dialog-content {
+/*	border: 1px solid #aaa;*/
+	margin: 3px;
+}
+
+.dino-dialog-buttons {
+	margin: 3px;	
+}
+
+.dino-messagebox-icon {
+	margin: 10px 20px 10px 10px;
+}
+
+.dino-growl-box {
+	position: absolute;
+	top: 10px;
+	right: 15px;
+	z-index: 10000;
+	font-size: 9pt;
+}
+
+.dino-growl {
+	width: 300px;
+	margin-bottom: 5px;
+	display: none;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.dino-growl.info {
+	background-color: #eee;
+}
+
+.dino-growl.warning {
+	background-color: #ffc;
+}
+
+.dino-growl.critical {
+	background-color: #fcc;
+}
+
+
+
+
+/*
+ * GRID
+ */
+
+.dino-grid {
+	
+}
+
+/*
+.dino-grid-body {
+	text-align: center;
+}
+*/
+
+.dino-grid-header {
+/*	background-color: #f0f0f0;*/
+/*	background: url(img/ui-bg_highlight-soft_75_cccccc_1x100.png) repeat-x scroll 50% 50% #CCCCCC;*/
+	background-color: #ddd;
+}
+
+.dino-grid-content {
+	background-color: #fff;
+/*	padding-right: 18px;  /* отступ для скролла */
+}
+
+.dino-grid-content.scrollable {
+	padding-right: 18px;  /* отступ для скролла */
+	overflow-y: auto;
+}
+
+
+
+.dino-grid-row {
+	cursor: default;
+	font-size: 9pt;
+	height: 19px;	
+}
+
+.dino-grid-row:hover {
+	background-color: #f4f4f4;/*#eee;*/
+}
+
+.dino-grid-row.selected {
+	background-color: #ffc;
+}
+
+
+
+
+.dino-grid-cell {
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	text-align: center;
+	padding: 0;
+}
+	
+.dino-grid-h-cell {
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	color: #444;
+	font-size: 9pt;
+	text-shadow: 1px 1px 1px #fff;
+}
+
+
+
+
+
+
+.dino-icon-column {
+	width: 16px;
+	text-align: center;
+}
+
+.dino-numeric-column {
+	text-align: right;
+}
+
+.dino-default-column {
+	text-align: center;
+}
+
+.dino-text-column {
+	text-align: left;
+}
+
+
+
+/*
+ * TREE GRID
+ */
+
+/*
+.tree-grid {
+	
+}
+
+
+.dino-tree-grid-header {
+	background: url(img/ui-bg_highlight-soft_75_cccccc_1x100.png) repeat-x scroll 50% 50% #CCCCCC;
+}
+
+.dino-tree-grid-content {
+	background-color: #fff;
+}
+*/
+
+.dino-tree-grid-row .indent {
+	padding-left: 20px;
+}
+
+.dino-tree-grid-cell {
+	text-align: left;
+}
+
+
+
+/*
+ * MENU
+ */
+
+.dino-menu-item {
+	position: relative;
+	display: block;
+	cursor: pointer;
+	white-space: nowrap;
+	font-size: 9pt;
+	padding: 2px 18px 2px 10px;
+}	
+
+.dino-menu-item:hover {
+	background-color: #ddd;
+}
+
+
+.dino-menu-dropdown {
+	border: 1px solid #aaa;
+	background-color: #eee;
+/*	z-index: 2000;*/
+}
+
+.dino-menu-shadow {
+	-moz-box-shadow: 1px 1px 3px #aaa;
+	-webkit-box-shadow: 1px 1px 3px #aaa;
+	box-shadow: 1px 1px 3px #aaa;		
+}
+
+
+.dino-context-menu {
+	position: absolute;
+	display: none;
+	border: 1px solid #ccc;
+	background-color: #eee;
+	z-index: 2000;
+}
+
+
+
+
+/*
+ * PANEL
+ */
+
+
+.dino-panel-shadow {
+	-moz-box-shadow: 0 0 .7em #aaa;
+	-webkit-box-shadow: 0 0 .7em #aaa;
+	box-shadow: 0 0 .7em #aaa;
+}
+
+.dino-panel {
+/*	
+	-moz-border-radius: 6px 6px 0 0; 
+	-webkit-border-radius: 6px 6px 0 0; 
+	border-radius: 6px 6px 0 0;
+*/	
+/*	border: 1px solid #aaa;*/
+	background-color: #eee;
+}
+
+
+.dino-panel-header {
+	padding: 3px 6px;
+/*	
+	-moz-border-radius: 6px 6px 0 0; 
+	-webkit-border-radius: 6px 6px 0 0; 
+	border-radius: 6px 6px 0 0;
+*/	
+	border-bottom: 1px solid #aaa;
+	
+	text-align:center;
+	
+	overflow: hidden;	
+}
+
+.dino-panel-content {
+	border: 1px solid #aaa;
+	background-color: #eee;
+	margin: 3px;
+}
+
+
+
+.dino-header-button {
+	border: 1px solid transparent;
+	background-color: transparent;
+	padding: 0;
+}
+
+/*
+.dino-header-button:hover > .dino-icon {
+	background-image: url(img/ui-icons_222222_256x240.png);
+}
+*/
+
+/*
+ * TAB PANEL
+ */
+
+.dino-tab-pages {
+	background-color: #fff;
+}
+
+.dino-tab-footer {
+	background-color: #f8f8f8;
+	height: 3px;
+	border: 1px solid #aaa;
+}
+
+
+
+/*
+ * TREE
+ */
+
+.dino-tree {
+	white-space: nowrap;
+	overflow: auto;
+}
+
+.dino-tree ul {
+	margin: 0;
+	padding-left: 20px;
+}
+
+.dino-tree-node {
+	list-style: none outside none;
+	position: relative;
+}
+
+.dino-tree-node-button {
+	position: absolute;
+	top: 0;	
+	cursor: pointer;
+/*	display: inline-block;*/
+}
+
+.dino-tree-node.collapsed > ul {
+	display: none;
+}
+
+.dino-tree-node-content {
+	margin-left: 20px;
+}
+
+.dino-tree-node-content:hover {
+	color: #666;
+}
+
+/*
+.dino-tree-node.selected > .dino-tree-node-content {
+	color: #11f;
+}
+*/
 
