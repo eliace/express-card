@@ -192,7 +192,7 @@ class CreateDatabase < ActiveRecord::Migration
     drop_table :express_card_analyses
     drop_table :express_card_appointments
 
-		drop_table :express_card
+		drop_table :express_cards
 
     drop_table :drugs
     drop_table :drug_groups

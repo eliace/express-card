@@ -3483,6 +3483,39 @@ Dino.declare('Dino.layouts.PlainLayout', Dino.Layout, /** @lends Dino.layouts.Pl
 	},
 	
 	update: function() {
+		
+		// AUTO WIDTH
+		if(this.container.options.width == 'auto'){
+
+			// если элемент не отображается - его не надо выравнивать
+			if(!this.el.not(':hidden')) return;
+			
+			// расчитываем отступы
+			var dw = this.el.outerWidth() - this.el.width();
+			// скрываем элемент
+			this.el.hide();
+			
+			// ищем родителя, у которого определена ширина
+			var w = 0;
+			this.el.parents().each(function(i, el){
+				if(!w) w = $(el).width();
+				if(w) return false;
+			});
+			
+			// обходим всех видимых соседей и получаем их ширину
+			this.el.siblings().not(':hidden').each(function(i, el){
+				w -= $(el).outerWidth(true);
+			});
+
+			// задаем ширину элемента (с учетом отступов), если она не нулевая
+			if(w - dw) 
+				this.el.width(w - dw);
+				
+			// отображаем элемент
+			this.el.show();
+		}
+		
+		// AUTO HEIGHT
 		if(this.container.options.height == 'auto'){
 
 			if(!this.el.is(":visible")) return;
@@ -3915,7 +3948,7 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 		initialWidth: 200,
 		initialHeight: 200,
 		updateMode: 'manual',
-		html: '<div class="dino-window-content" autoheight="true"/>'
+		html: '<div class="dino-window-content"/>'
 	},
 	
 	
@@ -5296,7 +5329,8 @@ Dino.declare('Dino.widgets.ComboField', 'Dino.Widget', {
 		layout: 'hbox',
     components: {
       input: {
-        dtype: 'input'
+        dtype: 'input',
+				width: 'auto'
       }
     }		
 	}
@@ -6085,11 +6119,11 @@ Dino.widgets.TextItem = Dino.declare('Dino.widgets.TextItem', 'Dino.Widget', /**
 	
 	defaultOptions: {
 		cls: 'dino-text-item',
-		layout: 'dock',
+//		layout: 'dock',
+		layout: 'hbox',
 		components: {
 			leftIcon: {
 				dtype: 'icon',
-//				state: 'hidden',
 				dock: 'left'
 			},
 			content: {
@@ -6097,7 +6131,6 @@ Dino.widgets.TextItem = Dino.declare('Dino.widgets.TextItem', 'Dino.Widget', /**
 			},
 			rightIcon: {
 				dtype: 'icon',
-//				state: 'hidden',
 				dock: 'right'
 			}
 		},
@@ -6707,68 +6740,16 @@ Dino.widgets.ListBox = Dino.declare('Dino.widgets.ListBox', 'Dino.containers.Box
 	defaultCls: 'dino-list-box',
 	
 	defaultOptions: {
-//		cls: 'dino-border-all',
-//		components: {
-//			content: {
-//				weight: 2,
-//				dtype: 'box',
-//				state: 'scrollable',
-	      dynamic: true,
-				defaultItem: {
-					dtype: 'text-item',
-					cls: 'dino-list-box-item'
-//					style: {'display': 'block'}
-//					xicon: true,
-//					components: {
-//						rightIcon: {
-//							cls: 'ui-icon ui-icon-close dino-clickable',
-//							states: {
-//								'hover': ['ui-icon-closethick', 'ui-icon-close']
-//							},
-//							clickable: true
-//						}
-//					},
-//					clickable: true,
-//					onDblClick: function() {
-//						if(this.parent.parent.options.editOnDblClick) {
-//							this.startEdit();
-//						}
-//					}
-				},
-//			}
-//			controls: {
-//				dtype: 'box',
-//				cls: 'dino-list-menu dino-border-top',
-//				defaultItem: {
-//					dtype: 'text-button',
-//					cls: 'dino-list-menu-item'
-//				}
-//			}
-//		},
-		editOnDblClick: false
+    dynamic: true,
+		defaultItem: {
+			dtype: 'text-item',
+			cls: 'dino-list-box-item'
+		}
 	},
 	
 	
 	$init: function(o) {
 		Dino.widgets.ListBox.superclass.$init.apply(this, arguments);
-		
-//		if('listItems' in o) {
-//			Dino.utils.overrideOpts(o.components.content, {items: o.listItems});
-//		}
-//		
-//		if('defaultListItem' in o) {
-//			Dino.utils.overrideOpts(o.components.content.defaultItem, o.defaultListItem);			
-//		}
-		
-//		if('controls' in o) {
-//			var toolbar_items = [];
-//			for(var i = 0; i < o.controls.length; i++) {
-//				var item = o.controls[i];
-//				if(Dino.isString(item)) item = {label: item};
-//				toolbar_items.push(item);
-//			}
-//			Dino.utils.overrideOpts(o.components.controls, {items: toolbar_items});			
-//		}
 		
 	},
 	
@@ -6777,15 +6758,7 @@ Dino.widgets.ListBox = Dino.declare('Dino.widgets.ListBox', 'Dino.containers.Box
 	$opt: function(o) {
 		Dino.widgets.ListBox.superclass.$opt.apply(this, arguments);
 		
-//		if('contentHeight' in o) this.content.opt('height', o.contentHeight);
-				
 	}
-	
-	
-	
-	
-	
-	
 	
 	
 	
@@ -6856,7 +6829,7 @@ Dino.declare('Dino.widgets.SelectField', 'Dino.widgets.ComboField', {
 	showDropdown: function() {
     var dd = this.dropdown;
 							
-    dd.el.width(this.el.width());
+    dd.el.css('min-width', this.el.width());//.width(this.el.width());
 
 		var offset = this.el.offset();
     dd.show(offset.left, offset.top + this.el.outerHeight());	
@@ -6879,7 +6852,8 @@ Dino.declare('Dino.widgets.TextEditor', 'Dino.widgets.ComboField', {
 		components: {
 			input: {
         updateOnValueChange: true,
-				autoFit: true
+				autoFit: true,
+				width: undefined //FIXME костыль пока нормально не заработает PlainLayout
 			}			
 		},
 		extensions: [Dino.Focusable],
@@ -6996,7 +6970,8 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 	showDropdown: function() {
     var dd = this.dropdown;
 							
-    dd.el.width(this.el.width());
+    dd.el.css('min-width', this.el.width());//.width(this.el.width());
+//    dd.el.width(this.el.width());
 
 		var offset = this.el.offset();
     dd.show(offset.left, offset.top + this.el.outerHeight());	

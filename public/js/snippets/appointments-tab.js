@@ -38,7 +38,7 @@ function calc_appointment_dose(row) {
 Snippets.AppointmentsTab = {
 	dtype: 'box',
 	layout: 'column',
-	width: 1000,
+	width: 1200,
 	tag: 'appointments',
 	items: [{
 		dtype: 'box',
@@ -47,6 +47,7 @@ Snippets.AppointmentsTab = {
 		style: {'margin-right': 3},
 		width: 200,
 		content: {
+			weight: 1,
 			dtype: 'box',
 			layout: 'form',
 			style: {'margin': 3},
@@ -68,6 +69,45 @@ Snippets.AppointmentsTab = {
 					});
 				}
 			}]
+		},
+		components: {
+			resultPanel: {
+				weight: 2,
+				dtype: 'group-box',
+				title: 'Результаты',
+				content: {
+					dtype: 'box',
+					layout: 'form',
+					items: [{
+						dtype: 'text',
+						label: 'V'
+					}, {
+						dtype: 'text',
+						label: 'Белки'
+					}, {
+						dtype: 'text',
+						label: 'Жиры'
+					}, {
+						dtype: 'text',
+						label: 'Углеводы'
+					}, {
+						dtype: 'text',
+						label: 'Калории'
+					}, {
+						dtype: 'text',
+						label: 'K'
+					}, {
+						dtype: 'text',
+						label: 'Ca'
+					}, {
+						dtype: 'text',
+						label: 'Na'
+					}, {
+						dtype: 'text',
+						label: 'Mg'
+					}]					
+				}
+			}
 		}
 	}, {
 		dtype: 'dictionary-grid',
@@ -157,6 +197,14 @@ Snippets.AppointmentsTab = {
 	        },
 					selectValue: function(w){ return w.data.get('id'); },
 				}									
+			}, {
+				header: 'Раствор',
+				width: 120,				
+				dataId: 'solvent',
+			}, {
+				header: 'Объем',
+				width: 80,				
+				dataId: 'solvent_vol',
 			}, {
 				header: 'Дозировка',
 				width: 80,

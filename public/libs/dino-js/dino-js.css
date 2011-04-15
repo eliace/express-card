@@ -374,7 +374,7 @@ p {
 /*	height: 25px;*/
 	position: relative;
 	margin: 0;
-	padding: 4px 0 2px;
+	padding: 4px 0 1px;
 }
 
 .dino-tabs li {
@@ -413,7 +413,7 @@ p {
 /*	height: 25px;*/
 	position: relative;
 	margin: 0;
-	padding: 2px 0 4px;
+	padding: 1px 0 4px;
 }
 
 .dino-tabs.bottom {
@@ -626,7 +626,11 @@ button.plain.selected {
 	cursor: default;
 }
 
+.dino-text-item span {
+	margin: 0 3px;
+}
 
+/*
 input.l-icon, span.l-icon {
 	padding-left: 20px;
 }
@@ -636,7 +640,6 @@ input.r-icon, span.r-icon {
 }
 
 input.l-icon-only, span.l-icon-only, input.r-icon-only, span.r-icon-only {
-/*	margin-left: 16px;*/
 	padding: 0 8px;
 }
 
@@ -645,15 +648,18 @@ input.l-icon-only.r-icon-only, span.l-icon-only.r-icon-only {
 	padding: 0 16px;
 }
 
-
+*/
 
 .dino-list-box {
 	background-color: #fff;
 	overflow-y: auto;
 }
 
+
+
 .dino-list-box-item {
 	display: block;
+	padding: 0 3px;
 }
 
 .dino-list-box-item:hover {
@@ -1151,10 +1157,11 @@ input.l-icon-only.r-icon-only, span.l-icon-only.r-icon-only {
 }
 
 .dino-tree-node-button {
-	position: absolute;
-	top: 0;	
+/*	position: absolute;
+	top: 0;*/	
 	cursor: pointer;
-/*	display: inline-block;*/
+	display: inline-block;
+	vertical-align: middle;
 }
 
 .dino-tree-node.collapsed > ul {
@@ -1162,7 +1169,7 @@ input.l-icon-only.r-icon-only, span.l-icon-only.r-icon-only {
 }
 
 .dino-tree-node-content {
-	margin-left: 20px;
+	margin-left: 3px;
 }
 
 .dino-tree-node-content:hover {
