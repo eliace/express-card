@@ -5,10 +5,6 @@ Dialogs.HoursDialog = $.dino({
 	dtype: 'dialog',
 	title: 'Дозировка по часам',
 	renderTo: 'body',
-//	data: [null, null, null],
-//	data: DataSources.Analyses,
-//	height: 100,
-//	width: 400,
 	content: {
 		dtype: 'box',
 		style: {'padding': '5px'},

@@ -33,6 +33,16 @@ class Drug < ActiveRecord::Base
 	belongs_to :drug_group
 	belongs_to :drug_unit
 	belongs_to :drug_solvent
+	
+	def as_json(o=nil)
+		json = super.as_json(o).merge(:_class => self.class.name)
+		json['effects'] = effects.nil? ? {} : JSON.parse(effects) 
+		json
+	end
+		
+	
+	
+	
 end
 
 class ExpressCard < ActiveRecord::Base

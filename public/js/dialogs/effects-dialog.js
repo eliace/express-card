@@ -1,0 +1,50 @@
+
+
+
+Dialogs.EffectsDialog = $.dino({
+	dtype: 'dialog',
+	title: 'Состав',
+	renderTo: 'body',
+	content: {
+		dtype: 'box',
+		layout: 'form',
+		defaultItem: {
+			dtype: 'input',
+			width: 60,
+			changeOnBlur: true
+		},
+		items: [{
+			label: 'Белки',
+			dataId: 'proteins'
+		}, {
+			label: 'Жиры',
+			dataId: 'fats'
+		}, {
+			label: 'Углеводы',
+			dataId: 'carbohyds'
+		}, {
+			label: 'Калории',
+			dataId: 'calories'
+		}, {
+			label: 'K',
+			dataId: 'k'
+		}, {
+			label: 'Ca',
+			dataId: 'ca'
+		}, {
+			label: 'Na',
+			dataId: 'na'
+		}, {
+			label: 'Mg',
+			dataId: 'mg'
+		}]					
+	},
+	buttons: ['ok', 'cancel'],
+	onClose: function(e) {
+		
+		if(e.button == 'ok') {
+			this.dialogResult = this.data.val();			
+		}
+		
+	}
+});

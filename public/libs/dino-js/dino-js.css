@@ -379,7 +379,7 @@ p {
 
 .dino-tabs li {
 	text-align: center;
-	cursor: pointer;
+/*	cursor: pointer;*/
 	list-style: none outside none;
 }
 
@@ -413,7 +413,7 @@ p {
 /*	height: 25px;*/
 	position: relative;
 	margin: 0;
-	padding: 1px 0 4px;
+	padding: 2px 0 4px;
 }
 
 .dino-tabs.bottom {

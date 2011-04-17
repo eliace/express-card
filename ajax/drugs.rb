@@ -75,6 +75,8 @@ put '/drugs' do
 	
 	# здесь должна выполняться валидация полей
 	
+	json['effects'] = JSON.generate(json['effects']) if not json['effects'].nil?
+	
 	Drug.create(json).to_json
 	
 end
@@ -85,10 +87,12 @@ post '/drugs/:id' do |id|
 	json = JSON.parse(params[:_serialized])
 	
 	# здесь должна выполняться валидация полей
+
+	json['effects'] = JSON.generate(json['effects']) if not json['effects'].nil?	
 	
 	Drug.update(id, json)
 	
-	JSON.generate json
+	Drug.find(id).to_json
 end
 
 

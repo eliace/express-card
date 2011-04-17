@@ -199,13 +199,23 @@ Snippets.AppointmentsTab = {
 				}									
 			}, {
 				header: 'Раствор',
-				width: 120,				
-				dataId: 'solvent',
-			}, {
+				width: 120,
+				editable: false,
+				events: {
+					'dblclick': function(e, w) {
+						
+						Dialogs.SolventDialog.open(function(result){
+							
+						});
+						
+					}
+				}
+//				dataId: 'solvent',
+			}/*, {
 				header: 'Объем',
 				width: 80,				
 				dataId: 'solvent_vol',
-			}, {
+			}*/, {
 				header: 'Дозировка',
 				width: 80,
 				dataId: 'single_dose',

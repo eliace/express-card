@@ -5,6 +5,19 @@ var drugUnits = new Dino.data.ObjectDataSource();
 var drugSolvents = new Dino.data.ObjectDataSource();
 
 
+var drugEffectNames = {
+	fats: 'Жиры',
+	proteins: 'Белки',
+	carbohyds: 'Углеводы',
+	calories: 'Калории',
+	m: 'Mg',
+	k: 'K',
+	ca: 'Ca',
+	na: 'Na'
+	
+}
+
+
 
 Dialogs.DrugsDialog = $.dino({
 	dtype: 'dialog',
@@ -35,8 +48,32 @@ Dialogs.DrugsDialog = $.dino({
 						dataId: 'drug_group_id',
 						dropdownData: DataSources.DrugGroups
 					}, {
-						header: 'Параметры',
-						dataId: 'effects'
+						header: 'Состав',
+						dataId: 'effects',
+						editable: false,
+						cls: 'effects-column',
+						updateOnValueChange: true,
+						format: function(val) {
+							s_a = [];
+							Dino.each(val, function(v, i){s_a.push(drugEffectNames[i]+': '+v);})
+							return s_a.join(', '); 
+						},
+						events: {
+							'dblclick': function(e, w) {
+								
+								Dialogs.EffectsDialog.$bind( Dino.deep_copy(w.data.val()) );
+								Dialogs.EffectsDialog.$dataChanged();
+								Dialogs.EffectsDialog.open(function(result){
+									// FIXME
+									for(var i in result) if(result[i]) result[i] = parseFloat(result[i]);
+									
+									w.data.set( Dino.filter(result, function(val, i){return val}) );
+									
+									w.getParent(Dino.widgets.Grid).editBuffer.upd(w.data.source.val());
+								});
+								
+							}
+						}
 					}, {
 						header: 'Ед.',
 						dtype: 'dropdown-grid-column',
