@@ -3769,9 +3769,12 @@ Dino.layouts.FormLayout = Dino.declare('Dino.layouts.FormLayout', 'Dino.Layout',
 	
 	insert: function(item){
 		
+		var o = item.options;
+		
 		var row = $('<tr><td class="label"></td><td></td></tr>');
 		
-		$('td.label', row).append('<label>' + item.options.label + ':' + '</label>');
+		var labelEl = $('<label>'+(o.label || '')+'</label>');		
+		$('td.label', row).append(labelEl);
 		$('td', row).eq(1).append(item.el);
 		
 		this.el.append(row);
@@ -8120,6 +8123,10 @@ Dino.widgets.Grid = Dino.declare('Dino.widgets.Grid', 'Dino.Widget', /** @lends 
 	
 	eachRow: function(callback) {
 		this.content.content.eachRow(callback);
+	},
+	
+	getRow: function(i) {
+		return this.content.content.getRow(i);
 	}
 	
 //	$dataChanged: function() {
@@ -8682,8 +8689,9 @@ Dino.widgets.MenuItem = Dino.declare('Dino.widgets.MenuItem', 'Dino.containers.B
 		events: {
 			'click': function(e, w) {
 				var event = new Dino.events.CancelEvent();
-				w.events.fire('onAction', event);
+				w.events.fire('onAction', e);
 				if(!event.isCanceled) w.hideSubmenu(true);
+				e.stopPropagation();
 			}
 		}
 	},

@@ -1,7 +1,17 @@
 
 var drugsClassification = new Dino.data.ArrayDataSource();
 
-
+var expressCardSums = new Dino.data.ObjectDataSource({
+	v: 0,
+	fats: 0,
+	proteins: 0,
+	carbohyds: 0,
+	calories: 0,
+	k: 0,
+	mg: 0,
+	na: 0,
+	ca: 0
+});
 
 
 
@@ -23,13 +33,41 @@ function calc_appointment_dose(row) {
 	});
 
 	row.data.set('weight_dose', total/ec.calc_weight);
+	// если указано содержание в растворителе, то высчитываем объем растворителя
+	row.data.set('total_vol', (val.drug_content) ? total*100/val.drug_content : total);
 	
 	row.getColumn(2).states.toggle('disabled', (total > 0 && n == 0));
 	
 	row.$dataChanged();
 	
+	calc_appointment_sums(row.data.source.val());
 }		
 
+
+function calc_appointment_sums(arr){
+	
+	var sums = {
+		v: 0,
+		fats: 0,
+		proteins: 0,
+		carbohyds: 0,
+		calories: 0,
+		k: 0,
+		mg: 0,
+		na: 0,
+		ca: 0		
+	}
+	
+	for(var i = 0; i < arr.length; i++) {
+		var appointment = arr[i];
+		if(appointment.total_vol) {
+			sums.v += appointment.total_vol;
+			Dino.each(appointment.drug_effects, function(eff, k){ sums[k] += (eff*appointment.total_vol/100); }); // из расчета эффекта на 100 мл			
+		}
+	}
+	
+	expressCardSums.set(sums);
+}
 
 
 
@@ -42,7 +80,7 @@ Snippets.AppointmentsTab = {
 	tag: 'appointments',
 	items: [{
 		dtype: 'box',
-		cls: 'dino-border-all',
+//		cls: 'dino-border-all',
 		height: 'auto',
 		style: {'margin-right': 3},
 		width: 200,
@@ -75,36 +113,52 @@ Snippets.AppointmentsTab = {
 				weight: 2,
 				dtype: 'group-box',
 				title: 'Результаты',
+				data: expressCardSums,
+				updateOnValueChange: true,
 				content: {
 					dtype: 'box',
 					layout: 'form',
 					items: [{
 						dtype: 'text',
-						label: 'V'
+						label: 'V',
+						format: function(val) {return val.toFixed(1) + ' мл'},
+						dataId: 'v'
 					}, {
 						dtype: 'text',
-						label: 'Белки'
+						label: 'Белки',
+						format: function(val) {return val.toFixed(1) + ' г'},
+						dataId: 'proteins'
 					}, {
 						dtype: 'text',
-						label: 'Жиры'
+						label: 'Жиры',
+						format: function(val) {return val.toFixed(1) + ' г'},
+						dataId: 'fats'
 					}, {
 						dtype: 'text',
-						label: 'Углеводы'
+						label: 'Углеводы',
+						format: function(val) {return val.toFixed(1) + ' г'},
+						dataId: 'carbohyds'
 					}, {
 						dtype: 'text',
-						label: 'Калории'
+						label: 'Калории',
+						format: function(val) {return val.toFixed(1) + ' ккал'},
+						dataId: 'calories'
 					}, {
 						dtype: 'text',
-						label: 'K'
+						label: 'K',
+						dataId: 'k'
 					}, {
 						dtype: 'text',
-						label: 'Ca'
+						label: 'Ca',
+						dataId: 'ca'						
 					}, {
 						dtype: 'text',
-						label: 'Na'
+						label: 'Na',
+						dataId: 'na'
 					}, {
 						dtype: 'text',
-						label: 'Mg'
+						label: 'Mg',
+						dataId: 'mg'
 					}]					
 				}
 			}
@@ -133,10 +187,21 @@ Snippets.AppointmentsTab = {
 							single_dose: 0,
 							weight_dose: 0,
 							units: val.drug_unit_id,
-							dose: new Array(24)
+							dose: new Array(24),
+							drug_content: val.content,
+							drug_effects: val.effects
 						};
 						
-						this.data.add(obj);
+						var dataItem = this.data.add(obj);
+						
+						var grid = this.parent.parent;
+						
+						var row = grid.getRow({data: dataItem});
+						row.eachItem(function(item){ 
+							if(item.options.editable) { 
+								item.startEdit(); return false; 
+							} 
+						});
 						
 					},
 					components: {
@@ -167,8 +232,12 @@ Snippets.AppointmentsTab = {
 		tableModel: {
 			columns: [{
 				header: 'Наименование',
-				dataId: 'drug_name',
+//				dataId: 'drug_name',
 				editable: false,
+				format: function(val) {
+					var fmt = (val.drug_content) ? '#{drug_content}% #{drug_name}' : '#{drug_name}';
+					return Dino.format_obj(fmt, val);
+				}
 	//			width: 200
 			}, {
 				header: 'Применение',

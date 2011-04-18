@@ -27,6 +27,13 @@ end
 class DrugGroup < ActiveRecord::Base
 #	belongs_to :drug_category
 	has_many :drugs
+	
+	def as_json(o=nil)
+		json = super(o).merge(:_class => self.class.name)
+		json['drugs'] = drugs.as_json if not o.nil? and o[:with_drugs]
+		json
+	end
+	
 end
 
 class Drug < ActiveRecord::Base
@@ -35,14 +42,11 @@ class Drug < ActiveRecord::Base
 	belongs_to :drug_solvent
 	
 	def as_json(o=nil)
-		json = super.as_json(o).merge(:_class => self.class.name)
-		json['effects'] = effects.nil? ? {} : JSON.parse(effects) 
+		json = super(o).merge(:_class => self.class.name)
+		json['effects'] = effects.nil? ? {} : JSON.parse(effects)
 		json
 	end
 		
-	
-	
-	
 end
 
 class ExpressCard < ActiveRecord::Base

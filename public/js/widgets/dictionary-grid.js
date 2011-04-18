@@ -51,7 +51,7 @@ Dino.declare('Medic.widgets.DictionaryGrid', 'Dino.widgets.Grid', {
 				defaultItem: {
 					dtype: 'text-button',
 					cls: 'plain',
-					onAction: function() {
+					onAction: function(e) {
 						
 						var grid = this.parent.parent;
 						
@@ -60,8 +60,15 @@ Dino.declare('Medic.widgets.DictionaryGrid', 'Dino.widgets.Grid', {
 						if(this.tag == 'Add') {
 							var obj = grid.options.objectFactory();
 							
-							grid.data.add(obj);
-							grid.editBuffer.add(obj);							
+							var dataItem = grid.data.add(obj);
+							grid.editBuffer.add(obj);
+							
+							var row = grid.getRow({data: dataItem});
+							row.eachItem(function(item){ 
+								if(item.options.editable) { 
+									item.startEdit(); return false; 
+								} 
+							});
 						}
 						else if(this.tag == 'Delete') {
 		          grid.selection.each(function(item){
@@ -72,6 +79,8 @@ Dino.declare('Medic.widgets.DictionaryGrid', 'Dino.widgets.Grid', {
 							grid.selection.clear();							
 						}
 						
+						
+						e.baseEvent.stopPropagation();
 					}
 				},
 				items: [{

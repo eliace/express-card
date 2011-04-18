@@ -14,6 +14,9 @@ Dialogs.EffectsDialog = $.dino({
 			changeOnBlur: true
 		},
 		items: [{
+			dtype: 'text',
+			text: 'На 100 г'
+		}, {
 			label: 'Белки',
 			dataId: 'proteins'
 		}, {

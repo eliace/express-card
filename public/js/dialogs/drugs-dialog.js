@@ -100,7 +100,8 @@ Dialogs.DrugsDialog = $.dino({
 						drug_group_id: null,
 						drug_effects: {},
 						drug_unit_id: null,
-						drug_solvent_id: null
+						drug_solvent_id: null,
+						effects: {}
 					};
 				}
 			}
