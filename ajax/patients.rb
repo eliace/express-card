@@ -18,7 +18,7 @@ post '/patients/:id' do |id|
 	json = JSON.parse(params[:_serialized])
 	Patient.update id, json
 	
-	Patien.find(id).to_json
+	Patient.find(id).to_json
 end
 
 
