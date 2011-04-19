@@ -10,7 +10,7 @@ var drugEffectNames = {
 	proteins: 'Белки',
 	carbohyds: 'Углеводы',
 	calories: 'Калории',
-	m: 'Mg',
+	mg: 'Mg',
 	k: 'K',
 	ca: 'Ca',
 	na: 'Na'
