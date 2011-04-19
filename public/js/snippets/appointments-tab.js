@@ -33,10 +33,15 @@ function calc_appointment_dose(row) {
 	});
 
 	row.data.set('weight_dose', total/ec.calc_weight);
+	var total_vol = total;
 	// если указано содержание в растворителе, то высчитываем объем растворителя
-	row.data.set('total_vol', (val.drug_content) ? total*100/val.drug_content : total);
+	if(val.drug_content) total_vol = total*100/val.drug_content;
+	// если указан раствор, то добавляем его объем
+	if(total && val.solvent) total_vol += val.solvent_vol;
 	
-	row.getColumn(2).states.toggle('disabled', (total > 0 && n == 0));
+	row.data.set('total_vol', total_vol);
+	
+	row.getColumn(1).states.toggle('disabled', (total > 0 && n == 0));
 	
 	row.$dataChanged();
 	
@@ -76,14 +81,14 @@ function calc_appointment_sums(arr){
 Snippets.AppointmentsTab = {
 	dtype: 'box',
 	layout: 'column',
-	width: 1200,
+	width: 1000,
 	tag: 'appointments',
 	items: [{
 		dtype: 'box',
 //		cls: 'dino-border-all',
 		height: 'auto',
 		style: {'margin-right': 3},
-		width: 200,
+		width: 160,
 		content: {
 			weight: 1,
 			dtype: 'box',
@@ -189,19 +194,21 @@ Snippets.AppointmentsTab = {
 							units: val.drug_unit_id,
 							dose: new Array(24),
 							drug_content: val.content,
-							drug_effects: val.effects
+							drug_effects: val.effects,
+							solvent: null,
+							solvent_vol: 0
 						};
 						
 						var dataItem = this.data.add(obj);
 						
-						var grid = this.parent.parent;
-						
-						var row = grid.getRow({data: dataItem});
-						row.eachItem(function(item){ 
-							if(item.options.editable) { 
-								item.startEdit(); return false; 
-							} 
-						});
+//						var grid = this.parent.parent;
+//						
+//						var row = grid.getRow({data: dataItem});
+//						row.eachItem(function(item){ 
+//							if(item.options.editable) { 
+//								item.startEdit(); return false; 
+//							} 
+//						});
 						
 					},
 					components: {
@@ -231,15 +238,16 @@ Snippets.AppointmentsTab = {
 		
 		tableModel: {
 			columns: [{
-				header: 'Наименование',
+				header: 'Препарат',
 //				dataId: 'drug_name',
 				editable: false,
+				style: {'font-style': 'italic', 'color': '#444'},
 				format: function(val) {
 					var fmt = (val.drug_content) ? '#{drug_content}% #{drug_name}' : '#{drug_name}';
 					return Dino.format_obj(fmt, val);
 				}
 	//			width: 200
-			}, {
+			}/*, {
 				header: 'Применение',
 				width: 120,
 				dataId: 'appointment_group_id',
@@ -266,21 +274,7 @@ Snippets.AppointmentsTab = {
 	        },
 					selectValue: function(w){ return w.data.get('id'); },
 				}									
-			}, {
-				header: 'Раствор',
-				width: 120,
-				editable: false,
-				events: {
-					'dblclick': function(e, w) {
-						
-						Dialogs.SolventDialog.open(function(result){
-							
-						});
-						
-					}
-				}
-//				dataId: 'solvent',
-			}/*, {
+			}*//*, {
 				header: 'Объем',
 				width: 80,				
 				dataId: 'solvent_vol',
@@ -297,41 +291,67 @@ Snippets.AppointmentsTab = {
 					calc_appointment_dose( this.getRow() );
 				}
 			}, {
+				header: 'Раствор',
+				width: 120,
+				editable: false,
+				content: {
+					dtype: 'text-button',
+					width: 113,
+					content: {
+						format: function(val) {
+							if(val.solvent) {
+								var solvent = DataSources.DrugSolvents.find_by_oid(val.solvent);
+								this.opt('innerText', Dino.format('%s %s мл', solvent['name'], val.solvent_vol))
+							}
+							else {
+								this.opt('innerHtml', '&nbsp;');
+							}
+						}						
+					},
+					style: {'line-height': '11px', 'vertical-align': 'middle', 'padding': 0, 'margin': 0},
+					onAction: function() {
+						
+						var self = this;
+						
+						Dialogs.SolventDialog.opt('title', this.data.get('drug_name')+' в растворе');
+						Dialogs.SolventDialog.$bind( Dino.deep_copy(this.data.val()) );
+						Dialogs.SolventDialog.$dataChanged();
+						Dialogs.SolventDialog.open(function(result){
+							result.solvent_vol = parseFloat(result.solvent_vol);
+							self.data.set(result);
+							calc_appointment_dose( self.parent.getRow() );
+						});						
+					}
+				}
+			}, {
 				header: 'По часам',
 				width: 320,
 				dataId: 'dose',
 				updateOnValueChange: true,
 				content: {
-					dtype: 'box',
-					style: {'display': 'inline-block', 'line-height': '8px'},
-					cls: 'dino-border-all dino-corner-all dino-bg-3',
-					layout: 'hbox',
-					defaultItem: {
-						width: 12,
-						height: 12,
-						style: {'line-height': '10px'},
-						cls: 'hour-cell',
-						events: {
-							'dblclick': function(e, w) {
-								
-								Dialogs.HoursDialog.$bind( Dino.deep_copy(w.data.val()) );
-								Dialogs.HoursDialog.$dataChanged();
-								Dialogs.HoursDialog.open(function(doses){
-									for(var i = 0; i < doses.length; i++) {
-										if(Dino.isString(doses[i]) && doses[i] !== '')
-											doses[i] = parseFloat(doses[i]);
-									}
-									w.data.set(doses);
-									calc_appointment_dose( w.parent.parent.getRow() );
-								});
-								
+					dtype: 'button',
+					cls: 'hour-button',
+//					style: {'padding': 0, 'margin': 0, 'line-height': '8px'},
+//					height: 17,
+					
+					onAction: function(){
+
+						var w = this;
+
+						Dialogs.HoursDialog.opt('title', w.data.source.get('drug_name')+' по часам');
+						Dialogs.HoursDialog.$bind( Dino.deep_copy(w.data.val()) );
+						Dialogs.HoursDialog.$dataChanged();
+						Dialogs.HoursDialog.open(function(doses){
+							for(var i = 0; i < doses.length; i++) {
+								if(Dino.isString(doses[i]) && doses[i] !== '')
+									doses[i] = parseFloat(doses[i]);
 							}
-						},
-						binding: function(val) {
-							this.states.toggle('selected', (val[this.index] != null));
-						}
+							w.data.set(doses);
+							calc_appointment_dose( w.parent.getRow() );
+						});
+						
 					},
-					items: [{}, {}, {innerText: '12'}, {}, {}, {}, {}, {}, {innerText: '18'}, {}, {}, {}, {}, {}, {innerText: '24'}, {}, {}, {}, {}, {}, {innerText: '6'}, {}, {}, {cls: 'last'}],
+					
 					contextMenu: {
 						dtype: 'context-menu',
 						items: [
@@ -349,6 +369,52 @@ Snippets.AppointmentsTab = {
 							w.data.set(doses);
 							calc_appointment_dose( w.parent.getRow() );							
 						}
+					},
+					
+					
+					content: {
+						
+						dtype: 'box',
+						style: {'display': 'inline-block'/*, 'line-height': '8px'*/},
+//						cls: 'dino-border-all dino-corner-all dino-bg-3',
+						layout: 'hbox',
+						defaultItem: {
+							width: 12,
+							height: 13,
+							style: {'line-height': '16px'},
+							cls: 'hour-cell silk-icon',
+//							events: {
+//								'click': function(e, w) {
+									
+//									Dialogs.HoursDialog.opt('title', w.data.source.get('drug_name')+' по часам');
+//									Dialogs.HoursDialog.$bind( Dino.deep_copy(w.data.val()) );
+//									Dialogs.HoursDialog.$dataChanged();
+//									Dialogs.HoursDialog.open(function(doses){
+//										for(var i = 0; i < doses.length; i++) {
+//											if(Dino.isString(doses[i]) && doses[i] !== '')
+//												doses[i] = parseFloat(doses[i]);
+//										}
+//										w.data.set(doses);
+//										calc_appointment_dose( w.parent.parent.getRow() );
+//									});
+									
+//								}
+//							},
+							binding: function(val) {
+								this.states.toggle('selected', (val[this.index] != null));
+							},
+							states: {
+								'selected': function(on) {
+									this.el.removeClass('silk-icon-bullet-red');
+									this.el.removeClass('silk-icon-bullet-purple');										
+									if(on) {
+										var icon = (this.data.val()[this.index] === '') ? 'silk-icon-bullet-red' : 'silk-icon-bullet-purple';
+										this.el.addClass(icon);										
+									}
+								}
+							}
+						},
+						items: [{}, {}, {/*innerText: '12'*/cls: 'marked'}, {}, {}, {}, {}, {}, {/*innerText: '18'*/cls: 'marked'}, {}, {}, {}, {}, {}, {/*innerText: '24'*/cls: 'marked'}, {}, {}, {}, {}, {}, {/*innerText: '6'*/cls: 'marked'}, {}, {}, {cls: 'last'}]
 					}
 				},
 				editable: false
@@ -360,7 +426,7 @@ Snippets.AppointmentsTab = {
 					var val = this.data.source.val();
 					return Dino.format('%s %s/кг/сут', val.weight_dose.toFixed(1), DataSources.DrugUnits.find_by_oid(val.units)['name']);
 				},
-				width: 100
+				width: 120
 			}]
 		}
 		

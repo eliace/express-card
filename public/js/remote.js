@@ -66,9 +66,11 @@ Dino.declare('Medic.remote.Collection', 'Dino.events.Observer', {
 			chain: [].concat(arguments),
 			to: function(ds) {	
 				this.chain.push(ds)	
+				return this;
 			},
 			then: function(f) {	
-				this.chain.push(f)	
+				this.chain.push(f);
+				return this;
 			},
 			ready: function(json) {
 				Dino.each(this.chain, function(t){

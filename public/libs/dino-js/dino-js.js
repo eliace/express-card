@@ -1818,7 +1818,9 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		
 		profiler.start('opt');
 		
-		if('width' in o) el.width(o.width);
+		if('width' in o) {
+			if(o.width != 'auto') el.width(o.width);
+		}
 		if('height' in o) {
 			if(o.height == 'auto' || o.height == 'ignore'){ 
 				el.attr('autoheight', o.height);
@@ -3491,7 +3493,7 @@ Dino.declare('Dino.layouts.PlainLayout', Dino.Layout, /** @lends Dino.layouts.Pl
 			if(!this.el.not(':hidden')) return;
 			
 			// расчитываем отступы
-			var dw = this.el.outerWidth() - this.el.width();
+			var dw = this.el.outerWidth(true) - this.el.width();
 			// скрываем элемент
 			this.el.hide();
 			
@@ -4013,13 +4015,13 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 		
 		var box = this.el;
 		var wnd = this.container.el;
-		
-		box.css({'visibility': 'hidden'});
-		
+						
 		var w0 = wnd.width();
 		var h0 = wnd.height();
 		wnd.css({width: '', height: ''});
-		
+
+		box.css({'visibility': 'hidden'});
+
 //		this.container.el.show();
 		
 				
@@ -4897,6 +4899,10 @@ Dino.SelectionManager = Dino.declare('Dino.SelectionManager', 'Dino.BaseObject',
 		return this.selection_a;		
 	},
 	
+	set: function(w) {
+		this.add(w);
+	},
+	
 	add: function(w, ctrlKey, shiftKey) {
 		
     if(shiftKey && this.selection_a.length > 0) {
@@ -4991,7 +4997,7 @@ Dino.Editable = function(o) {
 	
 	this.stopEdit = function(reason) {
 //		$(window).unbind('keypress', this._key_handler);
-		if(this._editor.options.focusable) this._editor.clearFocus();
+//		if(this._editor.options.focusable) this._editor.clearFocus();
 		this.removeComponent('_editor').destroy(); // удаляем и уничтожаем компонент
 		this.$dataChanged(); // явно вызываем обновление данных
 		this.events.fire('onEdit', {'reason': reason});
@@ -5289,6 +5295,7 @@ Dino.Focusable.focusManager = {
 		if(this.current == w) return;
 		if (this.current) {
 			this.current.states.clear('focus');
+			this.current.events.fire('onBlur');
 		}
 		this.current = w;
 		w.states.set('focus');
@@ -5296,17 +5303,26 @@ Dino.Focusable.focusManager = {
 	},
 	
 	clear: function() {
+		var w = this.current;
 		this.current = null;
+		if(w) {
+			w.states.clear('focus');
+			w.events.fire('onBlur');
+		}		
 	},
 	
-	leave: function() {
-		if(this.current) this.current.states.clear('focus');
-		this.current = null;		
-	},
+//	leave: function() {
+//		if(this.current) {
+//			this.current.states.clear('focus');
+//			this.current.events.fire('onBlur');
+//		}
+//		this.current = null;		
+//	},
 	
-	input: function(e) {
-		if(this.current) this.current.events.fire('onKeyDown', {keyCode: e.keyCode}, e);
-		if(e.keyCode == 27) this.leave();
+	keypress: function(e) {
+		if(this.current) 
+			this.current.events.fire('onKeyDown', {keyCode: e.keyCode}, e);
+		if(e.keyCode == 27) this.clear();
 	}
 	
 }
@@ -5314,12 +5330,21 @@ Dino.Focusable.focusManager = {
 
 $(window).click(function(e){
 	// убираем фокус по щелчку левой кнопкой мыши
-	if(e.button == 0) Dino.Focusable.focusManager.leave();
+	if(e.button == 0) Dino.Focusable.focusManager.clear();
 });
 
-$(window).bind('keypress', function(e){
-	Dino.Focusable.focusManager.input(e);
-});
+
+if($.browser.webkit) {
+	$(window).bind('keydown', function(e){
+		Dino.Focusable.focusManager.keypress(e);
+	});	
+}
+else {
+	$(window).bind('keypress', function(e){
+		Dino.Focusable.focusManager.keypress(e);
+	});	
+}
+
 
 
 
@@ -5335,7 +5360,7 @@ Dino.declare('Dino.widgets.ComboField', 'Dino.Widget', {
         dtype: 'input',
 				width: 'auto'
       }
-    }		
+    }
 	}
 	
 }, 'combo-field');
@@ -6744,6 +6769,7 @@ Dino.widgets.ListBox = Dino.declare('Dino.widgets.ListBox', 'Dino.containers.Box
 	
 	defaultOptions: {
     dynamic: true,
+		extensions: [Dino.Selectable],
 		defaultItem: {
 			dtype: 'text-item',
 			cls: 'dino-list-box-item'
@@ -6860,16 +6886,19 @@ Dino.declare('Dino.widgets.TextEditor', 'Dino.widgets.ComboField', {
 			}			
 		},
 		extensions: [Dino.Focusable],
-		states: {
-			'focus': function(f) {
-				if(f) {
-					
-				}
-				else {
-					this.parent.stopEdit();
-				}
-			}
+		onBlur: function() {
+			this.parent.stopEdit();			
 		},
+//		states: {
+//			'focus': function(f) {
+//				if(f) {
+//					
+//				}
+//				else {
+//					this.parent.stopEdit();
+//				}
+//			}
+//		},
 		onKeyDown: function(e) {
 			if(e.keyCode == 13) {
 				this.parent.stopEdit('enterKey');
@@ -6914,7 +6943,6 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 				role: 'actor',
 				onAction: function() {
 					this.parent.showDropdown();
-					this.parent.hasDropdown = true;
 				}
       },
 			dropdown: {
@@ -6928,9 +6956,9 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 						events: {
 							'click': function(e, w) {
 								var dd = w.parent.parent;
+								dd.parent.dropdown.content.selection.set(w);
 								dd.parent.events.fire('onSelect', {target: w});
 								dd.parent.setValue( dd.parent.options.selectValue.call(dd.parent, w) );
-//								dd.parent.setValue(w.data.get(dd.parent.options.dropdownModel.id));
 		          	dd.hide();
 							}
 						}						
@@ -6949,7 +6977,30 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 		formatValue: function(val) { return this.dropdown.data.get(val); },
 		selectValue: function(w){ return w.data.id; },
 		onKeyDown: function(e) {
-			if(e.keyCode == 40) this.showDropdown();
+
+			var listBox = this.dropdown.content;
+			var selected = listBox.selection.get();
+
+			if(e.keyCode == 40) {
+				if(!this.dropdown.isShown) {
+					this.showDropdown();
+				}
+				else {
+					var nextItem = listBox.getItem( selected ? selected.index+1 : 0 );
+					if(nextItem)
+						listBox.selection.set(nextItem);
+				}
+			}
+			else if(e.keyCode == 38) {
+				var prevItem = listBox.getItem( selected ? selected.index-1 : 0 );
+				if(prevItem)
+					listBox.selection.set(prevItem);
+			}
+			else if(e.keyCode == 13) {
+				this.events.fire('onSelect', {target: selected});				
+				this.setValue( this.options.selectValue.call(this, selected) );
+				this.hideDropdown();
+			}
 		},
 		dropdownOnClick: true,
 		dropdownOnFocus: false
@@ -6965,7 +7016,6 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 		}
 		if(o.dropdownOnFocus) {
 			this.events.reg('onFocus', function(){	self.showDropdown(); });
-//			this.el.focus(function(){	self.showDropdown(); });
 		}
 	},
 	
@@ -6982,7 +7032,7 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 	
 	hideDropdown: function() {
 		this.dropdown.hide();
-	}
+	}	
 	
 }, 'dropdown-editor');
 
@@ -6995,6 +7045,22 @@ Dino.declare('Dino.widgets.SpinnerEditor', 'Dino.widgets.TextEditor', {
 	
 	defaultOptions: {
     components: {
+			input: {
+				events: {
+					'keydown': function(e, w) {
+						if($.browser.webkit) {
+							if(e.keyCode == 38) w.parent.spinUp();
+							else if(e.keyCode == 40) w.parent.spinDown();													
+						}
+					},
+					'keypress': function(e, w) {
+						if(!$.browser.webkit) {
+							if(e.keyCode == 38) w.parent.spinUp();
+							else if(e.keyCode == 40) w.parent.spinDown();
+						}						
+					}
+				}
+			},
       buttons: {
         dtype: 'box',
 				role: 'actor',
@@ -7005,12 +7071,10 @@ Dino.declare('Dino.widgets.SpinnerEditor', 'Dino.widgets.TextEditor', {
           height: 8,
           width: 16,
           onAction: function() {
-						var n = this.data.get();
-						if(Dino.isString(n)) n = parseFloat(n); //FIXME 
             if(this.tag == 'up')
-              this.data.set(n+1);
+							this.parent.parent.spinUp();
             else if(this.tag == 'down')
-              this.data.set(n-1);
+							this.parent.parent.spinDown();
           },
 					events: {
 						'dblclick': function(e) { 
@@ -7083,7 +7147,7 @@ Dino.widgets.TextButton = Dino.declare('Dino.widgets.TextButton', 'Dino.widgets.
 		
 		if('text' in o) {
 			this.content.opt('text', o.text);
-			this.content.states.toggle('hidden', !o.text);
+			this.content.states.toggle('hidden', (!o.text && o.text !== ''));
 		}
 		if('icon' in o) {
 			this.icon.states.setOnly(o.icon);
@@ -7176,6 +7240,244 @@ Dino.declare('Dino.widgets.DropdownButton', 'Dino.widgets.TextButton', {
 	
 }, 'dropdown-button');
 
+
+
+
+Dino.declare('Dino.widgets.TextField', 'Dino.widgets.ComboField', {
+	
+	defaultCls: 'dino-text-field',
+	
+	defaultOptions: {
+		events: {
+			'click': function(e) {
+				e.stopPropagation();
+			}
+		},
+		components: {
+			input: {
+        updateOnValueChange: true
+			}			
+		},
+		extensions: [Dino.Focusable],
+		onFocus: function() {
+//			if(this.options.changeOn)
+		},
+		onBlur: function() {
+			if(this.options.changeOnBlur)
+				this.setValue( this.input.el.val() );
+		},
+		changeOnBlur: false
+	}	
+	
+}, 'text-field');
+
+
+
+/**
+ * 
+ * Данные могут быть представлены в видах:
+ * 	1. [[key1, val1], [key2, val2], ..., [keyN, valN]]
+ * 	2. [[k: key1, v: val1], [k: key2, v: val2], ..., [k: keyN, v: valN]]
+ * 
+ * @param {Object} val
+ */
+Dino.declare('Dino.widgets.DropdownField', 'Dino.widgets.TextField', {
+	
+	defaultOptions: {
+		components: {
+			input: {
+				readOnly: true,
+				format: function(val) {
+					return this.parent.options.selectedItemFormat.call(this.parent, val);
+				}
+			},			
+      button: {
+        dtype: 'icon-button',
+				role: 'actor',
+				icon: 'dino-icon-spinner-down',
+				onAction: function() {
+					this.parent.showDropdown();
+				}
+      },
+			dropdown: {
+	      dtype: 'dropdown-box',
+//				renderTo: 'body',
+	      cls: 'dino-border-all dino-dropdown-shadow',
+				style: {'display': 'none'},
+				content: {
+					dtype: 'list-box',
+					defaultItem: {
+						events: {
+							'click': function(e, w) {
+								w.getParent(Dino.widgets.DropdownField).setSelectedItem(w);
+							}
+						}						
+					}
+				},
+				effects: {
+					show: 'slideDown',
+					hide: 'slideUp',
+					delay: 200
+				}
+			}
+		},
+		
+		optionsFormat: {
+			id: 0,
+			value: 1
+		},
+		
+		selectedItemFormat: function(val) {
+			if(val === '' || val === undefined || val === null) return '';
+			var o = this.options;
+			if(o.optionsFormat) {
+				var criteria = {};
+				criteria[o.optionsFormat.id] = val;
+				var optionsItem = Dino.find(this.dropdown.data.val(), Dino.filters.by_props.curry(criteria));
+				return optionsItem ? optionsItem[o.optionsFormat.value] : optionsItem;				
+			}
+			else {
+				return val;
+			}
+		},		
+		onKeyDown: function(e) {
+
+			var listBox = this.dropdown.content;
+			var selected = listBox.selection.get();
+
+			if(e.keyCode == 40) {
+				if(!this.dropdown.isShown) {
+					this.showDropdown();
+				}
+				else {
+					var nextItem = listBox.getItem( selected ? selected.index+1 : 0 );
+					if(nextItem)
+						listBox.selection.set(nextItem);
+				}
+			}
+			else if(e.keyCode == 38) {
+				var prevItem = listBox.getItem( selected ? selected.index-1 : 0 );
+				if(prevItem)
+					listBox.selection.set(prevItem);
+			}
+			else if(e.keyCode == 13) {
+				this.setSelectedItem(selected);
+			}
+		},
+		dropdownOnClick: true,
+		dropdownOnFocus: false
+	},
+	
+	$init: function(o) {
+		Dino.widgets.DropdownField.superclass.$init.apply(this, arguments);
+		
+		var self = this;
+		
+		if(o.dropdownOnClick) {
+			this.el.click(function(){	self.showDropdown(); });
+		}
+		if(o.dropdownOnFocus) {
+			this.events.reg('onFocus', function(){	self.showDropdown(); });
+		}
+	},
+	
+	
+	showDropdown: function() {
+    var dd = this.dropdown;
+							
+    dd.el.css('min-width', this.el.width());//.width(this.el.width());
+//    dd.el.width(this.el.width());
+		$('body').append(dd.el);
+
+		var offset = this.el.offset();
+    dd.show(offset.left, offset.top + this.el.outerHeight());	
+	},
+	
+	hideDropdown: function() {
+		this.dropdown.hide();
+		this.dropdown.el.detach();
+	},
+	
+	setSelectedItem: function(item) {
+		var o = this.options;
+		this.dropdown.content.selection.set(item);
+		this.events.fire('onSelect', {target: item});
+		this.setValue( o.optionsFormat ? item.data.get(o.optionsFormat.id) : item.data.get() );
+  	this.hideDropdown();
+	}
+	
+}, 'dropdown-field');
+
+
+
+Dino.declare('Dino.widgets.SpinnerField', 'Dino.widgets.TextField', {
+	
+	defaultOptions: {
+    components: {
+			input: {
+				events: {
+					'keydown': function(e, w) {
+						if($.browser.webkit) {
+							if(e.keyCode == 38) w.parent.spinUp();
+							else if(e.keyCode == 40) w.parent.spinDown();													
+						}
+					},
+					'keypress': function(e, w) {
+						if(!$.browser.webkit) {
+							if(e.keyCode == 38) w.parent.spinUp();
+							else if(e.keyCode == 40) w.parent.spinDown();
+						}						
+					}
+				}
+			},
+      buttons: {
+        dtype: 'box',
+				role: 'actor',
+        defaultItem: {
+          dtype: 'action-icon',
+          style: {'display': 'block', 'border': 'none', 'padding': 0},
+          height: 10,
+          width: 20,
+          onAction: function() {
+            if(this.tag == 'up')
+							this.parent.parent.spinUp();
+            else if(this.tag == 'down')
+							this.parent.parent.spinDown();
+          },
+					events: {
+						'dblclick': function(e) { 
+							e.preventDefault(); return false; 
+						}
+					}
+        },
+        items: [{
+          cls: 'dino-icon-spinner-up',
+          tag: 'up'
+        }, {
+          cls: 'dino-icon-spinner-down',
+          tag: 'down'
+        }]        
+      }
+    },
+		onKeyDown: function(e) {
+			if(e.keyCode == 38) this.spinUp();
+			else if(e.keyCode == 40) this.spinDown();
+		}
+	},
+	
+	
+	spinUp: function() {
+		var n = parseFloat(this.input.el.val()); 
+		this.setValue(n+1);
+	},
+	
+	spinDown: function() {
+		var n = parseFloat(this.input.el.val()); 
+		this.setValue(n-1);		
+	}
+	
+	
+}, 'spinner-field');
 
 
 
@@ -8691,7 +8993,7 @@ Dino.widgets.MenuItem = Dino.declare('Dino.widgets.MenuItem', 'Dino.containers.B
 				var event = new Dino.events.CancelEvent();
 				w.events.fire('onAction', e);
 				if(!event.isCanceled) w.hideSubmenu(true);
-				e.stopPropagation();
+//				e.stopPropagation();
 			}
 		}
 	},

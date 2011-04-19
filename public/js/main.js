@@ -149,7 +149,7 @@ $(document).ready(function(){
 	
 	Remote.AnalysisGroups.load_all().to(DataSources.AnalysisGroups);
 	Remote.DrugUnits.load_all().to(DataSources.DrugUnits);
-	Remote.DrugSolvents.load_all().to(DataSources.DrugSolvents);
+	Remote.DrugSolvents.load_all().to(DataSources.DrugSolvents).then(function(){ DataSources.DrugSolvents.add({id: null, name: ''}, 0); });
 //	Remote.DrugCategories.load_all().to(DataSources.DrugCategories);
 	Remote.DrugGroups.load_all().to(DataSources.DrugGroups);
 	Remote.AppointmentGroups.load_all().to(DataSources.AppointmentGroups);
