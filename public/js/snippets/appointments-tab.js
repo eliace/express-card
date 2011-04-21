@@ -329,8 +329,8 @@ Snippets.AppointmentsTab = {
 				dataId: 'dose',
 				updateOnValueChange: true,
 				content: {
-					dtype: 'button',
-					cls: 'hour-button',
+					dtype: 'box',
+					cls: 'hour-button dino-bg-3 dino-corner-all',
 //					style: {'padding': 0, 'margin': 0, 'line-height': '8px'},
 //					height: 17,
 					
@@ -351,6 +351,12 @@ Snippets.AppointmentsTab = {
 						});
 						
 					},
+					events: {
+						'click': function(e, w) {
+							w.events.fire('onAction');
+						}
+					},
+					
 					
 					contextMenu: {
 						dtype: 'context-menu',
@@ -377,40 +383,61 @@ Snippets.AppointmentsTab = {
 						dtype: 'box',
 						style: {'display': 'inline-block'/*, 'line-height': '8px'*/},
 //						cls: 'dino-border-all dino-corner-all dino-bg-3',
+
+						binding: function(val) {
+							
+							colors = ['purple', 'blue', 'green', 'orange', 'pink', 'yellow', 'white'];
+							
+							var colored = {};
+							var n = 0;
+							for(var i = 0; i < 24; i++) {
+								var dose = val[i];
+								if(dose != null) {
+									var color = 'red';
+									if(dose !== '') {
+										var key = ''+dose;
+										if(key in colored) {
+											color = colored[key]
+										}
+										else {
+											colored[key] = colors[n++];
+											color = colored[key];
+										}
+									}
+									
+									this.getItem(i).color = color;
+								}
+							}
+							
+						},
+
 						layout: 'hbox',
 						defaultItem: {
 							width: 12,
 							height: 13,
 							style: {'line-height': '16px'},
 							cls: 'hour-cell silk-icon',
-//							events: {
-//								'click': function(e, w) {
-									
-//									Dialogs.HoursDialog.opt('title', w.data.source.get('drug_name')+' по часам');
-//									Dialogs.HoursDialog.$bind( Dino.deep_copy(w.data.val()) );
-//									Dialogs.HoursDialog.$dataChanged();
-//									Dialogs.HoursDialog.open(function(doses){
-//										for(var i = 0; i < doses.length; i++) {
-//											if(Dino.isString(doses[i]) && doses[i] !== '')
-//												doses[i] = parseFloat(doses[i]);
-//										}
-//										w.data.set(doses);
-//										calc_appointment_dose( w.parent.parent.getRow() );
-//									});
-									
-//								}
-//							},
 							binding: function(val) {
-								this.states.toggle('selected', (val[this.index] != null));
+								
+								var tooltip = '';
+								if(val[this.index] === '') tooltip = this.data.source.get('single_dose');
+								else if(val[this.index] != null) tooltip = val[this.index];
+								
+								this.opt('tooltip', tooltip);
+								this.el.tipTip({delay: 0, edgeOffset: 6});
+								
+								this.states.toggle('selected', val[this.index] != null);
 							},
 							states: {
 								'selected': function(on) {
-									this.el.removeClass('silk-icon-bullet-red');
-									this.el.removeClass('silk-icon-bullet-purple');										
-									if(on) {
-										var icon = (this.data.val()[this.index] === '') ? 'silk-icon-bullet-red' : 'silk-icon-bullet-purple';
-										this.el.addClass(icon);										
-									}
+									this.states.clear(/^silk-icon-bullet/);
+									if(this.color) this.states.set('silk-icon-bullet-'+this.color);
+//									this.el.removeClass('silk-icon-bullet-red');
+//									this.el.removeClass('silk-icon-bullet-purple');										
+//									if(on) {
+//										var icon = (this.data.val()[this.index] === '') ? 'silk-icon-bullet-red' : 'silk-icon-bullet-purple';
+//										this.el.addClass(icon);
+//									}
 								}
 							}
 						},

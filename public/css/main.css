@@ -191,14 +191,15 @@ body input {
 
 .hour-button {
 	padding: 0;
-	margin: 0;
+	margin: 0 3px;
 	line-height: 8px;
 	vertical-align: middle;
-/*	border: 1px solid #aaa;*/
+	
+	border: 1px solid #aaa;
 }
 
 .hour-button:hover {
-/*	border-color: #68f;*/
+	border-color: #68f;
 }
 
 

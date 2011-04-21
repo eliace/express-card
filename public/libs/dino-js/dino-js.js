@@ -2428,7 +2428,7 @@ $(document).ready(function(){
 Dino.declare('Dino.Layout', Dino.BaseObject, /** @lends Dino.Layout.prototype */ {
 	
 	defaultOptions: {
-		updateMode: 'auto'	
+		updateMode: 'auto'
 	},
 	
 	initialize: function(opts){
@@ -3247,8 +3247,14 @@ Dino.StateManager = Dino.declare('Dino.StateManager', 'Dino.BaseObject', /** @le
 	 */
 	clear: function(name) {
 		
+		if(name instanceof RegExp) {
+			var names = Dino.filter(this.current_states, function(s, i){ return i.match(name); });
+			for(var i in names) this.clear(i);
+			return this;			
+		}
+		
 		// получаем состояние, определенное для виджета
-		var state = this.widget.options.states[name];
+		var state = this.widget.options.states[name];		
 //		var state_off, state_on = null;
 		if(state == null) state = name;//{ state_on = name; state_off = ''; }
 //		else if(Dino.isString(state)) { state_on = state; state_off = ''; }
@@ -4815,12 +4821,11 @@ Dino.containers.GroupBox = Dino.declare('Dino.containers.GroupBox', 'Dino.Contai
 			title: {
 				dtype: 'container',
 				html: '<legend/>'
-//				cls: 'dino-group-title'// dino-panel'
 			}
 		}
 	},
 	
-	$html: function() { return '<fieldset/>'; },
+	$html: function() { return '<fieldset></fieldset>'; },
 	
 	$opt: function(o) {
 		Dino.containers.GroupBox.superclass.$opt.apply(this, arguments);
@@ -7255,7 +7260,12 @@ Dino.declare('Dino.widgets.TextField', 'Dino.widgets.ComboField', {
 		},
 		components: {
 			input: {
-        updateOnValueChange: true
+        updateOnValueChange: true,
+				events: {
+					'focus': function(e, w) {
+						w.parent.setFocus();
+					}
+				}
 			}			
 		},
 		extensions: [Dino.Focusable],
@@ -7266,7 +7276,7 @@ Dino.declare('Dino.widgets.TextField', 'Dino.widgets.ComboField', {
 			if(this.options.changeOnBlur)
 				this.setValue( this.input.el.val() );
 		},
-		changeOnBlur: false
+		changeOnBlur: true
 	}	
 	
 }, 'text-field');
@@ -7365,7 +7375,8 @@ Dino.declare('Dino.widgets.DropdownField', 'Dino.widgets.TextField', {
 			}
 		},
 		dropdownOnClick: true,
-		dropdownOnFocus: false
+		dropdownOnFocus: false,
+		changeOnBlur: false
 	},
 	
 	$init: function(o) {
@@ -9642,29 +9653,29 @@ Dino.widgets.Tree = Dino.declare('Dino.widgets.Tree', 'Dino.containers.Box', /**
 		
 	},
 	
-	setSelected: function(node_to_select) {
-		
-		this.eachItem(function(item){
-			item.walkSubtree(function(node){
-				if(node.isSelected()){
-					node.states.clear('selected');
-					node.events.fire('onUnselected');
-				}
-			});
-		});
-		
-		if(node_to_select) {
-			node_to_select.states.set('selected');
-			node_to_select.events.fire('onSelected');
-			
-			this.selected_node = node_to_select;
-		}
-		
-	},
-	
-	getSelected: function() {
-		return this.selected_node;
-	},
+//	setSelected: function(node_to_select) {
+//		
+//		this.eachItem(function(item){
+//			item.walkSubtree(function(node){
+//				if(node.isSelected()){
+//					node.states.clear('selected');
+//					node.events.fire('onUnselected');
+//				}
+//			});
+//		});
+//		
+//		if(node_to_select) {
+//			node_to_select.states.set('selected');
+//			node_to_select.events.fire('onSelected');
+//			
+//			this.selected_node = node_to_select;
+//		}
+//		
+//	},
+//	
+//	getSelected: function() {
+//		return this.selected_node;
+//	},
 	
 	
 	

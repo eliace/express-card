@@ -161,9 +161,11 @@ class CreateDatabase < ActiveRecord::Migration
 		AnalysisGroup.create(:name => 'Биохимический');
 		AnalysisGroup.create(:name => 'Бактериологический');
 		
+		DrugUnit.create(:name => 'г');
 		DrugUnit.create(:name => 'мг');
 		DrugUnit.create(:name => 'мкг');
 		DrugUnit.create(:name => 'мл');
+		DrugUnit.create(:name => 'ммоль');
 		DrugUnit.create(:name => 'ЕД');
     
     DrugSolvent.create(:name => 'вода');
