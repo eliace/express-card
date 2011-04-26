@@ -10,6 +10,7 @@ Dino.data.DataSource.prototype.get_by_id = function(id) {
 }
 
 var Snippets = {};
+var Medic = {};
 
 
 var Pages = {};
@@ -28,22 +29,24 @@ var DataSources = {
 	ExpressCards: new Dino.data.ArrayDataSource(),
 	ExpressCardAnalyses: new Dino.data.ArrayDataSource(),
 	ExpressCardAppointments: new Dino.data.ArrayDataSource(),
+	Users: new Dino.data.ArrayDataSource(),
 };
 
 var Remote = {};
 
-Remote.Patients = new Medic.remote.Collection('patients');
-Remote.AnalysisGroups = new Medic.remote.Collection('analysis_groups');
-Remote.Analyses = new Medic.remote.Collection('analyses');
-Remote.DrugUnits = new Medic.remote.Collection('drug_units');
-Remote.DrugSolvents = new Medic.remote.Collection('drug_solvents');
-Remote.DrugCategories = new Medic.remote.Collection('drug_categories');
-Remote.DrugGroups = new Medic.remote.Collection('drug_groups');
-Remote.Drugs = new Medic.remote.Collection('drugs');
-Remote.AppointmentGroups = new Medic.remote.Collection('appointment_groups');
-Remote.ExpressCard = new Medic.remote.Collection('express_card');
-Remote.ExpressCardAnalyses = new Medic.remote.Collection('express_card_analyses');
-Remote.ExpressCardAppointments = new Medic.remote.Collection('express_card_appointments');
+Remote.Patients = new Dino.remote.Collection('patients');
+Remote.AnalysisGroups = new Dino.remote.Collection('analysis_groups');
+Remote.Analyses = new Dino.remote.Collection('analyses');
+Remote.DrugUnits = new Dino.remote.Collection('drug_units');
+Remote.DrugSolvents = new Dino.remote.Collection('drug_solvents');
+Remote.DrugCategories = new Dino.remote.Collection('drug_categories');
+Remote.DrugGroups = new Dino.remote.Collection('drug_groups');
+Remote.Drugs = new Dino.remote.Collection('drugs');
+Remote.AppointmentGroups = new Dino.remote.Collection('appointment_groups');
+Remote.ExpressCard = new Dino.remote.Collection('express_card');
+Remote.ExpressCardAnalyses = new Dino.remote.Collection('express_card_analyses');
+Remote.ExpressCardAppointments = new Dino.remote.Collection('express_card_appointments');
+Remote.Users = new Dino.remote.Collection('users');
 
 
 Remote.Patient = Remote.Patients.object([
@@ -68,7 +71,10 @@ Remote.Drug = Remote.Drugs.object([
 	'effects',
 	'content'
 ]);
-
+Remote.User = Remote.Users.object([
+	'display_name',
+	'login'
+]);
 
 
 function array_to_hash(arr, key, val) {
@@ -84,7 +90,8 @@ $(document).ready(function(){
 	Application = new Dino.framework.Application({
 		components: {
 			logo: {
-				dtype: 'box'
+				dtype: 'box',
+//				items: []
 			},
 			mainMenu: {
 				dtype: 'main-menu',
@@ -103,10 +110,10 @@ $(document).ready(function(){
 						items: [
 							{text: 'Анализы', tag: 'analyses'},
 							{text: 'Питание/Препараты', tag: 'drugs'},
-							{text: 'Пользователи'}
+							{text: 'Пользователи', tag: 'users'}
 						]
 					}
-				}],
+				}, Medic.LogoutBox],
 				onAction: function(e) {
 					if(e.target.tag == 'new-patient') {
 						
@@ -129,6 +136,9 @@ $(document).ready(function(){
 					else if(e.target.tag == 'drugs') {
 						Dialogs.DrugsDialog.open();
 					}
+					else if(e.target.tag == 'users') {
+						Dialogs.UsersDialog.open();
+					}
 				}
 			},
 			content: {
@@ -139,6 +149,7 @@ $(document).ready(function(){
 		}
 	});
 	
+	Application.growl.options.defaultItem.delay = 800;
 	
 	Dino.each(Dialogs, function(dlg){ $('body').append(dlg.el); });
 	

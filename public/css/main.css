@@ -262,3 +262,25 @@ body input {
 }
 
 
+
+
+
+.logout-box {
+	float: right;
+	margin-right: 10px;
+}
+
+.user-name {
+	margin-right: 15px;
+	color: #00c;
+}
+
+.user-logout {
+	color: #666;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.user-logout:hover {
+	color: #000;
+}

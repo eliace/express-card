@@ -1,4 +1,5 @@
 require 'foreigner'
+require 'digest/sha2'
 
 class CreateDatabase < ActiveRecord::Migration
   
@@ -28,6 +29,7 @@ class CreateDatabase < ActiveRecord::Migration
       t.string :first_name
       t.string :middle_name
       t.string :last_name
+      t.string :display_name
       t.string :login
       t.string :password
     end   
@@ -153,6 +155,8 @@ class CreateDatabase < ActiveRecord::Migration
 		#
 		# Заполняем базу данных тестовыми данными
 		#
+		d = Digest::SHA2.new
+		User.create(:display_name => 'Администратор', :login => 'admin', :password => d.hexdigest('123456'))
 		
 		Patient.create(:name => 'Вася', :patient_no => 1, :diagnosis => 'Воспаление межушного ганглия');
 		

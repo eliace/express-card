@@ -1131,7 +1131,7 @@ Dino.declare('Dino.data.DataSource', 'Dino.events.Observer', /**@lends Dino.data
 		}
 		else {
 			Dino.each(values, function(val, i){
-				callback.call(this, val, i);
+				return callback.call(this, val, i);
 			});			
 		}
 		
@@ -1493,7 +1493,8 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		layout: 'plain',
 		states: {
 			'hidden': 'hidden',
-			'visible': ['', 'hidden']
+//			'visible': ['', 'hidden'],
+			'disabled': 'disabled'
 		},
 		defaults: {},
 		extensions: [],
@@ -1504,6 +1505,26 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 	customOptions: {
 	},
 
+/*
+	initializeClass: function() {
+		
+		var o = {};
+		
+		if(!this.constructor.NO_REBUILD_SKELETON) {
+			var prevDefaultOptions = null;
+			Dino.hierarchy(this.constructor, function(clazz){
+				if(clazz.defaultOptions == prevDefaultOptions) return;
+				// следуюющие две строчки реализуют синонимизацию defaultOptions и skeleton
+				if('defaultOptions' in clazz) Dino.utils.overrideOpts(o, clazz.defaultOptions);
+				if('skeleton' in clazz) Dino.utils.overrideOpts(o, clazz.skeleton);
+				prevDefaultOptions = clazz.defaultOptions; 
+			});
+			this.constructor.NO_REBUILD_SKELETON = true;
+			this.constructor.prototype.defaultOptions = Dino.deep_copy(o);
+			
+		}		
+	},
+*/
 			
 	initialize: function() {
 		
@@ -1551,7 +1572,6 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 			this.constructor.NO_REBUILD_SKELETON = true;
 			this.constructor.prototype.defaultOptions = Dino.deep_copy(o);
 			
-//			console.log('rebuild_skeleton');
 		}
 		else {
 			this.options = o = Dino.deep_copy(this.defaultOptions);
@@ -2400,7 +2420,7 @@ $(document).ready(function(){
 					w.events.fire('onContextMenu', cancel_event);
 					if(!cancel_event.isCanceled){
 						w.contextMenu.sourceWidget = w;
-						w.contextMenu.show(e.pageX, e.pageY);
+						w.contextMenu.show(e.pageX, e.pageY, 'body');
 					}
 					e.preventDefault();
 				}
@@ -2613,7 +2633,7 @@ Dino.declare('Dino.Container', 'Dino.Widget', /** @lends Dino.Container.prototyp
 		var itemOpts = item;
 		
 		// если новый элемент является набором параметров, то строим виджет
-		if( Dino.isPlainObject(item) ) item = this.itemFactory( Dino.utils.overrideOpts({}, this.options.defaultItem, item) );
+		if( Dino.isPlainObject(item) ) item = this.itemFactory( Dino.utils.overrideOpts(Dino.deep_copy(this.options.defaultItem), item) );
 		
 		
 		if(index == undefined){
@@ -3112,14 +3132,14 @@ Dino.utils.overrideOpts = function(o) {
 		
 		var srcObj = arguments[j];
 		
-		if( Dino.isArray(srcObj) ){
-			for(var i = 0; i < srcObj.length; i++)
-				Dino.utils.overrideProp(o, srcObj, i);
-		}
-		else {			
+//		if( Dino.isArray(srcObj) ){
+//			for(var i = 0; i < srcObj.length; i++)
+//				Dino.utils.overrideProp(o, srcObj, i);
+//		}
+//		else {			
 			for(var i in srcObj)
 				Dino.utils.overrideProp(o, srcObj, i);
-		}		
+//		}		
 	}
 	
 	return o;
@@ -4029,16 +4049,28 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 		box.css({'visibility': 'hidden'});
 
 //		this.container.el.show();
-		
-				
-		var w = this.container.options.width || box.outerWidth(true);
-		var h = this.container.options.height || box.outerHeight(true);
-		
+
+		var w = this.container.options.width;
+		var h = this.container.options.height;
+
 		// если указана высота в %, ее еще надо рассчитать
-		if(Dino.isString(w) && w[w.length-1] == '%') 
-			w = this.container.el.parent().width() * parseFloat(w.substr(0, w.length-1))/100;
-		if(Dino.isString(h) && h[h.length-1] == '%') 
-			h = this.container.el.parent().height() * parseFloat(h.substr(0, h.length-1))/100;
+		if (Dino.isString(w) && w[w.length - 1] == '%') {
+			w = this.container.el.parent().width() * parseFloat(w.substr(0, w.length - 1)) / 100;
+			wnd.css('width', w);
+		}
+			
+		if (Dino.isString(h) && h[h.length - 1] == '%') {
+			h = this.container.el.parent().height() * parseFloat(h.substr(0, h.length - 1)) / 100;
+			wnd.css('height', w);
+		}
+		
+
+		w = w || box.outerWidth(true);
+		h = h || box.outerHeight(true);
+		
+//		var w = this.container.options.width || box.outerWidth(true);
+//		var h = this.container.options.height || box.outerHeight(true);
+		
 		
 		box.css('display', 'none');
 		
@@ -4685,14 +4717,18 @@ Dino.containers.DropdownBox = Dino.declare('Dino.containers.DropdownBox', 'Dino.
 		
 	},
 	
-	show: function(x, y) {
+	show: function(x, y, target) {
 		
 		if(arguments.length == 0) return;
 		
 		var offset = this.options.offset;
 		
 		this.el.css({'left': x + offset[0], 'top': y + offset[1]});
-//		$(this.options.target).append(this.el);
+				
+		if(target) {
+			this.renderTarget = $(target);
+			this.renderTarget.append(this.el);
+		}
 				
 		var eff = this.options.effects;
 		
@@ -4742,7 +4778,10 @@ Dino.containers.DropdownBox = Dino.declare('Dino.containers.DropdownBox', 'Dino.
 		
 		this.isShown = false;
 		
-		
+		if(this.renderTarget) {
+			this.el.detach();
+			delete this.renderTarget;
+		}
 //		this.el.remove();
 //		$(this.options.target).remove(this.el);
 	}
@@ -4949,11 +4988,18 @@ Dino.SelectionManager = Dino.declare('Dino.SelectionManager', 'Dino.BaseObject',
 	
 	
 	each: function(callback) {
-		for(var i = 0; i < this.selection_a.length; i++) callback.call(this, this.selection_a[i], i);
+		for(var i = 0; i < this.selection_a.length; i++) 
+			callback.call(this, this.selection_a[i], i);
 	},
 	
-	size: function() {
+	count: function() {
 		return this.selection_a.length;
+	},
+	
+	has: function(w) {
+		for(var i = 0; i < this.selection_a.length; i++)
+			if(this.selection_a[i] == w) return true;
+		return false;
 	}
 	
 });
@@ -5044,6 +5090,9 @@ Dino.drag = null;
 Dino.Draggable = function(o) {
 	
 	this.el.bind('mousedown', function(e) {
+		
+		if(e.button != 0) return;
+		
 		if(!Dino.drag) {
 			var w = $(this).dino();
 			Dino.drag = {
@@ -5226,10 +5275,10 @@ Dino.Clickable = function(o) {
 	
 	Dino.utils.overrideOpts(o, {events: {
 		'click': function(e, w) {
-			w.events.fire('onClick');
+			w.events.fire('onClick', {button: 0}, e);
 		},
 		'dblclick': function(e, w) {
-			w.events.fire('onDoubleClick');
+			w.events.fire('onDoubleClick', {button: 0}, e);
 		}
 	}});
 	
@@ -5253,7 +5302,7 @@ Dino.RClickable = function(o) {
 			if(e.button == 2) {
 				var t = Dino.timestamp()
 				if(t - Dino.RClickable.click_timestamp < 200) {
-					w.events.fire('onClick', {button: 2});					
+					w.events.fire('onClick', {button: 2}, e);					
 				}
 			}			
 		},
@@ -5819,7 +5868,7 @@ Dino.widgets.Button = Dino.declare('Dino.widgets.Button', 'Dino.Widget', /** @le
 		var self = this;
 		
 		this.el.click(function(e){
-			self.events.fire('onAction', {}, e);
+			if(!self.states.is('disabled')) self.events.fire('onAction', {}, e);
 		});		
 		
 	},
@@ -6157,14 +6206,17 @@ Dino.widgets.TextItem = Dino.declare('Dino.widgets.TextItem', 'Dino.Widget', /**
 		components: {
 			leftIcon: {
 				dtype: 'icon',
-				dock: 'left'
+//				dock: 'left',
+				state: 'hidden'
 			},
 			content: {
-				dtype: 'text'
+				dtype: 'text',
+				state: 'hidden'
 			},
 			rightIcon: {
 				dtype: 'icon',
-				dock: 'right'
+//				dock: 'right',
+				state: 'hidden'
 			}
 		},
 		// Финт ушами.Такой способ обработки событий занимает меньше места, чем метод $events
@@ -6189,6 +6241,7 @@ Dino.widgets.TextItem = Dino.declare('Dino.widgets.TextItem', 'Dino.Widget', /**
 	$init: function(o) {
 		Dino.widgets.TextItem.superclass.$init.apply(this, arguments);
 		
+/*		
 		var key_a = [];
 		if(o.icon) key_a.push('icon');
 		if(o.text || o.text === '') key_a.push('text');
@@ -6235,7 +6288,7 @@ Dino.widgets.TextItem = Dino.declare('Dino.widgets.TextItem', 'Dino.Widget', /**
 		Dino.utils.overrideOpts(o.components, o_mod);
 		
 //		console.log();
-		
+*/		
 	},
 	
 	$opt: function(o) {
@@ -6246,13 +6299,30 @@ Dino.widgets.TextItem = Dino.declare('Dino.widgets.TextItem', 'Dino.Widget', /**
 //			(o.text) ? this.content.opt('innerText', o.text) : this.content.opt('innerHtml', '&nbsp;');
 		}
 		if('textFormat' in o) this.content.opt('format', o.textFormat);
+	
+	
+		if('text' in o) {
+			this.content.opt('text', o.text);
+			this.content.states.toggle('hidden', (!o.text && o.text !== ''));
+		}
+		if('icon' in o) {
+			this.leftIcon.states.setOnly(o.icon);
+			this.leftIcon.states.toggle('hidden', !o.icon);
+		}
+		if('xicon' in o) {
+			this.rightIcon.states.setOnly(o.xicon);
+			this.rightIcon.states.toggle('hidden', !o.xicon);
+		}
+	
 		
+/*		
 		if('icon' in o) 
 			this.leftIcon.states.setOnly(o.icon);
 		if('xicon' in o) {
 			this.rightIcon.states.setOnly(o.xicon);
+			this.rightIcon.states.clear('hidden');
 		} 
-			
+*/			
 		
 /*		
 		if('pattern' in o) {
@@ -7882,7 +7952,7 @@ Dino.widgets.MessageBox = Dino.declare('Dino.widgets.MessageBox', 'Dino.widgets.
 				}	
 			}
 		},
-	
+		destroyOnClose: true,	
 //		buttonsAlign: 'center',
 		buttonSet: {
 			'yes': {text: 'Да', tag: 'yes'},
@@ -9002,7 +9072,9 @@ Dino.widgets.MenuItem = Dino.declare('Dino.widgets.MenuItem', 'Dino.containers.B
 		events: {
 			'click': function(e, w) {
 				var event = new Dino.events.CancelEvent();
-				w.events.fire('onAction', e);
+				// если не определено состояние disabled, то вызываем событие onAction
+				if(!w.states.is('disabled')) 
+					w.events.fire('onAction', e); 
 				if(!event.isCanceled) w.hideSubmenu(true);
 //				e.stopPropagation();
 			}
@@ -9398,9 +9470,9 @@ Dino.widgets.BasicTreeNode = Dino.declare('Dino.widgets.BasicTreeNode', 'Dino.wi
 				weight: 1,
 				dtype: 'icon',
 				cls: 'dino-tree-node-button',
-				states: {
-					'leaf': 'hidden'
-				},
+//				states: {
+//					'leaf': 'hidden'
+//				},
 				events: {
 					'click': function(e, w) {
 						w.parent.states.toggle('expand_collapse');
@@ -9749,7 +9821,7 @@ Dino.declare('Dino.framework.Application', 'Dino.BaseObject', {
 		
 
 		$(document).ajaxError(function(e, xhr, ajaxOpts, err) {
-			growl.err(xhr.responseText, true);
+			growl.error(xhr.responseText, true);
 		});
 		
 		
@@ -9789,7 +9861,7 @@ Dino.declare('Dino.framework.Application', 'Dino.BaseObject', {
 	
 		growl = {
 				info: function(m, isHtml) {this.msg(m, 'info', isHtml);},
-				err: function(m, isHtml) {this.msg(m, 'critical', isHtml);},
+				error: function(m, isHtml) {this.msg(m, 'critical', isHtml);},
 				warn: function(m, isHtml) {this.msg(m, 'warning', isHtml);},
 //				html: function(m, isHtml) { Dino.growl.addItem({html: m, icon: 'dino-icon-growlbox-info'}) },
 				msg: function(m, type, isHtml) {

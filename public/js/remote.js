@@ -1,10 +1,10 @@
 
 
 
-Dino.declare('Medic.remote.Object', 'Dino.events.Observer', {
+Dino.declare('Dino.remote.Object', 'Dino.events.Observer', {
 	
 	initialize: function(collection, attrs) {
-		Medic.remote.Object.superclass.initialize.apply(this, arguments);
+		Dino.remote.Object.superclass.initialize.apply(this, arguments);
 		this.attributes = attrs || [];
 		this.source = collection;
 	},
@@ -41,10 +41,10 @@ Dino.declare('Medic.remote.Object', 'Dino.events.Observer', {
 
 
 
-Dino.declare('Medic.remote.Collection', 'Dino.events.Observer', {
+Dino.declare('Dino.remote.Collection', 'Dino.events.Observer', {
 	
 	initialize: function(name, source, o) {
-		Medic.remote.Collection.superclass.initialize.apply(this, arguments);
+		Dino.remote.Collection.superclass.initialize.apply(this, arguments);
 		this.name = name;
 		this.source = source;
 	},
@@ -54,7 +54,7 @@ Dino.declare('Medic.remote.Collection', 'Dino.events.Observer', {
 	},
 	
 	object: function(attrs) {
-		return new Medic.remote.Object(this, attrs);
+		return new Dino.remote.Object(this, attrs);
 	},
 
 	load: function(query, params, callback) {

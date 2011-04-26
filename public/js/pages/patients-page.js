@@ -65,6 +65,9 @@ Pages.PatientsPage = $.dino({
 									Dialogs.ExpressCardDialog.open();									
 								}
 								
+							},
+							onCreated: function() {
+								this.el.tipTip({edgeOffset: 4});								
 							}
 						},
 						items: [/*{
@@ -83,7 +86,7 @@ Pages.PatientsPage = $.dino({
 							tooltip: 'Выписать',
 						}],
 					}]
-				}]		
+				}]
 			}			
 		}
 	}

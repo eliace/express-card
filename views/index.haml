@@ -12,6 +12,11 @@
 
 %link{:rel => 'stylesheet', :type => 'text/css', :href => 'css/main.css'}
 
+
+%script
+  var loggedUser = {name: "#{@user.display_name}", user_id: #{@user.id}};
+
+
 %script{:type => 'text/javascript', :src => 'js/remote.js'}
 %script{:type => 'text/javascript', :src => 'js/main.js'}
 
@@ -22,6 +27,7 @@
 
 %script{:type => 'text/javascript', :src => 'js/snippets/analyses-tab.js'}
 %script{:type => 'text/javascript', :src => 'js/snippets/appointments-tab.js'}
+%script{:type => 'text/javascript', :src => 'js/snippets/login-box.js'}
 
 %script{:type => 'text/javascript', :src => 'js/dialogs/edit-patient-dialog.js'}
 %script{:type => 'text/javascript', :src => 'js/dialogs/analyses-dialog.js'}
@@ -30,6 +36,7 @@
 %script{:type => 'text/javascript', :src => 'js/dialogs/hours-dialog.js'}
 %script{:type => 'text/javascript', :src => 'js/dialogs/effects-dialog.js'}
 %script{:type => 'text/javascript', :src => 'js/dialogs/solvent-dialog.js'}
+%script{:type => 'text/javascript', :src => 'js/dialogs/users-dialog.js'}
 
 
 %script{:type => 'text/javascript', :src => 'js/pages/patients-page.js'}

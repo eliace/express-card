@@ -1,6 +1,10 @@
 
 
 
+class User < ActiveRecord::Base
+end
+
+
 class Patient < ActiveRecord::Base
 	has_many :express_cards
 end

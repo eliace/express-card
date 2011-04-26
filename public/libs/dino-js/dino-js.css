@@ -550,6 +550,15 @@ button.plain.selected {
 	background-color: #ccc;
 }
 
+button.plain.disabled {
+	opacity: 0.3;	
+}
+
+button.plain.disabled:hover {
+	border-color: transparent;	
+	background-color: transparent;	
+}
+
 
 
 
@@ -1040,6 +1049,13 @@ input.l-icon-only.r-icon-only, span.l-icon-only.r-icon-only {
 	background-color: #ddd;
 }
 
+.dino-menu-item.disabled {
+	opacity: .3;
+}
+
+.dino-menu-item.disabled:hover {
+	background-color: transparent;
+}
 
 .dino-menu-dropdown {
 	border: 1px solid #aaa;
@@ -1162,6 +1178,10 @@ input.l-icon-only.r-icon-only, span.l-icon-only.r-icon-only {
 	cursor: pointer;
 	display: inline-block;
 	vertical-align: middle;
+}
+
+.dino-tree-node-button.leaf {
+	visibility: hidden;
 }
 
 .dino-tree-node.collapsed > ul {
