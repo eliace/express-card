@@ -32,9 +32,10 @@ Dialogs.ExpressCardDialog = $.dino({
 	onOpen: function() {
 //		Remote.ExpressCardAnalyses.load_all().to(DataSources.ExpressCardAnalyses);
 		
-		Remote.Analyses.load('classification', {}, function(json){
-			analysesClassification.set(json);
-		});
+		Remote.Analyses.load('classification').to(analysesClassification);
+//		, {}, function(json){
+//			analysesClassification.set(json);
+//		});
 
 		Remote.Drugs.load('classification').to(drugsClassification);
 //		, {}, function(json){

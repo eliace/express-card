@@ -25,7 +25,12 @@ Dialogs.AnalysesDialog = $.dino({
 						dtype: 'dropdown-grid-column',
 						width: 300,
 						dataId: 'analysis_group_id',
-						dropdownData: DataSources.AnalysisGroups
+						editor: {
+							dataModel: {
+								data: DataSources.AnalysisGroups
+							}
+						}
+//						dropdownData: DataSources.AnalysisGroups
 					}]
 				},
 				objectFactory: function() {

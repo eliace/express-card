@@ -75,10 +75,17 @@ Snippets.AnalysesTab = {
 			dataId: 'analysis_name',
 			editable: false
 		}, {
+			dtype: 'dropdown-grid-column',
 			header: 'Регулярность',
 			width: 120,
 			dataId: 'interval',
 			format: function(val) { return Dino.find(intervalList, function(v) { return (v.id == val); }).name; },
+			editor: {
+				dataModel: {
+					data: new Dino.data.ArrayDataSource(intervalList)
+				}
+			}
+/*
 			editor: {
         dtype: 'dropdown-editor',
 				dropdownOnFocus: true,
@@ -98,7 +105,8 @@ Snippets.AnalysesTab = {
 					}
         },
 				selectValue: function(w){ return w.data.get('id'); },
-			}									
+			}
+*/			
 		}, {
 			header: 'Начиная с',
 			width: 120,

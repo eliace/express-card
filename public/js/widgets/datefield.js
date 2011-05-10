@@ -51,16 +51,26 @@ Dino.declare('Medic.widgets.DateField', 'Dino.widgets.TextField', {
 
 
 
-Dino.declare('Medic.widgets.DateEditor', 'Dino.widgets.DropdownEditor', {
+Dino.declare('Medic.widgets.DateEditor', 'Dino.widgets.TextEditor', {
 	
 	defaultOptions: {
 		dropdownOnFocus: true,
     components: {
       input: {
-        format: function(val){ return val; }
+				readOnly: true,
+				events: {
+					'click': function(e, w) {
+						w.el.datepick('show');
+					}
+				},
+//        format: function(val){ return val; }
       },
       button: {
-        cls: 'silk-icon-date'
+        dtype: 'action-icon',
+        cls: 'silk-icon-date',
+        onAction: function() {
+          this.parent.input.el.datepick('show');
+        }
       }
     },
     onCreated: function() {
@@ -78,11 +88,11 @@ Dino.declare('Medic.widgets.DateEditor', 'Dino.widgets.DropdownEditor', {
         }
       });              
     },
-    overrides: {
-      showDropdown: function() {
-        this.input.el.datepick('show');                
-      }
-    }
+//    overrides: {
+//      showDropdown: function() {
+//        this.input.el.datepick('show');                
+//      }
+//    }
 		
 	}
 	

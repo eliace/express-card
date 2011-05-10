@@ -106,8 +106,9 @@ Dialogs.DrugsDialog = $.dino({
 //						dataId: 'content',
 						cls: 'dialog-column',
 						format: function() { 
-							var val = this.data.val();//.get('content');
-							return (val.drug_solvent_id) ? ''+DataSources.DrugSolvents.get_by_id(val.drug_solvent_id).name +' '+val.content+' мг/мл' : ''; 
+							var val = this.data.val();
+							var s = (val.content) ? ' '+val.content+' мг/мл' : '';
+							return (val.drug_solvent_id) ? ''+DataSources.DrugSolvents.get_by_id(val.drug_solvent_id).name + s : ''; 
 						},
 						editable: false,
 						updateOnValueChange: true,

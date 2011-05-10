@@ -18,9 +18,11 @@ body input {
 	font-size: 11pt;
 }
 
+/*
 .dino-grid-row:hover {
 	background-color: transparent;
 }
+*/
 
 .dino-grid-row.selected:hover {
 	background-color: #ffc;
@@ -196,6 +198,7 @@ body input {
 	vertical-align: middle;
 	
 	border: 1px solid #aaa;
+	cursor: pointer;
 }
 
 .hour-button:hover {
@@ -290,7 +293,7 @@ body input {
 .user-logout {
 	color: #666;
 	cursor: pointer;
-	text-decoration: underline;
+/*	text-decoration: underline;*/
 }
 
 .user-logout:hover {
