@@ -91,6 +91,7 @@ var Dino = (function(){
 		return ctor;
 	};
 	
+		
 	/**
 	 * Рекурсивный обход всех базовых классов 
 	 * 
@@ -146,6 +147,7 @@ var Dino = (function(){
 	};
 	
 	
+	
 	/**
 	 * Создание экземпляра объекта (должен присутствовать dtype в options либо defaultType)
 	 * 
@@ -156,7 +158,7 @@ var Dino = (function(){
 	 */
 	D.object = function(options, defaultType) {
 		
-		if(options instanceof Dino.BaseObject) return options;
+		if(options instanceof Dino.core.Object) return options;
 		
 		var dtype = options.dtype || defaultType;
 		
@@ -750,32 +752,46 @@ var Dino = (function(){
 	};
 	
 	
+	
+	
+	D.core = {};
+	
 	/**
 	 * Базовый объект
 	 * 
 	 * @constructor
 	 * @memberOf Dino
-	 * @name BaseObject
+	 * @name core.Object
 	 */
-	D.BaseObject = function() {
+	D.core.Object = function() {
 		this.initialize.apply(this, arguments);
 	};
 	
 	/** 
 	 * @function 
-	 * @name Dino.BaseObject#initialize 
+	 * @name Dino.core.Object#initialize 
 	 */
-	D.BaseObject.prototype.initialize = function() {};
+	D.core.Object.prototype.initialize = function() {
+//		if(this.plugins) {
+//			for(var i = 0; i < this.plugins.length; i++) {
+//				var plugin = this.plugins[i];
+//				if(Dino.isFunction(plugin))
+//					plugin.call(this, true);
+//				else
+//					Dino.override_r(this, plugin);
+//			}
+//		}
+	};
 	/**
 	 * @function
-	 * @name Dino.BaseObject#destroy
+	 * @name Dino.core.Object#destroy
 	 */
-	D.BaseObject.prototype.destroy = function() {};
+	D.core.Object.prototype.destroy = function() {};
 	/**
 	 * @function
-	 * @name Dino.BaseObject#base
+	 * @name Dino.core.Object#base
 	 */
-//	D.BaseObject.prototype.base = function(method, args) {
+//	D.core.Object.prototype.base = function(method, args) {
 //		eval(this.className + '.superclass.'+method+'.apply(this, args)');
 //	};
 	
@@ -806,9 +822,9 @@ var Dino = (function(){
 /**
  * @class
  * @name Dino.events.Event
- * @extends Dino.BaseObject
+ * @extends Dino.core.Object
  */
-Dino.declare('Dino.events.Event', Dino.BaseObject, /** @lends Dino.events.Event.prototype */{
+Dino.declare('Dino.events.Event', Dino.core.Object, /** @lends Dino.events.Event.prototype */{
 	
 	/**
 	 * @param {Object} overrides
@@ -855,12 +871,12 @@ Dino.declare('Dino.events.CancelEvent', 'Dino.events.Event', /** @lends Dino.eve
 
 
 
-Dino.declare('Dino.events.Dispatcher', 'Dino.BaseObject', /** @lends Dino.events.Dispatcher.prototype */{
+Dino.declare('Dino.events.Dispatcher', 'Dino.core.Object', /** @lends Dino.events.Dispatcher.prototype */{
 	
 	
 	/**
 	 * @constructs
-	 * @extends Dino.BaseObject
+	 * @extends Dino.core.Object
 	 * @param {Object} target
 	 */
 	initialize: function(target) {
@@ -952,20 +968,27 @@ Dino.declare('Dino.events.Dispatcher', 'Dino.BaseObject', /** @lends Dino.events
 });
 
 
-/**
- * @class
- * @name Dino.events.Observer
- */
-Dino.declare('Dino.events.Observer', 'Dino.BaseObject', /** @lends Dino.events.Observer.prototype */{
+
+
+
+
+
+Dino.Observable = function() {
+	this.events = new Dino.events.Dispatcher(this);
+}
+
+
+/*
+Dino.declare('Dino.events.Observer', 'Dino.core.Object', {
 	
 	initialize: function() {
 		Dino.events.Observer.superclass.initialize.apply(this, arguments);
 		
-		/** @type Dino.events.Dispatcher */
 		this.events = new Dino.events.Dispatcher(this);
 	}
 	
 });
+*/
 
 /**
  * @name Dino.data
@@ -1001,7 +1024,7 @@ Dino.declare('Dino.data.DirtyEvent', 'Dino.events.Event', /** @lends Dino.events
  * @name Dino.data.DataSource
  * @extends Dino.events.Observer
  */
-Dino.declare('Dino.data.DataSource', 'Dino.events.Observer', /**@lends Dino.data.DataSource.prototype */{
+Dino.declare('Dino.data.DataSource', 'Dino.core.Object', /**@lends Dino.data.DataSource.prototype */{
 	
 	classOptions: {
 		useDirty: false,
@@ -1015,8 +1038,11 @@ Dino.declare('Dino.data.DataSource', 'Dino.events.Observer', /**@lends Dino.data
 	 */
 	initialize: function(src, id, options) {
 		Dino.data.DataSource.superclass.initialize.apply(this, arguments);
-
-		if(src)	this.source = src;
+		
+		this.events = new Dino.events.Dispatcher(this);
+		
+//		if(src)	
+		this.source = src;
 		
 		if(arguments.length == 2){
 			this.source = src;
@@ -1036,7 +1062,7 @@ Dino.declare('Dino.data.DataSource', 'Dino.events.Observer', /**@lends Dino.data
 			this.id = id;
 		}
 */		
-		this.options = Dino.utils.overrideOpts({}, this.classOptions, options);
+		this.options = Dino.smart_override({}, this.classOptions, options);
 		this.items = {};
 		this.is_dirty = false;
 //		this.stop_dirty = false;
@@ -1051,12 +1077,16 @@ Dino.declare('Dino.data.DataSource', 'Dino.events.Observer', /**@lends Dino.data
 	},
 	
 	val: function() {
+//		if('_cached' in this) return this._cached;
+		var v = undefined;
 		if(this.source instanceof Dino.data.DataSource){
-			return ('id' in this) ? this.source.val()[this.id]: this.source.val();//get(this.id) : this.source.get();
+			v = ('id' in this) ? this.source.val()[this.id]: this.source.val();//get(this.id) : this.source.get();
 		}
 		else{
-			return ('id' in this) ? this.source[this.id] : this.source;
+			v = ('id' in this) ? this.source[this.id] : this.source;
 		}
+//		this._cached = v;
+		return v;
 	},
 	
 	// получаем значение
@@ -1322,8 +1352,8 @@ Dino.declare('Dino.data.DataSource', 'Dino.events.Observer', /**@lends Dino.data
 Dino.declare('Dino.data.ArrayDataSource', 'Dino.data.DataSource', /** @lends Dino.data.ArrayDataSource.prototype */{
 	
 	initialize: function(src, id, options) {
-		this.source = [];
 		Dino.data.ArrayDataSource.superclass.initialize.apply(this, arguments);
+		if(arguments.length == 0) this.source = [];
 	},
 	
 	
@@ -1422,8 +1452,8 @@ Dino.declare('Dino.data.ArrayDataSource', 'Dino.data.DataSource', /** @lends Din
 Dino.declare('Dino.data.ObjectDataSource', 'Dino.data.DataSource', /** @lends Dino.data.ObjectDataSource.prototype */{
 	
 	initialize: function(src, id, options) {
-		this.source = {};
 		Dino.data.ObjectDataSource.superclass.initialize.apply(this, arguments);
+		if(arguments.length == 0) this.source = {};
 	},
 	
 	del: function(i){
@@ -1468,12 +1498,185 @@ Dino.declare('Dino.data.ObjectDataSource', 'Dino.data.DataSource', /** @lends Di
 
 
 
+/*
+Dino.declare('Dino.events.StateEvent', 'Dino.events.Event', {
+
+	initialize: function(method, args) {
+		Dino.events.StateEvent.superclass.initialize.call(this, {'method': method, 'args': args});
+	},
+	
+	translate: function(target, filter){
+		if(arguments.length == 1 || Dino.in_array(filter, this.args[0]))
+			target.states[this.method].apply(target.states, this.args);
+	}
+	
+});
+*/
+
+
+
+/**
+ * @class
+ */
+Dino.StateCollection = Dino.declare('Dino.StateCollection', 'Dino.core.Object', /** @lends Dino.StateManager.prototype */ {
+	
+	initialize: function(widget) {
+		this._widget = widget;
+		this._states = {};
+	},
+	
+	/**
+	 * Активация состояния
+	 * @param {String} name имя состояния
+	 */
+	set: function(name, change_class) {
+		
+		// получаем состояние, определенное для виджета
+		var state = this._widget.options.states[name];
+//		var state_off, state_on = null;
+		if(state == null) state = name;//{ state_on = name; state_off = ''; }
+//		else if(Dino.isString(state)) { state_on = state; state_off = ''; }
+		else if(Dino.isArray(state)) { //{ state_on = state[0]; state_off = state[1]; }
+			this.set(state[0]);
+			this.clear(state[1]);
+			this._states[name] = true;
+			return this;
+		}
+		
+//		if( Dino.isString(state) ) {
+//			this.widget.el.addClass(state);
+//			this.widget.el.removeClass(state_off);
+//		}
+
+		if(arguments.length == 1) change_class = true;
+		
+		if(Dino.isFunction(state)) {
+			change_class &= (state.call(this._widget, true) !== false);
+			state = name;
+		}
+		
+		if(change_class)
+			this._widget.el.addClass(state);
+		
+		this._states[name] = true;
+		
+		this._widget.events.fire('onStateChange', {'state': name, 'op': 'set'});
+		this._widget.events.fire('onStateSet', {'state': name});
+		
+		return this;
+	},
+	
+	/**
+	 * Активация указанного состояния и отключение всех остальных состояний
+	 * @param {String} name
+	 */
+	setOnly: function(name) {
+		for(var i in this._states) this.clear(i);
+		this.set(name);	
+		
+		return this;		
+	},
+	
+	/**
+	 * Дезактивация состояния
+	 * @param {String} name имя состояния
+	 */
+	clear: function(name) {
+		
+		if(name instanceof RegExp) {
+			var names = Dino.filter(this._states, function(s, i){ return i.match(name); });
+			for(var i in names) this.clear(i);
+			return this;			
+		}
+
+//		// если указанное состояние не определено, то очистку не выполняем
+//		if(!(name in this._states)) return this;
+		
+		// получаем состояние, определенное для виджета
+		var state = this._widget.options.states[name];		
+//		var state_off, state_on = null;
+		if(state == null) state = name;//{ state_on = name; state_off = ''; }
+//		else if(Dino.isString(state)) { state_on = state; state_off = ''; }
+		else if(Dino.isArray(state)) {//{ state_on = state[0]; state_off = state[1]; }
+			this.clear(state[0]);
+			this.set(state[1]);
+			delete this._states[name];
+			return this;
+		}
+		
+		
+		var change_class = true;
+
+//		if( Dino.isString(state) ) {
+//			this._widget.el.removeClass(state);
+////			this._widget.el.addClass(state_off);
+//		}
+		if(Dino.isFunction(state)) {
+			change_class &= (state.call(this._widget, false) !== false);			
+			state = name;
+		}
+		
+		if(change_class)
+			this._widget.el.removeClass(state);		
+		
+		delete this._states[name];
+		
+		this._widget.events.fire('onStateChange', {'state': name, 'op': 'clear'});		
+		this._widget.events.fire('onStateClear', {'state': name});
+		
+		return this;		
+	},
+	
+	/**
+	 * Переключение состояния
+	 * @param {String} name имя состояния
+	 * @param {Boolean} sw опциональный флаг, явно указывающий на итоговое состояние (true - включить, false - выключить)
+	 */
+	toggle: function(name, sw) {
+		
+		if(arguments.length == 1) sw = !this.is(name);
+		
+		sw ? this.set(name) : this.clear(name);
+		
+		return sw;
+	},
+	
+	
+	/**
+	 * Проверка состояния
+	 * @param {String} name имя состояния
+	 * @returns {Boolean} активно ли состояние
+	 */
+	is: function(name) {
+		return (name in this._states);
+	}
+	
+	
+	
+});
+
+
+
+
+
+
+Dino.Statable = function() {
+	this.states = new Dino.StateCollection(this);
+}
+
+
+
+
 
 /**
  * @name Dino.widgets
  * @namespace
  */
 
+
+Dino.formats = {};
+Dino.parsers = {};
+Dino.validators = {};
 
 
 /**
@@ -1483,7 +1686,7 @@ Dino.declare('Dino.data.ObjectDataSource', 'Dino.data.DataSource', /** @lends Di
  * @extends Dino.events.Observer
  * @param {Object} o параметры
  */
-Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Dino.Widget.prototype */{
+Dino.Widget = Dino.declare('Dino.Widget', 'Dino.core.Object', /** @lends Dino.Widget.prototype */{
 	
 	/**
 	 * @static
@@ -1493,12 +1696,19 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		layout: 'plain',
 		states: {
 			'hidden': 'hidden',
-//			'visible': ['', 'hidden'],
-			'disabled': 'disabled'
+			'disabled': 'disabled',
+			'invalid': 'invalid'
 		},
 		defaults: {},
-		extensions: [],
-		binding: 'auto'
+		extensions: [Dino.Observable, Dino.Statable],
+		binding: 'auto',
+		layoutFactory: function(layout) {
+			if( Dino.isString(layout) )
+				layout = Dino.object({dtype: layout+'-layout'});
+			else if(!(layout instanceof Dino.Layout))
+				layout = Dino.object(layout);
+			return layout;	
+		}
 	},
 	
 	
@@ -1515,8 +1725,8 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 			Dino.hierarchy(this.constructor, function(clazz){
 				if(clazz.defaultOptions == prevDefaultOptions) return;
 				// следуюющие две строчки реализуют синонимизацию defaultOptions и skeleton
-				if('defaultOptions' in clazz) Dino.utils.overrideOpts(o, clazz.defaultOptions);
-				if('skeleton' in clazz) Dino.utils.overrideOpts(o, clazz.skeleton);
+				if('defaultOptions' in clazz) Dino.smart_override(o, clazz.defaultOptions);
+				if('skeleton' in clazz) Dino.smart_override(o, clazz.skeleton);
 				prevDefaultOptions = clazz.defaultOptions; 
 			});
 			this.constructor.NO_REBUILD_SKELETON = true;
@@ -1551,6 +1761,7 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 
 		profiler.tick('widget', 'precreate');		
 		
+		
 		/** 
 		 * Параметры
 		 * @type Object
@@ -1565,13 +1776,12 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 			Dino.hierarchy(this.constructor, function(clazz){
 				if(clazz.defaultOptions == prevDefaultOptions) return;
 				// следуюющие две строчки реализуют синонимизацию defaultOptions и skeleton
-				if('defaultOptions' in clazz) Dino.utils.overrideOpts(o, clazz.defaultOptions);
-				if('skeleton' in clazz) Dino.utils.overrideOpts(o, clazz.skeleton);
+				if('defaultOptions' in clazz) Dino.smart_override(o, clazz.defaultOptions);
+				if('skeleton' in clazz) Dino.smart_override(o, clazz.skeleton);
 				prevDefaultOptions = clazz.defaultOptions; 
 			});
 			this.constructor.NO_REBUILD_SKELETON = true;
-			this.constructor.prototype.defaultOptions = Dino.deep_copy(o);
-			
+			this.constructor.prototype.defaultOptions = Dino.deep_copy(o);			
 		}
 		else {
 			this.options = o = Dino.deep_copy(this.defaultOptions);
@@ -1579,9 +1789,9 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		
 		profiler.tick('widget', 'hierarchy');		
 		
-		Dino.utils.overrideOpts(o, opts);
+		Dino.smart_override(o, opts);
 
-		profiler.tick('widget', 'overrideOpts');		
+		profiler.tick('widget', 'smart_override');		
 		
 		html = o.wrapEl || o.html || html; // оставляем возможность указать html через options
 		
@@ -1600,29 +1810,30 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		 * Коллекция дочерних компонентов 
 		 * @type Dino.WidgetCollectionManager
 		 */
-		this.children = new Dino.WidgetCollectionManager(this);
+		this.children = new Dino.ComponentCollection(this);
 		
 		/** 
 		 * Набор состояний
 		 * @type Dino.StateManager
 		 */
-		this.states = new Dino.StateManager(this);
+//		this.states = new Dino.StateCollection(this);
 		
-		this.handlers = {};
+//		this.handlers = {};
 
 		profiler.tick('widget', 'create');		
 		
+/*		
 		// инициализируем компоновку
 		var layoutOpts = o.layout;
 		if( Dino.isString(layoutOpts) )
 			layoutOpts = {dtype: layoutOpts+'-layout'};
 		if(!(layoutOpts instanceof Dino.Layout))
 			layoutOpts = Dino.object( layoutOpts );
-		/** 
-		 * Компоновка 
-		 * @type Dino.Layout
-		 */
 		this.layout = layoutOpts;
+*/
+
+		this.layout = o.layoutFactory(o.layout);
+		
 		//FIXME костыль
 //		if(!this.layout.container) this.layout.attach(this);
 		this.layout.attach(this.layout.options.container || this);
@@ -1658,7 +1869,7 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		
 		this.events.fire('onCreated');
 		
-		if(this.options.debug)	console.log('created');		
+//		if(this.options.debug)	console.log('created');		
 		
 		
 		profiler.tick('widget', 'build');		
@@ -1682,13 +1893,14 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		
 		// "сахарное" определение контента виджета
 		if('content' in o){
-			Dino.utils.overrideOpts(o, {
+			Dino.smart_override(o, {
 				components: {
 					content: o.content
 				}
 			})
 //			this.addComponent('content', o.content);
 		}
+
 		
 		if('extensions' in o) {
 			for(i in o.extensions) {
@@ -1815,7 +2027,7 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 			return this.options[o];
 		}
 		
-		Dino.utils.overrideOpts(this.options, opts);
+		Dino.smart_override(this.options, opts);
 
 		this.$opt(opts);
 		
@@ -1856,6 +2068,7 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		if('tooltip' in o) el.attr('title', o.tooltip);
 		if('id' in o) el.attr('id', this.id = o.id);
 		if('tag' in o) this.tag = o.tag;
+		if('tabIndex' in o) el.attr('tabindex', o.tabIndex);
 		if('style' in o) el.css(o.style);
 		if('cls' in o) el.addClass(o.cls);// Dino.each(o.cls.split(' '), function(cls) {el.addClass(cls);});
 		if('baseCls' in o) el.addClass(o.baseCls);
@@ -1879,21 +2092,7 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		if('events' in o){
 			for(var i in o.events){
 				var callback = o.events[i];
-//				// Dino события или jQuery события?
-//				if(regexp.test(i)){
-//					// Dino-события могут быть массивом
-//					if( Dino.isArray(callback) ){
-//						Dino.each(callback, function(fn){
-//							self.events.reg(i, fn);
-//						});
-//					}
-//					else {	
-//						this.events.reg(i, callback);
-//					}
-//				}
-//				else{
 				el.bind(i, callback.rcurry(self));
-//				}
 			}
 		}
 		
@@ -1948,11 +2147,6 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		
 		
 		
-//		if('draggable' in o){
-//			this._toggle_handler('draggable_mousedown', 'mousedown', o.draggable);
-//			this._toggle_handler('draggable_mousemove', 'mousemove', o.draggable);
-//		}
-		
 		if('contextMenu' in o) {
 			
 			var cm = o.contextMenu;
@@ -1974,8 +2168,8 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 			if(Dino.isString(o.format)) this.options.format = Dino.format_obj.curry(o.format);
 		}
 
-		if('validator' in o) {
-			if(Dino.isArray(o.validator)) this.options.validator = Dino.filter_list.rcurry(o.validator);
+		if('validate' in o) {
+			if(Dino.isArray(o.validate)) this.options.validate = Dino.filter_list.rcurry(o.validate);
 		}
 						
 		
@@ -2030,7 +2224,7 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		
 		// если у виджета определен базовый класс, до его компоненты будут иметь класс-декоратор [baseCls]-[имяКомпонента]
 		if('baseCls' in this.options)
-			Dino.utils.overrideOpts(o, {cls: this.options.baseCls+'-'+key});
+			Dino.smart_override(o, {cls: this.options.baseCls+'-'+key});
 		
 		this[key] = (o instanceof Dino.Widget) ? o : Dino.widget(o);
 		this.children.add( this[key] );
@@ -2131,10 +2325,10 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 		
 		// если определен параметр dataId, то источником данных будет дочерний элемент, если нет - то сам источник данных 
 		if('dataId' in o){
-			this.data = (data instanceof Dino.data.DataSource) ? data.item(o.dataId) : new Dino.data.DataSource(data, o.dataId);
+			this.data = (data instanceof Dino.data.DataSource) ? data.item(o.dataId) : new Dino.data.ObjectDataSource(data, o.dataId);
 		}
 		else {
-			this.data = (data instanceof Dino.data.DataSource) ? data : new Dino.data.DataSource(data);
+			this.data = (data instanceof Dino.data.DataSource) ? data : new Dino.data.ObjectDataSource(data);
 		}
 
 		
@@ -2200,14 +2394,15 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 	 * @param {Any} val значение
 	 */
 	setValue: function(val, reason) {
+		var o = this.options;
 		if(this.data){
-			if('store_format' in this.options) 
-				val = this.options.store_format.call(this, val);
+			if(o.store) 
+				val = o.store.call(this, val);
 			
 			var valid = true;
 			var context = {};				
-			if('validator' in this.options) {				
-				valid = this.options.validator.call(context, val);
+			if(o.validate) {				
+				valid = o.validate.call(this, val, context);
 /*				
 				var self = this;
 				var validator = this.options.validator;
@@ -2222,10 +2417,12 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 			
 			if(valid) {
 				this.data.set(val);
+				this.states.clear('invalid');
 				this.events.fire('onValueChanged', {'value': val, 'reason': reason});				
 			}
 			else {
 				context.value = val;
+				this.states.set('invalid');
 				this.events.fire('onValueInvalid', context);
 			}
 		}
@@ -2298,13 +2495,13 @@ Dino.Widget = Dino.declare('Dino.Widget', 'Dino.events.Observer', /** @lends Din
 //		this.events.fire('onDataChanged');
 	}
 	
-});
+}, 'widget');
 
 
 
 Dino.widget = function(){
 	if(arguments.length == 1) return Dino.object(arguments[0]);
-	return Dino.object( Dino.utils.overrideOpts.apply(this, arguments) ); //FIXME непонятно зачем вызов через apply
+	return Dino.object( Dino.smart_override.apply(this, arguments) ); //FIXME непонятно зачем вызов через apply
 };
 
 
@@ -2334,63 +2531,12 @@ $.fn.dino = function(o) {
 
 
 
-/*
- * Далее идет не вполне изящный механизм примешивания предопределенных состояний к классу Dino.Widget
- * 
- * 
- */
-
-
-var abilityHandlers = {
-	'clickable.click': function(e) {
-			$(this).dino().events.fire('onClick', {}, e);		
-	},
-	'clickable.dblclick': function(e) {
-			$(this).dino().events.fire('onDblClick', {}, e);		
-	},
-	'nonselectable.mousedown': function(e) {
-		e.preventDefault();
-	},
-	'editable.dblclick': function(e) {
-		var w = $(this).dino();
-		if('startEdit' in w) w.startEdit();		
-	}
-}
-
-
-Dino.override(Dino.Widget.prototype.defaultOptions.states, {
-	'clickable': function(sw) {
-		if(sw) {
-			this.el.bind('click', abilityHandlers['clickable.click']);		
-			this.el.bind('dblclick', abilityHandlers['clickable.dblclick']);					
-		}
-		else {
-			this.el.unbind('click', abilityHandlers['clickable.click']);		
-			this.el.unbind('dblclick', abilityHandlers['clickable.dblclick']);					
-		}
-	},
-	'editable': function(enabled) {
-		if(enabled) this.el.bind('dblclick', abilityHandlers['editable.dblclick']);
-		else this.el.unbind('dblclick', abilityHandlers['editable.dblclick']);
-	},
-	'nonselectable': function(enabled) {
-		if(enabled) this.el.bind('mousedown', abilityHandlers['nonselectable.mousedown']);
-		else this.el.unbind('mousedown', abilityHandlers['nonselectable.mousedown']);		
-	}
-});
 
 
 
 
 
 
-
-
-/*
- * Тоже не очень изящная (но работающая) реализация простейшего Drag'n'Drop
- * 
- * 
- */
 
 
 $(document).ready(function(){
@@ -2445,7 +2591,7 @@ $(document).ready(function(){
  * @name Dino.Layout
  * @param {Object} opts
  */
-Dino.declare('Dino.Layout', Dino.BaseObject, /** @lends Dino.Layout.prototype */ {
+Dino.declare('Dino.Layout', Dino.core.Object, /** @lends Dino.Layout.prototype */ {
 	
 	defaultOptions: {
 		updateMode: 'auto'
@@ -2454,14 +2600,12 @@ Dino.declare('Dino.Layout', Dino.BaseObject, /** @lends Dino.Layout.prototype */
 	initialize: function(opts){
 		Dino.Layout.superclass.initialize.call(this);
 		
-		var o = this.options = {}
-		Dino.hierarchy(this.constructor, function(clazz){
-			if('defaultOptions' in clazz) Dino.utils.overrideOpts(o, clazz.defaultOptions);
-		});
-		Dino.utils.overrideOpts(o, this.defaultOptions, opts);
-//		this.options = Dino.utils.overrideOpts({}, this.defaultOptions, o);
+		var o = this.options = {};
 		
-//		this.attach(this.options.container);
+		Dino.hierarchy(this.constructor, function(clazz){
+			if('defaultOptions' in clazz) Dino.smart_override(o, clazz.defaultOptions);
+		});
+		Dino.smart_override(o, this.defaultOptions, opts);
 		
 	},
 	
@@ -2554,9 +2698,8 @@ Dino.declare('Dino.Container', 'Dino.Widget', /** @lends Dino.Container.prototyp
 	
 	
 	defaultOptions: {
-		itemFactory: function(o) {
-			return Dino.widget(o); 
-		}
+//		itemFactory: function(item) {
+//		}
 	},
 	
 	$init: function(o) {
@@ -2585,12 +2728,20 @@ Dino.declare('Dino.Container', 'Dino.Widget', /** @lends Dino.Container.prototyp
 //		this.items = new Dino.utils.ContainerItemManager(this, o.itemFactory);
 				
 	},	
+	
+	
+	$itemFactory: function(item) {
+		if( Dino.isPlainObject(item) ) 
+			item = Dino.widget( Dino.smart_override({}, this.options.defaultItem, item) );
+		return item; 		
+	},
+	
 
 	$opt: function(o) {
 		Dino.Container.superclass.$opt.call(this, o);
 		
-		if('itemFactory' in o)
-			this.itemFactory = o.itemFactory;
+//		if('itemFactory' in o)
+//			this.itemFactory = o.itemFactory;
 		
 		if('items' in o){
 			for(var i = 0; i < o.items.length; i++)
@@ -2633,7 +2784,8 @@ Dino.declare('Dino.Container', 'Dino.Widget', /** @lends Dino.Container.prototyp
 		var itemOpts = item;
 		
 		// если новый элемент является набором параметров, то строим виджет
-		if( Dino.isPlainObject(item) ) item = this.itemFactory( Dino.utils.overrideOpts(Dino.deep_copy(this.options.defaultItem), item) );
+		item = this.$itemFactory( itemOpts );
+//		if( Dino.isPlainObject(item) ) item = this.itemFactory( Dino.smart_override({}, this.options.defaultItem, item) );
 		
 		
 		if(index == undefined){
@@ -2666,7 +2818,7 @@ Dino.declare('Dino.Container', 'Dino.Widget', /** @lends Dino.Container.prototyp
 		var itemOpts = item;
 		
 		// если новый элемент является набором параметров, то строим виджет
-		if( Dino.isPlainObject(item) ) item = this.itemFactory( Dino.utils.overrideOpts({}, this.options.defaultItem, item) );
+		if( Dino.isPlainObject(item) ) item = this.itemFactory( Dino.smart_override({}, this.options.defaultItem, item) );
 
 		this.items.splice( index, 0, item );
 		item.index = index;
@@ -2708,7 +2860,7 @@ Dino.declare('Dino.Container', 'Dino.Widget', /** @lends Dino.Container.prototyp
 	/**
 	 * Уничтожить элемент.
 	 * 
-	 * После удаления элементы вызывается метод {@link Dino.BaseObject#destroy }
+	 * После удаления элементы вызывается метод {@link Dino.core.Object#destroy }
 	 * 
 	 * @param {Object} item
 	 */
@@ -2947,7 +3099,7 @@ Dino.filters = (function(){
 })();
 
 
-
+/*
 Dino.bindings = (function(){
 	
 	var B = {};
@@ -2974,7 +3126,7 @@ Dino.bindings = (function(){
 	
 	return B;
 })();
-
+*/
 
 /*
 Dino.formats = (function(){
@@ -2994,13 +3146,135 @@ Dino.formats = (function(){
 
 
 
+Dino.overrideProp = function(o, srcObj, i) {
+
+	var p = srcObj[i];
+
+	if(i == 'data') i = 'data@'; 										//<-- поле data не перегружается
+	if(i == 'extensions') i = 'extensions+'; 				//<-- поле extensions сливается
+
+//	var shared_opts = {'data': null};
+
+	
+//	if((i in shared_opts)){//Dino.in_array(ignore, i)){
+//		o[i] = p;
+//	}
+
+	var last_literal = i[i.length-1];
+
+	if(last_literal == '@') {
+		var j = i.substr(0, i.length-1);
+		o[j] = p;
+	}
+	else if(last_literal == '!') {
+		var j = i.substr(0, i.length-1);
+		if(j in o) i = j;
+		o[i] = p;
+	}
+	else if(last_literal == '+') {
+		i = i.substr(0, i.length-1);
+		
+		if( !Dino.isArray(o[i]) ) o[i] = [o[i]];
+		p = o[i].concat(p);
+		o[i] = p;
+	}
+	else{
+		//TODO здесь создается полная копия (deep copy) объекта-контейнера
+		if( Dino.isPlainObject(p) ){
+			if(!(i in o) || !Dino.isPlainObject(o[i])) o[i] = {};
+			Dino.smart_override(o[i], p);
+		}
+		else if( Dino.isArray(p) ){
+			if(!(i in o) || !Dino.isArray(o[i])) o[i] = [];
+			Dino.smart_override(o[i], p);
+		}
+		else {
+			//TODO этот участок кода нужно исправить
+			
+			// если элемент в перегружаемом параметре существует, то он может быть обработан специфически
+			if(i in o){
+				// классы сливаются в одну строку, разделенную пробелом
+				if(i == 'cls') p = o[i] + ' ' + p;
+				if( /^on\S/.test(i) ) {
+					if( !Dino.isArray(o[i]) ) o[i] = [o[i]];
+					p = o[i].concat(p);
+				}
+				if(i == 'state') {
+					p = o[i] + ' ' + p;
+				}
+			}
+			o[i] = p;
+		}
+	}
+	
+}
+
+
+Dino.smart_override = function(o) {
+
+	// обходим все аргументы, начиная со второго
+	for(var j = 1; j < arguments.length; j++){
+		
+		var srcObj = arguments[j];
+		
+//		if( Dino.isArray(srcObj) ){
+//			for(var i = 0; i < srcObj.length; i++)
+//				Dino.utils.overrideProp(o, srcObj, i);
+//		}
+//		else {			
+			for(var i in srcObj)
+				Dino.overrideProp(o, srcObj, i);
+//		}		
+	}
+	
+	return o;
+}
+
+
+
+Dino.deep_override = function(o) {
+	
+	for(var j = 1; j < arguments.length; j++){
+	
+		var srcObj = arguments[j];
+		
+		Dino.each(srcObj, function(p, i){
+			if( Dino.isPlainObject(p) ){
+				if(!(i in o) || !Dino.isPlainObject(o[i])) o[i] = {};
+				Dino.deep_override(o[i], p);
+			}
+			else if( Dino.isArray(p) ){
+				if(!(i in o) || !Dino.isArray(o[i])) o[i] = [];
+				Dino.deep_override(o[i], p);
+			}
+			else {
+				o[i] = p;
+			}
+		});
+	
+	}
+	
+	return o;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * 
  * @class
- * @extends Dino.BaseObject
+ * @extends Dino.core.Object
  * @param {Dino.Widget} owner
  */
-Dino.WidgetCollectionManager = Dino.declare('Dino.WidgetCollectionManager', 'Dino.BaseObject', /** @lends Dino.WidgetCollectionManager.prototype */{
+Dino.ComponentCollection = Dino.declare('Dino.ComponentCollection', 'Dino.core.Object', /** @lends Dino.WidgetCollectionManager.prototype */{
 	
 	initialize: function(owner) {
 		this.widgets = [];
@@ -3068,380 +3342,6 @@ Dino.WidgetCollectionManager = Dino.declare('Dino.WidgetCollectionManager', 'Din
 	
 });
 
-
-
-
-
-Dino.utils.overrideProp = function(o, srcObj, i) {
-
-	var shared_opts = {'data': null};
-
-	var p = srcObj[i];
-	
-	if((i in shared_opts)){//Dino.in_array(ignore, i)){
-		o[i] = p;
-	}
-	else if(i[i.length-1] == '!') {
-		j = i.substr(0, i.length-1);
-		if(j in o) i = j;
-		o[i] = p;
-	}
-	else if(i[i.length-1] == '+') {
-		i = i.substr(0, i.length-1);
-		
-		if( !Dino.isArray(o[i]) ) o[i] = [o[i]];
-		p = o[i].concat(p);
-		o[i] = p;
-	}
-	else{
-		//TODO здесь создается полная копия (deep copy) объекта-контейнера
-		if( Dino.isPlainObject(p) ){
-			if(!(i in o) || !Dino.isPlainObject(o[i])) o[i] = {};
-			Dino.utils.overrideOpts(o[i], p);
-		}
-		else if( Dino.isArray(p) ){
-			if(!(i in o) || !Dino.isArray(o[i])) o[i] = [];
-			Dino.utils.overrideOpts(o[i], p);
-		}
-		else {
-			//TODO этот участок кода нужно исправить
-			
-			// если элемент в перегружаемом параметре существует, то он может быть обработан специфически
-			if(i in o){
-				// классы сливаются в одну строку, разделенную пробелом
-				if(i == 'cls') p = o[i] + ' ' + p;
-				if( /^on\S/.test(i) ) {
-					if( !Dino.isArray(o[i]) ) o[i] = [o[i]];
-					p = o[i].concat(p);
-				}
-				if(i == 'state') {
-					p = o[i] + ' ' + p;
-				}
-			}
-			o[i] = p;
-		}
-	}
-	
-}
-
-
-Dino.utils.overrideOpts = function(o) {
-
-	// обходим все аргументы, начиная со второго
-	for(var j = 1; j < arguments.length; j++){
-		
-		var srcObj = arguments[j];
-		
-//		if( Dino.isArray(srcObj) ){
-//			for(var i = 0; i < srcObj.length; i++)
-//				Dino.utils.overrideProp(o, srcObj, i);
-//		}
-//		else {			
-			for(var i in srcObj)
-				Dino.utils.overrideProp(o, srcObj, i);
-//		}		
-	}
-	
-	return o;
-}
-
-
-
-Dino.utils.deep_override = function(o) {
-	
-	for(var j = 1; j < arguments.length; j++){
-	
-		var srcObj = arguments[j];
-		
-		Dino.each(srcObj, function(p, i){
-			if( Dino.isPlainObject(p) ){
-				if(!(i in o) || !Dino.isPlainObject(o[i])) o[i] = {};
-				Dino.utils.deep_override(o[i], p);
-			}
-			else if( Dino.isArray(p) ){
-				if(!(i in o) || !Dino.isArray(o[i])) o[i] = [];
-				Dino.utils.deep_override(o[i], p);
-			}
-			else {
-				o[i] = p;
-			}
-		});
-	
-	}
-	
-	return o;
-}
-
-
-
-
-
-
-
-
-
-
-
-/*
-Dino.declare('Dino.events.StateEvent', 'Dino.events.Event', {
-
-	initialize: function(method, args) {
-		Dino.events.StateEvent.superclass.initialize.call(this, {'method': method, 'args': args});
-	},
-	
-	translate: function(target, filter){
-		if(arguments.length == 1 || Dino.in_array(filter, this.args[0]))
-			target.states[this.method].apply(target.states, this.args);
-	}
-	
-});
-*/
-
-
-
-/**
- * @class
- */
-Dino.StateManager = Dino.declare('Dino.StateManager', 'Dino.BaseObject', /** @lends Dino.StateManager.prototype */ {
-	
-	initialize: function(widget) {
-		this.widget = widget;
-		this.current_states = {};
-	},
-	
-	/**
-	 * Активация состояния
-	 * @param {String} name имя состояния
-	 */
-	set: function(name, change_class) {
-		
-		// получаем состояние, определенное для виджета
-		var state = this.widget.options.states[name];
-//		var state_off, state_on = null;
-		if(state == null) state = name;//{ state_on = name; state_off = ''; }
-//		else if(Dino.isString(state)) { state_on = state; state_off = ''; }
-		else if(Dino.isArray(state)) { //{ state_on = state[0]; state_off = state[1]; }
-			this.set(state[0]);
-			this.clear(state[1]);
-			this.current_states[name] = true;
-			return this;
-		}
-		
-//		if( Dino.isString(state) ) {
-//			this.widget.el.addClass(state);
-//			this.widget.el.removeClass(state_off);
-//		}
-
-		if(arguments.length == 1) change_class = true;
-		
-		if(Dino.isFunction(state)) {
-			change_class &= (state.call(this.widget, true) !== false);
-			state = name;
-		}
-		
-		if(change_class)
-			this.widget.el.addClass(state);
-		
-		this.current_states[name] = true;
-		
-		this.widget.events.fire('onStateChange', {'state': name, 'op': 'set'});
-		this.widget.events.fire('onStateSet', {'state': name});
-		
-		return this;
-	},
-	
-	/**
-	 * Активация указанного состояния и отключение всех остальных состояний
-	 * @param {String} name
-	 */
-	setOnly: function(name) {
-		for(var i in this.current_states) this.clear(i);
-		this.set(name);	
-		
-		return this;		
-	},
-	
-	/**
-	 * Дезактивация состояния
-	 * @param {String} name имя состояния
-	 */
-	clear: function(name) {
-		
-		if(name instanceof RegExp) {
-			var names = Dino.filter(this.current_states, function(s, i){ return i.match(name); });
-			for(var i in names) this.clear(i);
-			return this;			
-		}
-		
-		// получаем состояние, определенное для виджета
-		var state = this.widget.options.states[name];		
-//		var state_off, state_on = null;
-		if(state == null) state = name;//{ state_on = name; state_off = ''; }
-//		else if(Dino.isString(state)) { state_on = state; state_off = ''; }
-		else if(Dino.isArray(state)) {//{ state_on = state[0]; state_off = state[1]; }
-			this.clear(state[0]);
-			this.set(state[1]);
-			delete this.current_states[name];
-			return this;
-		}
-		
-		var change_class = true;
-
-//		if( Dino.isString(state) ) {
-//			this.widget.el.removeClass(state);
-////			this.widget.el.addClass(state_off);
-//		}
-		if(Dino.isFunction(state)) {
-			change_class &= (state.call(this.widget, false) !== false);			
-			state = name;
-		}
-		
-		if(change_class)
-			this.widget.el.removeClass(state);		
-		
-		delete this.current_states[name];
-		
-		this.widget.events.fire('onStateChange', {'state': name, 'op': 'clear'});		
-		this.widget.events.fire('onStateClear', {'state': name});
-		
-		return this;		
-	},
-	
-	/**
-	 * Переключение состояния
-	 * @param {String} name имя состояния
-	 * @param {Boolean} sw опциональный флаг, явно указывающий на итоговое состояние (true - включить, false - выключить)
-	 */
-	toggle: function(name, sw) {
-		
-		if(sw == null) sw = !this.is(name);
-		
-		sw ? this.set(name) : this.clear(name);
-		
-		return sw;
-	},
-	
-	
-	/**
-	 * Проверка состояния
-	 * @param {String} name имя состояния
-	 * @returns {Boolean} активно ли состояние
-	 */
-	is: function(name) {
-		return (name in this.current_states);
-	}
-	
-	
-	
-});
-
-
-
-
-/*
-Dino.declare('Dino.utils.WidgetStateManager', 'Dino.BaseObject', {
-	
-//	defaultOptions: {
-//		multistate: true
-//	},
-	
-	initialize: function(widget) {
-		this.widget = widget;
-//		this.options = Dino.utils.deep_override({}, this.defaultOptions, o);
-		this.current_states = {};
-//		this.multistate = true;
-	},
-	
-	set_only: function(name) {
-		for(var i in this.current_states) this.clear(i);
-		this.set(name);
-	},
-	
-	set: function(name) {
-		
-		// получаем класс или массив
-		var cls = this.stateCls(name);
-		// если состояние - массив, то второй элемент содержит классы, которые нужно убрать
-		if(Dino.isArray(cls)){
-			this.widget.el.removeClass(cls[1]);
-			cls = cls[0];
-		}
-		// добавляем класс текущего состояния
-		this.widget.el.addClass(cls);
-		this.widget.events.fire('onStateChanged', new Dino.events.StateEvent('set', arguments));
-		
-		// запоминаем установленное состояние
-		this.current_states[name] = true;
-		
-		return this;
-	},
-	
-	clear: function(name){
-		var cls = this.stateCls(name);
-		
-		if(Dino.isArray(cls)){
-			this.widget.el.addClass(cls[1]);
-			cls = cls[0];
-		}
-		
-		this.widget.el.removeClass( cls );
-		this.widget.events.fire('onStateChanged', new Dino.events.StateEvent('clear', arguments));
-		
-		delete this.current_states[name];
-		
-		return this;
-	},
-	
-	toggle: function(name, sw) {
-		var cls = this.stateCls(name);
-		
-		if(Dino.isArray(cls)){
-			if(arguments.length == 1)
-				this.widget.el.toggleClass( cls[1] );
-			else
-				this.widget.el.toggleClass( cls[1], !sw );
-			cls = cls[0];
-		}
-		
-		this.widget.el.toggleClass( cls, sw );
-		this.widget.events.fire('onStateChanged', new Dino.events.StateEvent('toggle', arguments));
-		
-		(name in this.current_states) ? delete this.current_states[name] : this.current_states[name] = true;
-		
-		return this.widget.el.hasClass(cls);
-	},
-	
-	check: function(name) {
-//		var cls = this.stateCls(name);
-//		if(Dino.isArray(cls))
-//			return (cls[0] == '' || this.widget.el.hasClass(cls[0])) && !this.widget.el.hasClass(cls[1])
-//		return this.widget.el.hasClass( cls );
-		return this.is(name);
-	},
-
-	is: function(name) {
-		var cls = this.stateCls(name);
-		if(Dino.isArray(cls))
-			return (cls[0] == '' || this.widget.el.hasClass(cls[0])) && !this.widget.el.hasClass(cls[1])
-		return this.widget.el.hasClass( cls );
-	},
-	
-	
-	stateCls: function(name) {
-		var stateVal = this.widget.options.states[name];
-		// если состояние не определено, то формируем имя класса по имени базового класса
-		if(stateVal === undefined) return name;
-		// если состояние - функция, то вызываем ее, а значение считаем состоянием
-		if(Dino.isFunction(stateVal))
-			return stateVal.call(this.widget);
-		
-		return stateVal;
-	}
-	
-	
-});
-*/
-
 /**
  * @class
  * @name Dino.layouts.StatefulLayout
@@ -3491,12 +3391,14 @@ Dino.declare('Dino.layouts.PlainLayout', Dino.Layout, /** @lends Dino.layouts.Pl
 	
 	insert: function(item, index) {
 		
+		var el = (item.options.layoutSelector) ? this.el.filter(item.options.layoutSelector) : this.el;
+		
 		if(index == null)
-			this.el.append( item.el );
+			el.append( item.el );
 		else if(index == 0)
-			this.el.prepend( item.el );
+			el.prepend( item.el );
 		else
-			this.el.children().eq(index-1).after(item.el);
+			el.children().eq(index-1).after(item.el);
 		
 		if('itemCls' in this.options) item.el.addClass(this.options.itemCls);
 	},
@@ -4044,14 +3946,10 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 						
 		var w0 = wnd.width();
 		var h0 = wnd.height();
-		wnd.css({width: '', height: ''});
-
 		box.css({'visibility': 'hidden'});
 
-//		this.container.el.show();
-
-		var w = this.container.options.width;
-		var h = this.container.options.height;
+		var w = this.container.options.width || '';
+		var h = this.container.options.height || '';		
 
 		// если указана высота в %, ее еще надо рассчитать
 		if (Dino.isString(w) && w[w.length - 1] == '%') {
@@ -4064,6 +3962,8 @@ Dino.layouts.WindowLayout = Dino.declare('Dino.layouts.WindowLayout', 'Dino.layo
 			wnd.css('height', w);
 		}
 		
+		wnd.css({width: w, height: h});
+
 
 		w = w || box.outerWidth(true);
 		h = h || box.outerHeight(true);
@@ -4552,15 +4452,15 @@ Dino.containers.Tabs = Dino.declare('Dino.containers.Tabs', 'Dino.containers.Box
 			content: {
 				dtype: 'text'
 			},
-			state: 'clickable',
-			onClick: function() {
-				this.parent.setActiveTab(this);
-			}
-//			events: {
-//				'click': function(e, w){
-//					w.parent.activateTab(tab);
-//				}
+//			state: 'clickable',
+//			onClick: function() {
+//				this.parent.setActiveTab(this);
 //			}
+			events: {
+				'click': function(e, w){
+					w.parent.setActiveTab(w);
+				}
+			}
 		},
 //		itemFactory: function(o){
 //			return Dino.widget({
@@ -4578,62 +4478,6 @@ Dino.containers.Tabs = Dino.declare('Dino.containers.Tabs', 'Dino.containers.Box
 	
 	$html: function() { return '<ul></ul>' },
 	
-//	$opt: function(o) {
-//		Dino.containers.Tabs.superclass.$opt.apply(this, arguments);
-		
-/*		
-		if('tabs' in o){
-			for(var i in o.tabs) this.addTab( o.tabs[i] );
-		}
-*/		
-//		if('dock' in o){
-//			this.el.addClass('dock-'+o.dock);
-//		}
-		/*	
-		addTab: function(o){
-		
-			var self = this;
-			
-			var tab = new Dino.Widget('<li>'+o.text+'</li>', Dino.override({}, this.options.tabModel));
-			this.header.addItem(tab);
-			
-			tab.el.click(function(e){
-				self.showTab(tab);
-				self.header.eachItem(function(item){
-					if(item != tab) self.hideTab(item);
-				});
-			});
-			
-			
-			var c = this.options.itemFactory(o);
-			this.content.addItem(c);
-			
-		}
-	*/	
-
-//	},
-	
-//	$afterBuild: function(){
-//		Dino.containers.Tabs.superclass.$afterBuild.apply(this, arguments);
-//		
-//		if('defaultIndex' in this.options)
-//			this.changeTab(this.options.defaultIndex);
-//	},
-	
-/*	
-	addTab: function(t) {
-		// создаем закладку
-		var tab = this.options.itemFactory.call(this, {
-			wrapEl: $('<li/>'),
-			defaultItem: this.options.defaultTabItem,
-			content: t
-		});
-				
-		this.addItem(tab);
-		
-		tab.index = parseInt(this.children.length-1); //FIXME это хорошо работает пока закладки не начинают добавляться произвольно		
-	},
-*/	
 	
 	setActiveTab: function(tab){
 		
@@ -4900,6 +4744,13 @@ Dino.declare('Dino.widgets.ControlBox', 'Dino.containers.Box', {
 	
 	defaultOptions: {
 		cls: 'dino-control-box'
+	},
+	
+	$itemFactory: function(o) {
+		
+		if(o === '-')	o = {dtype: 'split'}
+		
+		return Dino.widgets.ControlBox.superclass.$itemFactory.call(this, o);
 	}
 	
 	
@@ -4925,7 +4776,7 @@ Dino.widgets.Split = Dino.declare('Dino.widgets.Split', 'Dino.Widget', /** @lend
 
 
 
-Dino.SelectionManager = Dino.declare('Dino.SelectionManager', 'Dino.BaseObject', {
+Dino.SelectionManager = Dino.declare('Dino.SelectionManager', 'Dino.core.Object', {
 	
 	initialize: function(widget) {
 		Dino.SelectionManager.superclass.initialize.apply(this, arguments);
@@ -5056,7 +4907,7 @@ Dino.Editable = function(o) {
 	
 	o.editor = o.editor || 'text-editor';
 	
-//	o.editor = Dino.utils.overrideOpts({}, Dino.Editable.defaultEditor, o.editor);
+//	o.editor = Dino.smart_override({}, Dino.Editable.defaultEditor, o.editor);
 	
 	//TODO имеет смысл перенести это в состояния
 	o.editable = ('editable' in o) ? o.editable : true;
@@ -5273,7 +5124,7 @@ Dino.Droppable = function() {
 
 Dino.Clickable = function(o) {
 	
-	Dino.utils.overrideOpts(o, {events: {
+	Dino.smart_override(o, {events: {
 		'click': function(e, w) {
 			w.events.fire('onClick', {button: 0}, e);
 		},
@@ -5290,7 +5141,7 @@ Dino.Clickable = function(o) {
 
 Dino.RClickable = function(o) {
 	
-	Dino.utils.overrideOpts(o, {events: {
+	Dino.smart_override(o, {events: {
 		'mousedown': function(e, w) {
 			// если нажата правая кнопка мыши
 			if(e.button == 2) {
@@ -5323,6 +5174,7 @@ Dino.Focusable = function(o) {
 	};
 	
 	this.hasFocus = function() {
+//		return this.states.is('focus');
 		return Dino.Focusable.focusManager.current == this;
 	};
 	
@@ -5347,11 +5199,12 @@ Dino.Focusable.focusManager = {
 	
 	enter: function(w) {
 		if(this.current == w) return;
-		if (this.current) {
-			this.current.states.clear('focus');
-			this.current.events.fire('onBlur');
-		}
+		var w_old = this.current;
 		this.current = w;
+		if (w_old) {
+			w_old.states.clear('focus');
+			w_old.events.fire('onBlur');
+		}
 		w.states.set('focus');
 		w.events.fire('onFocus');
 	},
@@ -5376,7 +5229,7 @@ Dino.Focusable.focusManager = {
 	keypress: function(e) {
 		if(this.current) 
 			this.current.events.fire('onKeyDown', {keyCode: e.keyCode}, e);
-		if(e.keyCode == 27) this.clear();
+//		if(e.keyCode == 27) this.clear();
 	}
 	
 }
@@ -5412,10 +5265,37 @@ Dino.declare('Dino.widgets.ComboField', 'Dino.Widget', {
     components: {
       input: {
         dtype: 'input',
-				width: 'auto'
+				width: 'auto',
+				events: {
+					'focus': function(e, w) {
+						w.parent.setFocus();
+					}
+				}
       }
-    }
-	}
+    },
+		extensions: [Dino.Focusable],
+		onFocus: function() {
+			var o = this.options;
+			if(o.rawValueOnFocus)
+				this.input.el.val(this.getRawValue());			
+		},
+		onKeyDown: function(e) {
+			var o = this.options;
+			if(e.keyCode == 13) {
+				if(o.changeOnEnter)
+					this.setValue( this.input.el.val() );
+			}
+		}
+	},
+	
+	$dataChanged: function() {
+		Dino.widgets.ComboField.superclass.$dataChanged.apply(this, arguments);
+		
+		if(this.options.rawValueOnFocus && this.hasFocus()) 
+			this.input.el.val( this.getRawValue() );
+		else
+			this.input.el.val( this.getValue() );
+	}	
 	
 }, 'combo-field');
 
@@ -5435,9 +5315,9 @@ Dino.declare('Dino.widgets.Input', 'Dino.Widget', /** @lends Dino.widgets.form.I
 		if('text' in o) this.el.val(o.text);
 		if('readOnly' in o) this.el.attr('readonly', o.readOnly);
 		if('name' in o) this.el.attr('name', o.name);
-		if('value' in o) this.el.attr('value', o.value);
+		if('value' in o) this.el.prop('value', o.value);
 		if('disabled' in o) this.el.attr('disabled', o.disabled);
-		if('tabindex' in o) this.el.attr('tabindex', o.tabindex);
+		if('tabIndex' in o) this.el.attr('tabindex', o.tabIndex);
 
 /*
 		var self = this;
@@ -5453,24 +5333,8 @@ Dino.declare('Dino.widgets.Input', 'Dino.Widget', /** @lends Dino.widgets.form.I
 			this.el.blur(function() { self.hasFocus = false; self.el.val(self.getValue()) });
 		}
 */		
-	},
-	
-	$events: function(self) {
-		Dino.widgets.Input.superclass.$events.call(this, self);
-
-		this.el.keydown(function(e) {
-			if(!self.options.readOnly) {
-				if(e.keyCode == 13) 
-					self.setValue( self.el.val(), 'enterKey');
-				else if(e.keyCode == 27) 
-					self.el.val(self.getValue());				
-			}
-		});
-		
-//		this.el.change(function() {
-//			self.setValue( self.el.val());
-//		});
 	}
+	
 	
 //	$dataChanged: function() {
 //		Dino.widgets.Input.superclass.$dataChanged.apply(this);
@@ -5483,7 +5347,7 @@ Dino.declare('Dino.widgets.Input', 'Dino.Widget', /** @lends Dino.widgets.form.I
 	
 	
 	
-});
+}, 'input');
 
 
 
@@ -5520,9 +5384,27 @@ Dino.declare('Dino.widgets.TextInput', 'Dino.widgets.Input', /** @lends Dino.wid
 			this.el.val( this.getRawValue() );
 		else
 			this.el.val( this.getValue() );
-	}	
+	},
+	
+	$events: function(self) {
+		Dino.widgets.Input.superclass.$events.call(this, self);
+
+		this.el.keydown(function(e) {
+			if(!self.options.readOnly) {
+				if(e.keyCode == 13) 
+					self.setValue( self.el.val(), 'enterKey');
+				else if(e.keyCode == 27) 
+					self.el.val(self.getValue());				
+			}
+		});
 		
-}, 'input');
+//		this.el.change(function() {
+//			self.setValue( self.el.val());
+//		});
+	}
+	
+		
+}, 'text-input');
 
 
 
@@ -5543,7 +5425,7 @@ Dino.declare('Dino.widgets.Password', 'Dino.widgets.TextInput', /** @lends Dino.
 }, 'password');
 
 
-Dino.declare('Dino.widgets.Submit', Dino.widgets.Input, {
+Dino.declare('Dino.widgets.Submit', 'Dino.widgets.Input', {
 	
 	defaultOptions: {
 		html: '<input type="submit"></input>'
@@ -5620,7 +5502,7 @@ Dino.declare('Dino.widgets.Checkbox', Dino.widgets.Input, /** @lends Dino.widget
 	$events: function(self) {
 //		Dino.widgets.form.Checkbox.superclass.$events.call(this, self);
 		this.el.change(function(){
-			self.setValue(self.el.attr('checked') ? true : false);
+			self.setValue(self.el.prop('checked') ? true : false);
 			self.events.fire('onAction');
 		});
 	},
@@ -5630,16 +5512,16 @@ Dino.declare('Dino.widgets.Checkbox', Dino.widgets.Input, /** @lends Dino.widget
 		Dino.widgets.Checkbox.superclass.$opt.apply(this, arguments);
 		
 		if('checked' in o)
-			this.el.attr('checked', o.checked);	
+			this.el.prop('checked', o.checked);	
 	},
 	
 	$dataChanged: function() {
 		Dino.widgets.Checkbox.superclass.$dataChanged.apply(this);
-		this.el.attr('checked', this.getValue() );
+		this.el.prop('checked', this.getValue() );
 	},
 	
 	isChecked: function() {
-		return this.el.attr('checked');
+		return this.el.prop('checked');
 	}
 	
 		
@@ -5716,9 +5598,12 @@ Dino.declare('Dino.widgets.Anchor', 'Dino.Widget', /** @lends Dino.widgets.form.
 		
 		if('text' in o)
 			this.el.text(o.text);
+		if('href' in o)
+			this.el.attr('href', o.href);
 	},
 	
 	$dataChanged: function() {
+		Dino.widgets.Anchor.superclass.$dataChanged.apply(this, arguments);
 		this.el.attr('href',this.getValue());
 //		this.el.text(this.getValue());
 	}	
@@ -5879,6 +5764,8 @@ Dino.widgets.Button = Dino.declare('Dino.widgets.Button', 'Dino.Widget', /** @le
 
 		if('buttonType' in o)
 			this.el.attr('type', o.buttonType);
+		if('tabIndex' in o) 
+			this.el.attr('tabindex', o.tabIndex);
 		if('disabled' in o){
 			(o.disabled) ? this.el.attr('disabled', 'disabled') : this.el.removeAttr('disabled');
 		}
@@ -6045,6 +5932,7 @@ Dino.widgets.ActionIcon = Dino.declare('Dino.widgets.ActionIcon', 'Dino.widgets.
 		events: {
 			'click': function(e, w){
 				w.events.fire('onAction');
+				e.stopPropagation();
 			}
 		}
 		
@@ -6285,7 +6173,7 @@ Dino.widgets.TextItem = Dino.declare('Dino.widgets.TextItem', 'Dino.Widget', /**
 		}
 		
 		
-		Dino.utils.overrideOpts(o.components, o_mod);
+		Dino.smart_override(o.components, o_mod);
 		
 //		console.log();
 */		
@@ -6495,20 +6383,20 @@ Dino.widgets.Table = Dino.declare('Dino.widgets.Table', 'Dino.Widget', /** @lend
 //		
 //		
 //		
-//		Dino.utils.overrideOpts(
+//		Dino.smart_override(
 //				o.components.colgroup, 
 //				{items: g_columns}
 //				);
 		
 		
-		Dino.utils.overrideOpts(
+		Dino.smart_override(
 				o.components.body.defaultItem, 
 				o.tableModel.row, 
 				{defaultItem: o.tableModel.cell},
 				{items: columns}
 				);
 		
-		Dino.utils.overrideOpts(
+		Dino.smart_override(
 				o.components.head.defaultItem, 
 				o.headerModel.row,
 				{defaultItem: o.headerModel.cell},
@@ -6704,7 +6592,7 @@ Dino.widgets.Pager = Dino.declare('Dino.widgets.Pager', 'Dino.containers.Box', /
 			dtype: 'text',
 			innerText: 'Страница'
 		}, {
-			dtype: 'input',
+			dtype: 'text-input',
 			width: 30,
 			tag: 'current_page',
 			value: '1',
@@ -6955,12 +6843,11 @@ Dino.declare('Dino.widgets.TextEditor', 'Dino.widgets.ComboField', {
 		},
 		components: {
 			input: {
-        updateOnValueChange: true,
 				autoFit: true,
 				width: undefined //FIXME костыль пока нормально не заработает PlainLayout
 			}			
 		},
-		extensions: [Dino.Focusable],
+//		extensions: [Dino.Focusable],
 		onBlur: function() {
 			this.parent.stopEdit();			
 		},
@@ -6978,7 +6865,9 @@ Dino.declare('Dino.widgets.TextEditor', 'Dino.widgets.ComboField', {
 			if(e.keyCode == 13) {
 				this.parent.stopEdit('enterKey');
 			}
-		}
+		},
+    updateOnValueChange: true,
+		changeOnEnter: true
 	}	
 	
 }, 'text-editor');
@@ -7006,11 +6895,7 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 	defaultOptions: {
 		components: {
 			input: {
-				readOnly: true,				
-				format: function(val) {
-					if(val === '' || val === undefined || val === null) return '';
-					return this.parent.options.formatValue.call(this.parent, val);
-				}
+				readOnly: true				
 			},			
       button: {
         dtype: 'action-icon',
@@ -7030,11 +6915,12 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 					defaultItem: {
 						events: {
 							'click': function(e, w) {
-								var dd = w.parent.parent;
-								dd.parent.dropdown.content.selection.set(w);
-								dd.parent.events.fire('onSelect', {target: w});
-								dd.parent.setValue( dd.parent.options.selectValue.call(dd.parent, w) );
-		          	dd.hide();
+								w.getParent(Dino.widgets.DropdownEditor).setSelectedItem(w);								
+//								var dd = w.parent.parent;
+//								dd.parent.dropdown.content.selection.set(w);
+//								dd.parent.events.fire('onSelect', {target: w});
+//								dd.parent.setValue(w);
+//		          	dd.hide();
 							}
 						}						
 					}
@@ -7049,8 +6935,43 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 				}
 			}
 		},
-		formatValue: function(val) { return this.dropdown.data.get(val); },
-		selectValue: function(w){ return w.data.id; },
+		
+		dataModel: {
+			type: 'plain',
+			data: []
+		},
+		
+		format: function(val) {
+			if(val === '' || val === undefined || val === null) return '';
+			var o = this.options;
+			var dataModel = o.dataModel;
+			
+			if(dataModel.type == 'keyvalue') {
+				val = this.dropdown.data.get(val);
+			}
+			else if(dataModel.type == 'custom') {
+				var criteria = {};
+				criteria[dataModel.id] = val;
+				var optionsItem = Dino.find(this.dropdown.data.val(), Dino.filters.by_props.curry(criteria));
+				val = optionsItem ? optionsItem[dataModel.value] : optionsItem;				
+			}
+			return val;
+		},
+		
+		store: function(w) {
+			var o = this.options;
+			var val = null;
+			if(o.dataModel) {
+				if(o.dataModel.type == 'plain')
+					val = w.data.get();
+				else if(o.dataModel.type == 'keyvalue')
+					val = w.data.id;
+				else if(o.dataModel.type == 'custom')
+					val = w.data.source.get(o.dataModel.id); //<-- используем data.source, поскольку у элемента определяется dataId из dataModel
+			}
+			return val;
+		},
+		
 		onKeyDown: function(e) {
 
 			var listBox = this.dropdown.content;
@@ -7072,13 +6993,15 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 					listBox.selection.set(prevItem);
 			}
 			else if(e.keyCode == 13) {
-				this.events.fire('onSelect', {target: selected});				
-				this.setValue( this.options.selectValue.call(this, selected) );
+				this.setSelectedItem(selected);
+//				this.events.fire('onSelect', {target: selected});				
+//				this.setValue( selected );// this.options.selectValue.call(this, selected) );
 				this.hideDropdown();
 			}
 		},
 		dropdownOnClick: true,
-		dropdownOnFocus: false
+		dropdownOnFocus: false,
+		changeOnEnter: false
 	},
 	
 	$init: function(o) {
@@ -7092,6 +7015,14 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 		if(o.dropdownOnFocus) {
 			this.events.reg('onFocus', function(){	self.showDropdown(); });
 		}
+		
+		if('dataModel' in o) {
+			if(o.dataModel.data)
+				o.components.dropdown.data = o.dataModel.data;
+			if(o.dataModel.type == 'custom')
+				o.components.dropdown.content.defaultItem.dataId = o.dataModel.value;				
+		}
+		
 	},
 	
 	
@@ -7107,7 +7038,51 @@ Dino.declare('Dino.widgets.DropdownEditor', 'Dino.widgets.TextEditor', {
 	
 	hideDropdown: function() {
 		this.dropdown.hide();
-	}	
+	},
+	
+	
+	setSelectedItem: function(item) {
+		if(!item) {
+			this.dropdown.content.selection.clear();
+			return;
+		}
+		var o = this.options;
+		this.dropdown.content.selection.set(item);
+		this.events.fire('onSelect', {target: item});
+		this.setValue( item );//o.dataModel ? item.data.source.get(o.dataModel.id) : item.data.get() ); //<-- используем data.source, поскольку у элемента определяется dataId из dataModel
+  	this.hideDropdown();
+	},
+	
+	$dataChanged: function() {
+		Dino.widgets.DropdownEditor.superclass.$dataChanged.apply(this, arguments);
+		
+		var val = this.data.get();//.getRawValue();
+		if(val === '' || val === undefined || val === null) {
+//			this.setSelectedItem(null);
+			this.dropdown.content.selection.clear();
+		}
+		else {
+			var o = this.options;
+			var dataModel = o.dataModel;
+			var item = null;
+			if(dataModel) {
+				this.dropdown.content.eachItem(function(it){
+					if( 
+						(dataModel.type == 'plain' && it.data.get() == val) ||
+						(dataModel.type == 'keyvalue' && it.data.id == val) ||
+						(dataModel.type == 'custom' && it.data.source.get()[dataModel.id] == val)
+					) {
+						item = it;
+						return false;						
+					}
+				});
+			}
+//			this.setSelectedItem(item);
+			this.dropdown.content.selection.set(item);
+		}
+		
+	}
+	
 	
 }, 'dropdown-editor');
 
@@ -7213,7 +7188,7 @@ Dino.widgets.TextButton = Dino.declare('Dino.widgets.TextButton', 'Dino.widgets.
 				state: 'hidden'
 			}
 		},
-		text: ''
+		text: false
 	},
 	
 	
@@ -7328,26 +7303,57 @@ Dino.declare('Dino.widgets.TextField', 'Dino.widgets.ComboField', {
 				e.stopPropagation();
 			}
 		},
-		components: {
-			input: {
-        updateOnValueChange: true,
-				events: {
-					'focus': function(e, w) {
-						w.parent.setFocus();
-					}
-				}
-			}			
-		},
-		extensions: [Dino.Focusable],
+//		components: {
+//			input: {
+//        updateOnValueChange: true,
+//				format: function(val) {
+//					var po = this.parent.options;
+//					if(po.format) val = po.format.call(this, val);
+//					var empty_val = (val === '' || val === null || val === undefined);
+//					this.states.toggle('default-text', empty_val);
+//					return (empty_val) ? po.defaultText : val;
+//				},
+//				parser: function(val) {
+//					return (this.parent.options.parser) ? this.parent.options.parser.call(this, val) : val;
+//				}
+//			}			
+//		},
 		onFocus: function() {
-//			if(this.options.changeOn)
+//			else
+//				this.input.el.val(this.getValue());
+			
+			this.states.toggle('default-text', false);
+			
+//			if(this.states.is('default-text')) {
+////				this.input.el.val(this.getRawValue());
+//				this.states.clear('default-text');
+//			}				
 		},
 		onBlur: function() {
-			if(this.options.changeOnBlur)
+			var o = this.options;
+			if(o.changeOnBlur)
 				this.setValue( this.input.el.val() );
 		},
-		changeOnBlur: true
+		changeOnBlur: true,
+    updateOnValueChange: true,
+		defaultText: '',
+		
+		format: function(val) {
+			var o = this.options;
+			var empty_val = (val === '' || val === null || val === undefined);
+			this.states.toggle('default-text', empty_val);
+			return (empty_val) ? o.defaultText : val;
+		}
 	}	
+	
+//	$opt: function(o) {
+//		Dino.widgets.TextField.superclass.$opt.apply(this, arguments);
+//		
+//		if('defaultText' in o) {
+//			this.input			
+//		}
+//		
+//	}
 	
 }, 'text-field');
 
@@ -7356,8 +7362,11 @@ Dino.declare('Dino.widgets.TextField', 'Dino.widgets.ComboField', {
 /**
  * 
  * Данные могут быть представлены в видах:
- * 	1. [[key1, val1], [key2, val2], ..., [keyN, valN]]
- * 	2. [[k: key1, v: val1], [k: key2, v: val2], ..., [k: keyN, v: valN]]
+ * 	1. custom: [[key1, val1], [key2, val2], ..., [keyN, valN]]
+ * 	2. custom: [[k: key1, v: val1], [k: key2, v: val2], ..., [k: keyN, v: valN]]
+ *  3. plain: [val1, val2, ..., valN]
+ *  4. keyvalue: [val1, val2, ..., valN]
+ *  4. keyvalue: {key1:val1, key2:val2, ..., keyN:valN}
  * 
  * @param {Object} val
  */
@@ -7366,10 +7375,11 @@ Dino.declare('Dino.widgets.DropdownField', 'Dino.widgets.TextField', {
 	defaultOptions: {
 		components: {
 			input: {
-				readOnly: true,
-				format: function(val) {
-					return this.parent.options.selectedItemFormat.call(this.parent, val);
-				}
+//				html: '<input readonly="true">'
+				readOnly: true
+//				format: function(val) {
+//					return this.parent.options.selectedItemFormat.call(this.parent, val);
+//				}
 			},			
       button: {
         dtype: 'icon-button',
@@ -7377,7 +7387,8 @@ Dino.declare('Dino.widgets.DropdownField', 'Dino.widgets.TextField', {
 				icon: 'dino-icon-spinner-down',
 				onAction: function() {
 					this.parent.showDropdown();
-				}
+				},
+				tabIndex: -1
       },
 			dropdown: {
 	      dtype: 'dropdown-box',
@@ -7402,24 +7413,42 @@ Dino.declare('Dino.widgets.DropdownField', 'Dino.widgets.TextField', {
 			}
 		},
 		
-		optionsFormat: {
-			id: 0,
-			value: 1
+		dataModel: {
+			type: 'plain',
+			data: []
 		},
 		
-		selectedItemFormat: function(val) {
+		format: function(val) {
 			if(val === '' || val === undefined || val === null) return '';
 			var o = this.options;
-			if(o.optionsFormat) {
+			var dataModel = o.dataModel;
+			
+			if(dataModel.type == 'keyvalue') {
+				val = this.dropdown.data.get(val);
+			}
+			else if(dataModel.type == 'custom') {
 				var criteria = {};
-				criteria[o.optionsFormat.id] = val;
+				criteria[dataModel.id] = val;
 				var optionsItem = Dino.find(this.dropdown.data.val(), Dino.filters.by_props.curry(criteria));
-				return optionsItem ? optionsItem[o.optionsFormat.value] : optionsItem;				
+				val = optionsItem ? optionsItem[dataModel.value] : optionsItem;				
 			}
-			else {
-				return val;
+			return val;
+		},
+		
+		store: function(w) {
+			var o = this.options;
+			var val = null;
+			if(o.dataModel) {
+				if(o.dataModel.type == 'plain')
+					val = w.data.get();
+				else if(o.dataModel.type == 'keyvalue')
+					val = w.data.id;
+				else if(o.dataModel.type == 'custom')
+					val = w.data.source.get(o.dataModel.id); //<-- используем data.source, поскольку у элемента определяется dataId из dataModel
 			}
-		},		
+			return val;
+		},
+		
 		onKeyDown: function(e) {
 
 			var listBox = this.dropdown.content;
@@ -7443,6 +7472,9 @@ Dino.declare('Dino.widgets.DropdownField', 'Dino.widgets.TextField', {
 			else if(e.keyCode == 13) {
 				this.setSelectedItem(selected);
 			}
+			else if(e.keyCode == 27) {
+				this.hideDropdown();
+			}
 		},
 		dropdownOnClick: true,
 		dropdownOnFocus: false,
@@ -7459,6 +7491,14 @@ Dino.declare('Dino.widgets.DropdownField', 'Dino.widgets.TextField', {
 		}
 		if(o.dropdownOnFocus) {
 			this.events.reg('onFocus', function(){	self.showDropdown(); });
+		}
+		
+		
+		if('dataModel' in o) {
+			if(o.dataModel.data)
+				o.components.dropdown.data = o.dataModel.data;
+			if(o.dataModel.type == 'custom')
+				o.components.dropdown.content.defaultItem.dataId = o.dataModel.value;				
 		}
 	},
 	
@@ -7480,11 +7520,45 @@ Dino.declare('Dino.widgets.DropdownField', 'Dino.widgets.TextField', {
 	},
 	
 	setSelectedItem: function(item) {
+		if(!item) {
+			this.dropdown.content.selection.clear();
+			return;
+		}
 		var o = this.options;
 		this.dropdown.content.selection.set(item);
 		this.events.fire('onSelect', {target: item});
-		this.setValue( o.optionsFormat ? item.data.get(o.optionsFormat.id) : item.data.get() );
+		this.setValue( item );//o.dataModel ? item.data.source.get(o.dataModel.id) : item.data.get() ); //<-- используем data.source, поскольку у элемента определяется dataId из dataModel
   	this.hideDropdown();
+	},
+	
+	$dataChanged: function() {
+		Dino.widgets.DropdownField.superclass.$dataChanged.apply(this, arguments);
+		
+		var val = this.data.get();//.getValue();
+		if(val === '' || val === undefined || val === null) {
+//			this.setSelectedItem(null);
+			this.dropdown.content.selection.clear();
+		}
+		else {
+			var o = this.options;
+			var dataModel = o.dataModel;
+			var item = null;
+			if(dataModel) {
+				this.dropdown.content.eachItem(function(it){
+					if( 
+						(dataModel.type == 'plain' && it.data.get() == val) ||
+						(dataModel.type == 'keyvalue' && it.data.id == val) ||
+						(dataModel.type == 'custom' && it.data.source.get()[dataModel.id] == val)
+					) {
+						item = it;
+						return false;						
+					}
+				});
+			}
+//			this.setSelectedItem(item);
+			this.dropdown.content.selection.set(item);
+		}
+		
 	}
 	
 }, 'dropdown-field');
@@ -7707,7 +7781,7 @@ Dino.declare('Dino.panels.TabPanel', 'Dino.Widget', /** @lends Dino.panels.TabPa
 			if(o.tabPosition == 'left' || o.tabPosition == 'right'){
 				var s = {};
 				s['margin-'+o.tabPosition] = o.tabWidth+1;
-				Dino.utils.overrideOpts(this.options, {
+				Dino.smart_override(this.options, {
 					components: {
 						tabs: {defaultItem: {width: o.tabWidth}},
 						pages: {style: s}
@@ -7718,7 +7792,7 @@ Dino.declare('Dino.panels.TabPanel', 'Dino.Widget', /** @lends Dino.panels.TabPa
 
 		if('tabPosition' in o){
 			if(o.tabPosition == 'bottom'){
-				Dino.utils.overrideOpts(this.options, {
+				Dino.smart_override(this.options, {
 					components: {
 						tabs: {weight: 3},
 						tabFooter: {weight: 2},
@@ -7730,10 +7804,10 @@ Dino.declare('Dino.panels.TabPanel', 'Dino.Widget', /** @lends Dino.panels.TabPa
 		
 		
 		if('tab' in o.defaults)
-			Dino.utils.overrideOpts(o.components.tabs.defaultItem, o.defaults.tab);
+			Dino.smart_override(o.components.tabs.defaultItem, o.defaults.tab);
 		
 		if('page' in o.defaults)
-			Dino.utils.overrideOpts(o.components.pages.defaultItem, o.defaults.page);
+			Dino.smart_override(o.components.pages.defaultItem, o.defaults.page);
 		
 	},
 	
@@ -7947,7 +8021,19 @@ Dino.widgets.MessageBox = Dino.declare('Dino.widgets.MessageBox', 'Dino.widgets.
 						cls: 'dino-messagebox-icon icon32'
 					},
 					message: {
-						dtype: 'text'
+						dtype: 'box',
+						components: {
+							baseText: {
+								weight: 10,
+								dtype: 'text',
+								cls: 'dino-messagebox-msg-base'								
+							},
+							extText: {
+								weight: 20,
+								dtype: 'text',
+								cls: 'dino-messagebox-msg-ext'								
+							}
+						}
 					}
 				}	
 			}
@@ -7972,7 +8058,8 @@ Dino.widgets.MessageBox = Dino.declare('Dino.widgets.MessageBox', 'Dino.widgets.
 		Dino.widgets.MessageBox.superclass.$opt.apply(this, arguments);
 		
 		if('icon' in o) this.content.icon.states.setOnly(this.options.iconSet[o.icon]);
-		if('message' in o) this.content.message.opt('text', o.message);
+		if('message' in o) this.content.message.baseText.opt('text', o.message);
+		if('messageEx' in o) this.content.message.extText.opt('text', o.messageEx);
 		
 	}
 	
@@ -8010,9 +8097,10 @@ Dino.widgets.Growl = Dino.declare('Dino.widgets.Growl', 'Dino.Widget', {
 				}
 			}
 		},
-		state: 'clickable',
-		onClick: function() {
-			if(this.options.hideOnClick) this.hide();
+		events: {
+			'click': function(e, w) {
+				if(w.options.hideOnClick) w.hide();
+			}
 		},
 		buttonSet: {
 			'ok': {text: 'ОК', tag: 'ok'},
@@ -8415,14 +8503,14 @@ Dino.widgets.Grid = Dino.declare('Dino.widgets.Grid', 'Dino.Widget', /** @lends 
 			if('width' in column) h_col.width = column.width;
 			if('header' in column) {
 				if(Dino.isString(column.header)) h_col.text = column.header;
-				else Dino.utils.overrideOpts(h_col, column.header);
+				else Dino.smart_override(h_col, column.header);
 			}
 			h_columns[i] = h_col;
 		})
 		
 		
-		Dino.utils.overrideOpts(o.components.content.content, {'tableModel': o.tableModel});
-		Dino.utils.overrideOpts(o.components.header.content, {'headerModel': o.headerModel || {}}, {headerModel: {columns: h_columns}});
+		Dino.smart_override(o.components.content.content, {'tableModel': o.tableModel});
+		Dino.smart_override(o.components.header.content, {'headerModel': o.headerModel || {}}, {headerModel: {columns: h_columns}});
 		
 	},
 	
@@ -8435,6 +8523,7 @@ Dino.widgets.Grid = Dino.declare('Dino.widgets.Grid', 'Dino.Widget', /** @lends 
 	
 	$layoutChanged: function() {
 		Dino.widgets.Grid.superclass.$layoutChanged.apply(this, arguments);
+		
 		
 		// выполняем настройку ширины полей
 		var body = this.content.content.body;
@@ -8483,7 +8572,10 @@ Dino.widgets.Grid = Dino.declare('Dino.widgets.Grid', 'Dino.Widget', /** @lends 
 			head.getItem(0).getItem(i).layout.el.width(real_width[i]);//.opt('width', t_columns[i]);
 			
 //			if(t_nowrap[i])
+
 			body.options.defaultItem.items[i].layout = {html: '<div class="nowrap" style="width:'+real_width[i]+'px"></div>'};//.width = t_columns[i];
+			
+			
 //			else
 //				body.options.defaultItem.items[i].width = t_columns[i];
 //			head.options.defaultItem.items[i].width = h_columns[i];
@@ -8497,8 +8589,6 @@ Dino.widgets.Grid = Dino.declare('Dino.widgets.Grid', 'Dino.Widget', /** @lends 
 //				col.opt('width', t_columns[i]);
 			});
 		});
-		
-		
 		
 //		var tableWidth = this.content.content.el.width();
 	},
@@ -8716,8 +8806,8 @@ Dino.widgets.TreeGrid = Dino.declare('Dino.widgets.TreeGrid', 'Dino.widgets.Grid
 			h_columns[i] = h_col;
 		})
 		
-		Dino.utils.overrideOpts(o.components.content.content, {'tableModel': o.tableModel});
-		Dino.utils.overrideOpts(o.components.header.content, {'headerModel': o.headerModel || {}}, {headerModel: {columns: h_columns}});
+		Dino.smart_override(o.components.content.content, {'tableModel': o.tableModel});
+		Dino.smart_override(o.components.header.content, {'headerModel': o.headerModel || {}}, {headerModel: {columns: h_columns}});
 		
 	},
 	
@@ -8776,10 +8866,10 @@ Dino.widgets.TreeTable = Dino.declare('Dino.widgets.TreeTable', 'Dino.widgets.Ta
 			}			
 		};
 
-		Dino.utils.overrideOpts(o.components.body.defaultItem, defaultNode, {defaultSubItem: defaultNode});
+		Dino.smart_override(o.components.body.defaultItem, defaultNode, {defaultSubItem: defaultNode});
 		
 		
-		Dino.utils.overrideOpts(
+		Dino.smart_override(
 				o.components.body.defaultItem.defaultSubItem,
 				o.tableModel.row, 
 				{defaultItem: o.tableModel.cell},
@@ -8845,7 +8935,7 @@ Dino.widgets.TreeTableRow = Dino.declare('Dino.widgets.TreeTableRow', 'Dino.widg
 		this.indent = o.indent;
 
 		if('defaultSubItem' in o){
-			Dino.utils.overrideOpts(o.components.subtree.defaultItem, o.defaultSubItem, {'defaultSubItem': o.defaultSubItem});
+			Dino.smart_override(o.components.subtree.defaultItem, o.defaultSubItem, {'defaultSubItem': o.defaultSubItem});
 		}
 		
 		o.defaultItem.indent = this.indent;
@@ -8941,16 +9031,17 @@ Dino.widgets.TreeTableCell = Dino.declare('Dino.widgets.TreeTableCell', 'Dino.wi
 								dtype: 'icon',
 								weight: 1,
 								cls: 'dino-tree-node-button',
-								state: 'clickable',
-								onClick: function() {
-									var row = this.parent.parent.getRow();
-									if(row.states.is('collapsed')){
-										this.parent.states.set('expand_trigger');
-										row.expand();
-									}
-									else{
-										this.parent.states.clear('expand_trigger');
-										row.collapse();
+								events: {
+									'click': function(e, w) {
+										var row = w.parent.parent.getRow();
+										if(row.states.is('collapsed')){
+											w.parent.states.set('expand_trigger');
+											row.expand();
+										}
+										else{
+											w.parent.states.clear('expand_trigger');
+											row.collapse();
+										}										
 									}
 								},
 								states: {
@@ -9084,7 +9175,7 @@ Dino.widgets.MenuItem = Dino.declare('Dino.widgets.MenuItem', 'Dino.containers.B
 	$init: function(o) {
 		
 		if('menuModel' in o) {
-			Dino.utils.overrideOpts(o, o.menuModel.item);
+			Dino.smart_override(o, o.menuModel.item);
 			o.components.submenu.menuModel = o.menuModel;
 		}		
 		
@@ -9102,7 +9193,7 @@ Dino.widgets.MenuItem = Dino.declare('Dino.widgets.MenuItem', 'Dino.containers.B
 //		}
 		
 //		if('subItem' in o.defaults){
-//			Dino.utils.overrideOpts(o.components.submenu.defaultItem, o.defaults.subItem, {defaults: {'subItem': o.defaults.subItem}});
+//			Dino.smart_override(o.components.submenu.defaultItem, o.defaults.subItem, {defaults: {'subItem': o.defaults.subItem}});
 //		}		
 		
 	},
@@ -9202,14 +9293,14 @@ Dino.declare('Dino.widgets.MenuDropdownBox', 'Dino.containers.DropdownBox', {
 	$init: function(o) {
 		
 		if('menuModel' in o) {
-			Dino.utils.overrideOpts(o, o.menuModel.dropdown);
+			Dino.smart_override(o, o.menuModel.dropdown);
 			o.defaultItem.menuModel = o.menuModel;
 		}		
 		
 		Dino.widgets.MenuDropdownBox.superclass.$init.apply(this, arguments);
 				
 //		if('defaultItem' in o)
-//			Dino.utils.overrideOpts(o.defaultItem.components.submenu.defaultItem, o.defaultItem);//o.defaults.subItem, {defaults: {'subItem': o.defaults.subItem}});
+//			Dino.smart_override(o.defaultItem.components.submenu.defaultItem, o.defaultItem);//o.defaults.subItem, {defaults: {'subItem': o.defaults.subItem}});
 		
 	},
 	
@@ -9416,7 +9507,7 @@ Dino.widgets.TreeNode = Dino.declare('Dino.widgets.TreeNode', 'Dino.Widget', /**
 		}
 
 		if('defaultSubItem' in o){
-			Dino.utils.overrideOpts(o.components.subtree.defaultItem, o.defaultSubItem, {'defaultSubItem': o.defaultSubItem});
+			Dino.smart_override(o.components.subtree.defaultItem, o.defaultSubItem, {'defaultSubItem': o.defaultSubItem});
 		}
 		
 	},
@@ -9476,6 +9567,7 @@ Dino.widgets.BasicTreeNode = Dino.declare('Dino.widgets.BasicTreeNode', 'Dino.wi
 				events: {
 					'click': function(e, w) {
 						w.parent.states.toggle('expand_collapse');
+						e.stopPropagation();
 					}
 				}
 			},
@@ -9577,7 +9669,7 @@ Dino.declare('Dino.widgets.Tree', 'Dino.Widget', {
 //		Dino.widgets.Tree.superclass.$init.apply(this, arguments);
 		this.constructor.superclass.$init.apply(this, arguments);
 		
-		Dino.utils.overrideOpts(o.components.content.defaultSubItem, o.treeModel.node, {
+		Dino.smart_override(o.components.content.defaultSubItem, o.treeModel.node, {
 			components: {
 				content: {
 					components: {
@@ -9642,7 +9734,7 @@ Dino.declare('Dino.widgets.XTree', 'Dino.widgets.TextTreeItem', {
 			};
 			
 			//сложная перегрузка опции для того, чтобы приоритет пользовательских опций был выше
-			o.components.subtree.defaultItem = Dino.utils.overrideOpts({}, dynamicSubItem, {'defaultSubItem': dynamicSubItem}, o.components.subtree.defaultItem);
+			o.components.subtree.defaultItem = Dino.smart_override({}, dynamicSubItem, {'defaultSubItem': dynamicSubItem}, o.components.subtree.defaultItem);
 		}
 		
 	},
@@ -9715,13 +9807,13 @@ Dino.widgets.Tree = Dino.declare('Dino.widgets.Tree', 'Dino.containers.Box', /**
 				}
 			};
 			
-			Dino.utils.overrideOpts(o.defaultItem, dynamicItem);
-			Dino.utils.overrideOpts(o.defaultItem.defaultSubItem, dynamicItem);
+			Dino.smart_override(o.defaultItem, dynamicItem);
+			Dino.smart_override(o.defaultItem.defaultSubItem, dynamicItem);
 		}
 		
 		
-		Dino.utils.overrideOpts(o.defaultItem, o.treeModel.node);
-		Dino.utils.overrideOpts(o.defaultItem.defaultSubItem, o.treeModel.node);
+		Dino.smart_override(o.defaultItem, o.treeModel.node);
+		Dino.smart_override(o.defaultItem.defaultSubItem, o.treeModel.node);
 		
 	},
 	
@@ -9804,7 +9896,7 @@ Dino.declare('Dino.widgets.Tree', 'Dino.Widget', {
 
 
 
-Dino.declare('Dino.framework.Application', 'Dino.BaseObject', {
+Dino.declare('Dino.framework.Application', 'Dino.core.Object', {
 	
 	initialize: function(o) {
 		Dino.framework.Application.superclass.initialize.apply(this, arguments);		
@@ -9825,7 +9917,7 @@ Dino.declare('Dino.framework.Application', 'Dino.BaseObject', {
 		});
 		
 		
-		this.root = $.dino(Dino.utils.overrideOpts({
+		this.root = $.dino(Dino.smart_override({
 			dtype: 'box',
 			renderTo: 'body',
 			cls: 'application'
@@ -9882,121 +9974,135 @@ Dino.declare('Dino.framework.Application', 'Dino.BaseObject', {
 });
 
 
-
-Dino.declare('Dino.remote.Collection', 'Dino.events.Observer', {
+Dino.DeferredResult = function(targets) {
 	
-	initialize: function(name, source, o) {
-		Dino.remote.Collection.superclass.initialize.apply(this, arguments);
-		this.name = name;
-		this.source = source;
-		this.backend = o.backend;
-	},
+	var chain = [];
+	if(targets) chain = chain.concat(targets);
 	
-	/**
-	 * Добавление объекта в коллекцию
-	 * 
-	 * @param {Object} val
-	 * @param {Object} callback
-	 */
-	add: function(val, callback) {
-		var self = this;
-		val['_method'] = 'put';
-		$.post(this.path(), val, function(data){
-			if(self.backend) self.backend.add(data);
-			if(callback) callback.call(this, data);
-		}, 'json');
-	},
+	this.to = function(ds) {	
+		chain.push(ds)	
+		return this;
+	};
 	
-	/**
-	 * Удаление объекта из коллекции
-	 * 
-	 * @param {Object} id
-	 * @param {Object} callback
-	 */
-	remove: function(id, callback) {
-		var self = this;
-		$.post(this.path() + '/'+id, {'_method': 'delete'}, function(data){
-//			if(self.backend) 
-//				self.backend.find(function(item){ return item.get('id') == id; }).del();
-			if(callback) callback.call(this, data);
-		}, 'json');		
-	},
+	this.then = function(f) {	
+		chain.push(f);
+		return this;
+	};
 	
-	
-	/**
-	 * Обновление объекта
-	 * 
-	 * @param {Object} id
-	 * @param {Object} val
-	 * @param {Object} callback
-	 */
-	update: function(id, val, callback) {
-		var self = this;
-		$.post(this.path() + '/'+id, val, function(data){
-			//TODO
-			if(callback) callback.call(this, data);
-		}, 'json');		
-	},
-	
-	/**
-	 * Загрузка объекта
-	 * 
-	 * @param {Object} id
-	 * @param {Object} callback
-	 */
-	load: function(id, callback) {
-		var self = this;
-		$.getJSON(this.path()+'/'+id, {}, function(data){
-			if(callback) callback.call(this, data);
+	this.ready = function(json) {
+		Dino.each(chain, function(t){
+			if(Dino.isFunction(t)) t.call(this, json);
+			else if(t instanceof Dino.data.DataSource) t.set(json);
+			else if(Dino.isPlainObject(t)) Dino.merge(t, json);
 		});
+	};
+	
+}
+
+
+
+Dino.declare('Dino.remote.JsonObject', 'Dino.core.Object', {
+	
+	initialize: function(collection, attrs) {
+		Dino.remote.JsonObject.superclass.initialize.apply(this, arguments);
+		this.events = new Dino.events.Dispatcher(this);
+		this.attributes = attrs;
+		this.source = collection;
 	},
 	
-	/**
-	 * Загрузка всех объектов
-	 * 
-	 * @param {Object} callback
-	 */
-	load_all: function(callback) {
-		var self = this;
-		$.getJSON(this.path(), {'query': 'all'}, function(data){
-			if(self.backend) 
-				self.backend.set(data);
-			if(callback) 
-				callback.call(this, data);
-		});		
+	save: function(val, callback) {
+		return ('id' in val) ? this.update(val, callback) : this.create(val, callback);
 	},
 	
-	load_subtree: function(id, callback) {
-		var self = this;
-		$.getJSON(this.path(), {'subtree': 'all', 'id': id}, function(data){
-			if(callback) 
-				callback.call(this, data);
-		});				
+	create: function(val) {
+		var fields = {};
+		
+		if(this.attributes)
+			Dino.each(this.attributes, function(name){ fields[name] = val[name]; });
+		else
+			fields = val;
+
+		var target = new Dino.DeferredResult();
+		$.post(this.path(), {_method: 'put', _serialized: $.toJSON(fields)}, function(json){target.ready(json);}, 'json');		
+		return target;
+	},
+
+	update: function(val) {
+		var fields = {};
+		
+		if(this.attributes) 
+			Dino.each(this.attributes, function(name){ fields[name] = val[name]; });
+		else
+			fields = val;
+
+		var target = new Dino.DeferredResult();
+		$.post(this.path() + '/' + val.id, {_serialized: $.toJSON(fields)}, function(json){target.ready(json);}, 'json');
+		return target;
 	},
 	
-	/**
-	 * Загрузка подмножества объектов
-	 * 
-	 * @param {Object} fromIndex
-	 * @param {Object} toIndex
-	 * @param {Object} orderField
-	 * @param {Object} callback
-	 */
-	load_range: function(fromIndex, toIndex, orderField, callback) {
-		$.getJSON(this.path(), {'query': 'range', 'from': fromIndex, 'to': toIndex, 'order': orderField}, function(data){
-			//TODO
-			if(callback) 
-				callback.call(this, data.data, data.from, data.to, data.count);
-		});				
+	remove: function(arg, callback) {
+		var id = Dino.isPlainObject(arg) ? id = arg.id : arg;
+		var target = new Dino.DeferredResult();
+		$.post(this.path() + '/' + id, {_method: 'delete'}, function(json){target.ready(json);}, 'json');
+		return target;
 	},
 	
 	path: function() {
-		return (this.source ? this.source.path() + '/' : '') + this.name;
+		return (this.source) ? this.source.path() : '';
+	},
+	
+	method: function(method, callback) {
+		$.post(this.path() + '?method='+method, callback, 'json');		
+	},
+	
+	load: function(id, params) {
+		var args = [].concat(arguments).slice(2);
+		var target = new Dino.DeferredResult(args);
+		$.getJSON(this.path()+'/'+id, function(json){target.ready(json);})
+		return target;		
 	}
 	
 });
 
-Dino.validators = {};
+
+
+Dino.declare('Dino.remote.JsonCollection', 'Dino.core.Object', {
+	
+	initialize: function(name, source, o) {
+		Dino.remote.JsonCollection.superclass.initialize.apply(this, arguments);
+		this.events = new Dino.events.Dispatcher(this);
+		this.name = name;
+		this.source = source;
+	},
+	
+	path: function() {
+		return (this.source ? this.source.path() + '/' : '') + this.name;
+	},
+	
+	object: function(attrs) {
+		return new Dino.remote.JsonObject(this, attrs);
+	},
+
+	method: function(method, callback) {
+		$.post(this.path() + '?method='+method, callback, 'json');		
+	},
+
+	load: function(query, params) {
+		var args = [].concat(arguments).slice(2);
+		var target = new Dino.DeferredResult(args);
+		$.getJSON(this.path(), Dino.merge({'query': query}, params), function(json){target.ready(json);})
+		return target;
+	},
+	
+	load_all: function() {
+		var target = new Dino.DeferredResult(arguments);		
+		$.getJSON(this.path(), {'query': 'all'}, function(json){ target.ready(json); });
+		return target;
+	}
+	
+});
+
+//Dino.validators = {};
 
 
 
@@ -10010,11 +10116,17 @@ Dino.validators.RegexpValidator = function(val, regexp) {
 }
 
 
+Dino.validators.floatNumber = function(val, context) {
+		return val == '' || !isNaN(parseFloat(val));
+	}
 
-Dino.declare('Dino.utils.UpdateBuffer', 'Dino.events.Observer', {
+
+
+Dino.declare('Dino.utils.UpdateBuffer', 'Dino.core.Object', {
 	
 	initialize: function(o){
 		Dino.utils.UpdateBuffer.superclass.initialize.apply(this, arguments);
+		this.events = new Dino.events.Dispatcher(this);
 		this.buffer = {};
 		
 		if(o) {
@@ -10069,7 +10181,6 @@ Dino.declare('Dino.utils.UpdateBuffer', 'Dino.events.Observer', {
 
 
 
-Dino.formats = {}
 
 
 Dino.format_currency = function(val, sign) {
@@ -10084,7 +10195,13 @@ Dino.format_date = function(date) {
 	if(month < 10) month = '0'+month;
 	var day = date.getDate();
 	if(day < 10) day = '0'+day;
-	return Dino.format('%s-%s-%s', year, month,day);
+	return Dino.format('%s-%s-%s', day, month, year);
+}
+
+//Dino.converters = {};
+
+Dino.parsers.floatNumber = function(s) {
+	return parseFloat(s);
 }
 
 

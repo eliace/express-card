@@ -1,26 +1,25 @@
 
 
 
-Dino.declare('Medic.widgets.DateField', 'Dino.widgets.DropdownField', {
+Dino.declare('Medic.widgets.DateField', 'Dino.widgets.TextField', {
 	
 	defaultOptions: {
 		cls: 'dino-form-field',
 		components: {
-			input: {
-				format: function(val) {return val}
-			},
-			button: {
-				icon: 'silk-icon-date'
-//				events: {
-//					'click': function(e, w){
-//						if(!w.states.is('disabled'))
-//							w.parent.input.el.datepick('show');
-//					}
-//				}				
-			},
-			'dropdown!': {
-				dtype: 'box'
-			}
+//			input: {
+//				format: function(val) {return val}
+//			},
+      button: {
+        role: 'actor',
+        dtype: 'icon-button',
+        icon: 'silk-icon-date',
+        onAction: function() {
+          this.parent.input.el.datepick('show');
+        }
+      }
+//			'dropdown!': {
+//				dtype: 'box'
+//			}
 		}
 	},
 	
@@ -37,13 +36,13 @@ Dino.declare('Medic.widgets.DateField', 'Dino.widgets.DropdownField', {
 		});
 	},
 	
-	showDropdown: function() {
-		this.input.el.datepick('show');
-	},
-	
-	hideDropdown: function() {
-		this.input.el.datepick('hide');
-	}
+//	showDropdown: function() {
+//		this.input.el.datepick('show');
+//	},
+//	
+//	hideDropdown: function() {
+//		this.input.el.datepick('hide');
+//	}
 	
 	
 }, 'datefield');

@@ -36,9 +36,10 @@ Dialogs.ExpressCardDialog = $.dino({
 			analysesClassification.set(json);
 		});
 
-		Remote.Drugs.load('classification', {}, function(json){
-			drugsClassification.set(json);
-		});
+		Remote.Drugs.load('classification').to(drugsClassification);
+//		, {}, function(json){
+//			drugsClassification.set(json);
+//		});
 		
 		//TODO здесь нужно загружать экспресс-карту, но пока используем шаблон
 		var ec = {

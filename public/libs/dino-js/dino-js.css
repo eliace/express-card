@@ -115,7 +115,6 @@ p {
 
 
 
-
 /*
 [layout='simple-form'] > .dino-form-item-wrapper > label {
 	display: block;
@@ -527,7 +526,7 @@ p {
  */
 
 .dino-split {
-	display: inline;
+	display: inline-block;
 	vertical-align: middle;
 /*	background: url(img/vsplit.png) repeat-y scroll 50% 50%;*/
 	margin: 0 3px;
@@ -537,8 +536,8 @@ p {
 
 
 button.plain {
-	background-color: #eee;
-	border: 1px solid #eee;
+	background-color: transparent;
+	border: 1px solid transparent;
 }
 
 button.plain:hover {
@@ -822,6 +821,12 @@ input.l-icon-only.r-icon-only, span.l-icon-only.r-icon-only {
 
 
 
+.default-text input {
+	font-style: italic;
+	color: #888;
+}
+
+
 /*
  * DIALOG
  */
@@ -881,7 +886,18 @@ input.l-icon-only.r-icon-only, span.l-icon-only.r-icon-only {
 }
 
 .dino-messagebox-icon {
-	margin: 10px 20px 10px 10px;
+	margin: 10px 10px 10px 10px;
+}
+
+.dino-messagebox-msg-base {
+	margin: 0 10px;
+	display: block;
+}
+
+.dino-messagebox-msg-ext {
+	margin: 0 10px;
+	font-weight: bold;
+	display: block;
 }
 
 .dino-growl-box {

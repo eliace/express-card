@@ -16,34 +16,52 @@ Dialogs.SolventDialog = $.dino({
 		items: [{
 			dtype: 'dropdown-field',
 			label: 'Растворитель',
-			dataId: 'solvent',
+			dataId: 'drug_solvent_id',
 			format: function(val) {
 				if(val === '' || val === undefined || val === null) return '';
 				return DataSources.DrugSolvents.find_by_oid(val)['name'];
 			},
-			optionsFormat: {
+			dataModel: {
+				type: 'custom',
+				data: DataSources.DrugSolvents,
 				id: 'id',
 				value: 'name'
 			},
-			components: {
-				dropdown: {
-					data: DataSources.DrugSolvents,
-					content: {
-						defaultItem: {
-							content: {
-								dataId: 'name'								
-							}
-						}						
-					}
-				}
-			}
+//			optionsFormat: {
+//				id: 'id',
+//				value: 'name'
+//			},
+//			components: {
+//				dropdown: {
+//					data: DataSources.DrugSolvents,
+//					content: {
+//						defaultItem: {
+//							content: {
+//								dataId: 'name'								
+//							}
+//						}						
+//					}
+//				}
+//			}
 		}, {
 			dtype: 'text-field',
+			label: 'Соотношение',
+			dataId: 'content',
+			changeOnBlur: true,
+			format: function(val) { return ''+val+' мг/мл' },
+			store: Dino.parsers.floatNumber,
+			rawValueOnFocus: true,
+			width: 120,
+		}, {
+			dtype: 'text-field',
+			tag: 'solvent_vol',
 			label: 'Объем',
 			dataId: 'solvent_vol',
+			format: function(val) { return ''+val+' мл' },
 			changeOnBlur: true,
+			rawValueOnFocus: true,
+			store: Dino.parsers.floatNumber,
 			width: 60,
-//			style: {'padding': '3px'}
 		}]					
 	},
 	buttons: ['ok', 'cancel'],

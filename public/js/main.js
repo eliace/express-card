@@ -34,19 +34,19 @@ var DataSources = {
 
 var Remote = {};
 
-Remote.Patients = new Dino.remote.Collection('patients');
-Remote.AnalysisGroups = new Dino.remote.Collection('analysis_groups');
-Remote.Analyses = new Dino.remote.Collection('analyses');
-Remote.DrugUnits = new Dino.remote.Collection('drug_units');
-Remote.DrugSolvents = new Dino.remote.Collection('drug_solvents');
-Remote.DrugCategories = new Dino.remote.Collection('drug_categories');
-Remote.DrugGroups = new Dino.remote.Collection('drug_groups');
-Remote.Drugs = new Dino.remote.Collection('drugs');
-Remote.AppointmentGroups = new Dino.remote.Collection('appointment_groups');
-Remote.ExpressCard = new Dino.remote.Collection('express_card');
-Remote.ExpressCardAnalyses = new Dino.remote.Collection('express_card_analyses');
-Remote.ExpressCardAppointments = new Dino.remote.Collection('express_card_appointments');
-Remote.Users = new Dino.remote.Collection('users');
+Remote.Patients = new Dino.remote.JsonCollection('patients');
+Remote.AnalysisGroups = new Dino.remote.JsonCollection('analysis_groups');
+Remote.Analyses = new Dino.remote.JsonCollection('analyses');
+Remote.DrugUnits = new Dino.remote.JsonCollection('drug_units');
+Remote.DrugSolvents = new Dino.remote.JsonCollection('drug_solvents');
+Remote.DrugCategories = new Dino.remote.JsonCollection('drug_categories');
+Remote.DrugGroups = new Dino.remote.JsonCollection('drug_groups');
+Remote.Drugs = new Dino.remote.JsonCollection('drugs');
+Remote.AppointmentGroups = new Dino.remote.JsonCollection('appointment_groups');
+Remote.ExpressCard = new Dino.remote.JsonCollection('express_card');
+Remote.ExpressCardAnalyses = new Dino.remote.JsonCollection('express_card_analyses');
+Remote.ExpressCardAppointments = new Dino.remote.JsonCollection('express_card_appointments');
+Remote.Users = new Dino.remote.JsonCollection('users');
 
 
 Remote.Patient = Remote.Patients.object([

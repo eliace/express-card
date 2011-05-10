@@ -46,12 +46,17 @@ Dialogs.DrugsDialog = $.dino({
 						width: 120,
 						dtype: 'dropdown-grid-column',
 						dataId: 'drug_group_id',
-						dropdownData: DataSources.DrugGroups
+						editor: {
+							dataModel: {
+								data: DataSources.DrugGroups
+							}							
+						}
+//						dropdownData: DataSources.DrugGroups
 					}, {
 						header: 'Состав',
 						dataId: 'effects',
 						editable: false,
-						cls: 'effects-column',
+						cls: 'dialog-column',
 						updateOnValueChange: true,
 						format: function(val) {
 							s_a = [];
@@ -59,7 +64,7 @@ Dialogs.DrugsDialog = $.dino({
 							return s_a.join(', '); 
 						},
 						events: {
-							'dblclick': function(e, w) {
+							'click': function(e, w) {
 								
 								Dialogs.EffectsDialog.$bind( Dino.deep_copy(w.data.val()) );
 								Dialogs.EffectsDialog.$dataChanged();
@@ -78,19 +83,56 @@ Dialogs.DrugsDialog = $.dino({
 						header: 'Ед.',
 						dtype: 'dropdown-grid-column',
 						dataId: 'drug_unit_id',
-						dropdownData: DataSources.DrugUnits,
+						editor: {
+							dataModel: {
+								data: DataSources.DrugUnits
+							}							
+						},
+//						dropdownData: DataSources.DrugUnits,
 						width: 60
-					}, {
+					}/*, {
 						header: 'Раствор',
 						width: 120,
 						dtype: 'dropdown-grid-column',
 						dataId: 'drug_solvent_id',
-						dropdownData: DataSources.DrugSolvents
-					}, {
-						header: 'Доля',
-						dataId: 'content',
-						format: function(val) { return (val) ? ''+val+'%' : ''; },
-						width: 60
+						editor: {
+							dataModel: {
+								data: DataSources.DrugSolvents
+							}							
+						},
+//						dropdownData: DataSources.DrugSolvents
+					}*/, {
+						header: 'Базовый раствор',
+//						dataId: 'content',
+						cls: 'dialog-column',
+						format: function() { 
+							var val = this.data.val();//.get('content');
+							return (val.drug_solvent_id) ? ''+DataSources.DrugSolvents.get_by_id(val.drug_solvent_id).name +' '+val.content+' мг/мл' : ''; 
+						},
+						editable: false,
+						updateOnValueChange: true,
+						events: {
+							'click': function(e, w) {
+								
+//								var self = this;
+
+								Dialogs.SolventDialog.content.getItem('solvent_vol').el.parent().parent().addClass('hidden');
+								
+								Dialogs.SolventDialog.opt('title', 'Раствор для '+w.data.get('name'));
+								Dialogs.SolventDialog.$bind( Dino.deep_copy(w.data.val()) );
+								Dialogs.SolventDialog.$dataChanged();
+								Dialogs.SolventDialog.open(function(result){
+									w.data.set(result);
+									w.getParent(Dino.widgets.Grid).editBuffer.upd(w.data.val());
+
+//									result.solvent_vol = parseFloat(result.solvent_vol);
+//									self.data.set(result);
+//									calc_appointment_dose( self.parent.getRow() );
+								});						
+								
+							}
+						},					
+						width: 180
 					}]
 				},
 				objectFactory: function() {
@@ -101,7 +143,8 @@ Dialogs.DrugsDialog = $.dino({
 						drug_effects: {},
 						drug_unit_id: null,
 						drug_solvent_id: null,
-						effects: {}
+						effects: {},
+						content: 0
 					};
 				}
 			}

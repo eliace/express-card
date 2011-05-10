@@ -9,7 +9,7 @@ Dialogs.EffectsDialog = $.dino({
 		dtype: 'box',
 		layout: 'form',
 		defaultItem: {
-			dtype: 'input',
+			dtype: 'text-input',
 			width: 60,
 			changeOnBlur: true
 		},

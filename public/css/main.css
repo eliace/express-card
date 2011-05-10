@@ -261,6 +261,18 @@ body input {
 	padding-left: 3px;
 }
 
+.dialog-column {
+	font-style: italic;
+	color: #888;
+	font-size: 9pt;
+	padding-left: 3px;
+}
+
+.dialog-column:hover {
+	text-decoration: underline;
+	color: #46f;
+	cursor: pointer;
+}
 
 
 

@@ -35,9 +35,9 @@ function calc_appointment_dose(row) {
 	row.data.set('weight_dose', total/ec.calc_weight);
 	var total_vol = total;
 	// если указано содержание в растворителе, то высчитываем объем растворителя
-	if(val.drug_content) total_vol = total*100/val.drug_content;
+	if(val.content) total_vol = total/val.content;
 	// если указан раствор, то добавляем его объем
-	if(total && val.solvent) total_vol += val.solvent_vol;
+//	if(total && val.solvent) total_vol += val.solvent_vol;
 	
 	row.data.set('total_vol', total_vol);
 	
@@ -100,7 +100,7 @@ Snippets.AppointmentsTab = {
 				dataId: 'weight',
 				format: function(val) { return (val) ? ''+val+' кг' : ''; },
 			}, {
-				dtype: 'input',
+				dtype: 'text-input',
 				label: 'Расчетный вес',
 				width: 50,
 				rawValueOnFocus: true,
@@ -193,9 +193,10 @@ Snippets.AppointmentsTab = {
 							weight_dose: 0,
 							units: val.drug_unit_id,
 							dose: new Array(24),
-							drug_content: val.content,
+//							drug_content: val.content,
 							drug_effects: val.effects,
-							solvent: null,
+							drug_solvent_id: val.drug_solvent_id,
+							content: val.content,
 							solvent_vol: 0
 						};
 						
@@ -239,13 +240,13 @@ Snippets.AppointmentsTab = {
 		tableModel: {
 			columns: [{
 				header: 'Препарат',
-//				dataId: 'drug_name',
+				dataId: 'drug_name',
 				editable: false,
 				style: {'font-style': 'italic', 'color': '#444'},
-				format: function(val) {
-					var fmt = (val.drug_content) ? '#{drug_content}% #{drug_name}' : '#{drug_name}';
-					return Dino.format_obj(fmt, val);
-				}
+//				format: function(val) {
+//					var fmt = (val.drug_content) ? '#{drug_content}% #{drug_name}' : '#{drug_name}';
+//					return Dino.format_obj(fmt, val);
+//				}
 	//			width: 200
 			}/*, {
 				header: 'Применение',
@@ -292,37 +293,65 @@ Snippets.AppointmentsTab = {
 				}
 			}, {
 				header: 'Раствор',
-				width: 120,
+				width: 140,
 				editable: false,
-				content: {
-					dtype: 'text-button',
-					width: 113,
-					content: {
-						format: function(val) {
-							if(val.solvent) {
-								var solvent = DataSources.DrugSolvents.find_by_oid(val.solvent);
-								this.opt('innerText', Dino.format('%s %s мл', solvent['name'], val.solvent_vol))
-							}
-							else {
-								this.opt('innerHtml', '&nbsp;');
-							}
-						}						
-					},
-					style: {'line-height': '11px', 'vertical-align': 'middle', 'padding': 0, 'margin': 0},
-					onAction: function() {
+				updateOnValueChange: true,
+				cls: 'dialog-column',
+				format: function() { 
+					var val = this.data.val();
+					return (val.drug_solvent_id) ? ''+/*val.solvent_vol+' мл '+*/DataSources.DrugSolvents.get_by_id(val.drug_solvent_id).name +' ('+val.content+' мг/мл)' : ''; 
+				},
+				events: {
+					'click': function(e, w) {
 						
-						var self = this;
+//						var self = this;
 						
-						Dialogs.SolventDialog.opt('title', this.data.get('drug_name')+' в растворе');
-						Dialogs.SolventDialog.$bind( Dino.deep_copy(this.data.val()) );
+						Dialogs.SolventDialog.content.getItem('solvent_vol').el.parent().parent().addClass('hidden');
+
+						Dialogs.SolventDialog.opt('title', 'Раствор для '+w.data.get('drug_name'));
+						Dialogs.SolventDialog.$bind( Dino.deep_copy(w.data.val()) );
 						Dialogs.SolventDialog.$dataChanged();
 						Dialogs.SolventDialog.open(function(result){
-							result.solvent_vol = parseFloat(result.solvent_vol);
-							self.data.set(result);
-							calc_appointment_dose( self.parent.getRow() );
-						});						
+//							result.solvent_vol = parseFloat(result.solvent_vol);
+							w.data.set(result);
+							calc_appointment_dose( w.getRow() );
+						});												
+						
 					}
 				}
+				
+//				content: {
+//					dtype: 'text-button',
+//					width: 113,
+//					text: '',
+//					content: {
+//						format: function(val) {
+//							if(val.solvent) {
+//								var solvent = DataSources.DrugSolvents.find_by_oid(val.solvent);
+//								this.opt('innerText', Dino.format('%s %s мл', solvent['name'], val.solvent_vol))
+//							}
+//							else {
+//								this.opt('innerHtml', '&nbsp;');
+//							}
+//						}						
+//					},
+//					style: {'line-height': '11px', 'vertical-align': 'middle', 'padding': 0, 'margin': 0},
+//					onAction: function() {
+//						
+//						var self = this;
+//						
+//						Dialogs.SolventDialog.content.getItem('solvent_vol').el.parent().parent().removeClass('hidden');
+//
+//						Dialogs.SolventDialog.opt('title', this.data.get('drug_name')+' в растворе');
+//						Dialogs.SolventDialog.$bind( Dino.deep_copy(this.data.val()) );
+//						Dialogs.SolventDialog.$dataChanged();
+//						Dialogs.SolventDialog.open(function(result){
+//							result.solvent_vol = parseFloat(result.solvent_vol);
+//							self.data.set(result);
+//							calc_appointment_dose( self.parent.getRow() );
+//						});						
+//					}
+//				}
 			}, {
 				header: 'По часам',
 				width: 320,
