@@ -55,15 +55,49 @@ end
 
 class ExpressCard < ActiveRecord::Base
 	belongs_to :patient
+	has_many :appointments, :class_name => 'ExpressCardAppointment', :foreign_key => 'express_card_id'
+	has_many :analyses, :class_name => 'ExpressCardAnalysis', :foreign_key => 'express_card_id'
+	
+	def as_json(o=nil)
+		json = super(o)
+		json[:analyses] = []
+		json[:appointments] = []
+		if not o.nil? and o[:detailed] then
+			analyses.each do |rec|
+				json[:analyses] << {
+					:id => rec.id,
+					:analysis_name => rec.analysis.name,
+					:interval => rec.interval,
+					:from_date => rec.from_date
+				}
+			end
+			appointments.each do |rec|
+				json[:appointments] << {
+					:id => rec.id,
+					:drug_name => rec.drug.name,
+					:drug_solvent_id => rec.drug_solvent_id,
+					:drug_content => rec.drug_content,
+					:drug_unit_id => rec.drug.drug_unit_id,
+					:doses => JSON.parse(rec.doses),
+					:weight_dose => rec.weight_dose,
+					:base_dose => rec.base_dose
+				}
+			end
+		end
+		json
+	end
+	
 end
 
 class ExpressCardAnalysis < ActiveRecord::Base
 	belongs_to :express_card
+	belongs_to :analysis
 end
 
-class ExpressCardAppointments < ActiveRecord::Base
+class ExpressCardAppointment < ActiveRecord::Base
 	belongs_to :express_card
 	belongs_to :appointment_group
+	belongs_to :drug
 end
 
 class AppointmentGroup < ActiveRecord::Base

@@ -46,9 +46,6 @@ end
 
 
 
-
-
-
 get '/appointment_groups' do
 	
 	query = params[:query]
@@ -59,3 +56,101 @@ get '/appointment_groups' do
 	end
 	
 end
+
+
+
+
+
+
+
+
+get '/express_cards' do |id|
+	
+	query = params[:query]
+	
+	case query
+		when 'last'
+			ExpressCard.order('creation_date ASC').last.to_json(:detailed => true)
+			
+	end
+		
+		
+	
+	
+end
+
+
+
+post '/express_cards/:id' do |id|
+
+	json = JSON.parse(params[:_serialized])
+	
+	attrs = json.filter(['calc_weight'])
+	ExpressCard.update(id, attrs)
+	
+
+	# обновляем список анализов
+	json['analyses'].each do |analysis|
+		attrs = analysis.filter(['analysis_id', 'interval', 'from_date'])
+		attrs[:express_card_id] = id
+
+		rec = ExpressCardAnalysis.find(analysis['id'])
+		
+		if rec.nil? then
+			rec = ExpressCardAnalysis.new
+		end
+		
+		rec.attributes = attrs
+		
+		rec.save
+	end
+	
+	# обновляем список назначений
+	json['appointments'].each do |appointment|
+		attrs = appointment.filter(['drug_id', 'drug_solvent_id', 'drug_content', 'doses', 'base_dose', 'weight_dose'])
+		attrs[:express_card_id] = id
+		attrs[:doses] = JSON.generate(attrs[:doses])
+
+		rec = appointment['id'] ? ExpressCardAppointment.find(appointment['id']) : ExpressCardAppointment.new
+		
+		rec.attributes = attrs
+		
+		rec.save
+	end
+	
+	ExpressCard.find(id).to_json
+end
+
+
+put '/express_cards' do |id|
+	
+	json = JSON.parse(params[:_serialized])
+	
+	attrs = {
+		:patient_id => json['patient_id'],
+		:calc_weight => json['calc_weight'],
+		:creation_date => Date.today
+	}
+	
+	rec = ExpressCard.create(attrs);
+	
+	json['analyses'].each do |analysis|
+		attrs = analysis.filter(['analysis_id', 'interval', 'from_date'])
+		attrs[:express_card_id] = rec.id
+		ExpressCardAnalysis.create(attrs)
+	end
+	
+	json['appointments'].each do |appointment|
+		attrs = appointment.filter(['drug_id', 'doses', 'base_dose', 'weight_dose', 'drug_solvent_id', 'drug_content'])
+		attrs[:express_card_id] = rec.id
+		attrs[:doses] = JSON.generate(attrs[:doses])
+		ExpressCardAppointments.create(attrs)
+	end
+	
+	rec.to_json
+end
+
+
+
+
+

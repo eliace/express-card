@@ -34,6 +34,18 @@ end
 
 
 
+class Hash	
+	def filter(key_a)
+		result = {}
+		each_pair do |k, v|
+	  	result[k.to_sym] = v if key_a.include? k
+		end
+		result
+	end
+end
+
+
+
 helpers do
 	
 	def authenticate!

@@ -43,7 +43,7 @@ Remote.DrugCategories = new Dino.remote.JsonCollection('drug_categories');
 Remote.DrugGroups = new Dino.remote.JsonCollection('drug_groups');
 Remote.Drugs = new Dino.remote.JsonCollection('drugs');
 Remote.AppointmentGroups = new Dino.remote.JsonCollection('appointment_groups');
-Remote.ExpressCard = new Dino.remote.JsonCollection('express_card');
+Remote.ExpressCards = new Dino.remote.JsonCollection('express_cards');
 Remote.ExpressCardAnalyses = new Dino.remote.JsonCollection('express_card_analyses');
 Remote.ExpressCardAppointments = new Dino.remote.JsonCollection('express_card_appointments');
 Remote.Users = new Dino.remote.JsonCollection('users');
@@ -75,6 +75,10 @@ Remote.User = Remote.Users.object([
 	'display_name',
 	'login'
 ]);
+
+Remote.ExpressCard = Remote.ExpressCards.object();
+
+
 
 
 function array_to_hash(arr, key, val) {

@@ -43,14 +43,14 @@ Dialogs.ExpressCardDialog = $.dino({
 //		});
 		
 		//TODO здесь нужно загружать экспресс-карту, но пока используем шаблон
-		var ec = {
-			weight: 3,
-			calc_weight: 3.1,
-			appointments: [],
-			analyses: []
-		};
-		this.$bind(ec);
-		this.$dataChanged();
+//		var ec = {
+//			weight: 3,
+//			calc_weight: 3.1,
+//			appointments: [],
+//			analyses: []
+//		};
+//		this.$bind(ec);
+//		this.$dataChanged();
 		
 	},
 	onClose: function(e) {
@@ -80,6 +80,9 @@ Dialogs.ExpressCardDialog = $.dino({
 				this.layout.update();
 			}
 			e.cancel();
+		}
+		else if(e.button == 'save') {
+			this.dialogResult = this.data.val();
 		}
 		
 	}

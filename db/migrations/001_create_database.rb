@@ -122,6 +122,7 @@ class CreateDatabase < ActiveRecord::Migration
 		create_table :express_cards do |t|
 			t.references :patient														# пациент
 			t.float :calc_weight															# расчетный вес
+			t.date :creation_date
 		end
 
 
@@ -142,9 +143,14 @@ class CreateDatabase < ActiveRecord::Migration
     end
 
 		create_table :express_card_appointments do |t|
-			t.references :express_card
-			t.references :drug
-			t.references :appointment_group
+			t.references 	:express_card
+			t.references 	:drug
+			t.references 	:appointment_group
+			t.string 			:doses
+			t.float 			:base_dose
+			t.float 			:weight_dose
+			t.references 	:drug_solvent
+			t.float 			:drug_content
 		end
 
     add_foreign_key(:express_card_appointments, :express_cards)

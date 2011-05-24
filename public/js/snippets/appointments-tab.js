@@ -23,8 +23,8 @@ function calc_appointment_dose(row) {
 	
 	var n = 0;
 	var total = 0;
-	var single = parseFloat(val.single_dose);
-	Dino.each(val.dose, function(dose, i){ 
+	var single = parseFloat(val.base_dose);
+	Dino.each(val.doses, function(dose, i){ 
 		if (dose === '') {
 			total += single;
 			n++;
@@ -35,7 +35,7 @@ function calc_appointment_dose(row) {
 	row.data.set('weight_dose', total/ec.calc_weight);
 	var total_vol = total;
 	// если указано содержание в растворителе, то высчитываем объем растворителя
-	if(val.content) total_vol = total/val.content;
+	if(val.drug_content) total_vol = total/val.drug_content;
 	// если указан раствор, то добавляем его объем
 //	if(total && val.solvent) total_vol += val.solvent_vol;
 	
@@ -189,14 +189,14 @@ Snippets.AppointmentsTab = {
 							drug_id: val.id,
 							drug_name: val.name,
 							appointment_group_id: 2,
-							single_dose: 0,
+							base_dose: 0,
 							weight_dose: 0,
-							units: val.drug_unit_id,
-							dose: new Array(24),
+							drug_unit_id: val.drug_unit_id,
+							doses: new Array(24),
 //							drug_content: val.content,
 							drug_effects: val.effects,
 							drug_solvent_id: val.drug_solvent_id,
-							content: val.content,
+							drug_content: val.content,
 							solvent_vol: 0
 						};
 						
@@ -282,11 +282,11 @@ Snippets.AppointmentsTab = {
 			}*/, {
 				header: 'Дозировка',
 				width: 80,
-				dataId: 'single_dose',
+				dataId: 'base_dose',
 				format: function() {
 					if(this.states.is('disabled')) return '---';
 					var val = this.data.source.val();
-					return Dino.format('%s %s', val.single_dose, DataSources.DrugUnits.find_by_oid(val.units)['name']);
+					return Dino.format('%s %s', val.base_dose, DataSources.DrugUnits.find_by_oid(val.drug_unit_id)['name']);
 				},
 				onEdit: function() {
 					calc_appointment_dose( this.getRow() );
@@ -299,7 +299,7 @@ Snippets.AppointmentsTab = {
 				cls: 'dialog-column',
 				format: function() { 
 					var val = this.data.val();
-					return (val.drug_solvent_id) ? ''+/*val.solvent_vol+' мл '+*/DataSources.DrugSolvents.get_by_id(val.drug_solvent_id).name +' ('+val.content+' мг/мл)' : ''; 
+					return (val.drug_solvent_id) ? ''+/*val.solvent_vol+' мл '+*/DataSources.DrugSolvents.get_by_id(val.drug_solvent_id).name +' ('+val.drug_content+' мг/мл)' : ''; 
 				},
 				events: {
 					'click': function(e, w) {
@@ -313,7 +313,8 @@ Snippets.AppointmentsTab = {
 						Dialogs.SolventDialog.$dataChanged();
 						Dialogs.SolventDialog.open(function(result){
 //							result.solvent_vol = parseFloat(result.solvent_vol);
-							w.data.set(result);
+							w.data.set('drug_solvent_id', result.drug_solvent_id);
+							w.data.set('drug_content', result.content);
 							calc_appointment_dose( w.getRow() );
 						});												
 						
@@ -355,7 +356,7 @@ Snippets.AppointmentsTab = {
 			}, {
 				header: 'По часам',
 				width: 320,
-				dataId: 'dose',
+				dataId: 'doses',
 				updateOnValueChange: true,
 				content: {
 					dtype: 'box',
@@ -449,7 +450,7 @@ Snippets.AppointmentsTab = {
 							binding: function(val) {
 								
 								var tooltip = '';
-								if(val[this.index] === '') tooltip = this.data.source.get('single_dose');
+								if(val[this.index] === '') tooltip = this.data.source.get('base_dose');
 								else if(val[this.index] != null) tooltip = val[this.index];
 								
 								this.opt('tooltip', tooltip);
@@ -480,7 +481,7 @@ Snippets.AppointmentsTab = {
 //				updateOnValueChange: true,
 				format: function() {
 					var val = this.data.source.val();
-					return Dino.format('%s %s/кг/сут', val.weight_dose.toFixed(1), DataSources.DrugUnits.find_by_oid(val.units)['name']);
+					return Dino.format('%s %s/кг/сут', val.weight_dose.toFixed(1), DataSources.DrugUnits.find_by_oid(val.drug_unit_id)['name']);
 				},
 				width: 120
 			}]

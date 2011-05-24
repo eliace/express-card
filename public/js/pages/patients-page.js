@@ -62,7 +62,25 @@ Pages.PatientsPage = $.dino({
 									Dialogs.PatientAnalysesDialog.open();
 								}
 								else if(this.tag == 'express-card') {
-									Dialogs.ExpressCardDialog.open();									
+									
+//									var obj = {
+//										patient_id: this.data.get('id'),
+//										weight: 3,
+//										calc_weight: 3.2,
+//										appointments: [],
+//										analyses: []
+//									}
+									
+									Remote.ExpressCards.load('last').then(function(json){
+										Dialogs.ExpressCardDialog.$bind( json );
+										Dialogs.ExpressCardDialog.open(function(result){
+											
+											Remote.ExpressCard.save(result);
+											
+										});										
+									});
+									
+									
 								}
 								
 							},
