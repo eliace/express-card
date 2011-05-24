@@ -97,6 +97,7 @@ Snippets.AppointmentsTab = {
 			items: [{
 				dtype: 'text',
 				label: 'Текущий вес',
+//				updateOnValueChange: true,
 				dataId: 'weight',
 				format: function(val) { return (val) ? ''+val+' кг' : ''; },
 			}, {
@@ -104,6 +105,7 @@ Snippets.AppointmentsTab = {
 				label: 'Расчетный вес',
 				width: 50,
 				rawValueOnFocus: true,
+//				updateOnValueChange: true,
 				dataId: 'calc_weight',
 				format: function(val) { return (val) ? ''+val+' кг' : ''; },
 				onValueChanged: function() {

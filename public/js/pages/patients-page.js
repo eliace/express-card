@@ -71,8 +71,10 @@ Pages.PatientsPage = $.dino({
 //										analyses: []
 //									}
 									
-									Remote.ExpressCards.load('last').then(function(json){
+									Remote.ExpressCards.load('today', {patient_id: this.data.get('id')}).then(function(json){
+										
 										Dialogs.ExpressCardDialog.$bind( json );
+										Dialogs.ExpressCardDialog.$dataChanged();
 										Dialogs.ExpressCardDialog.open(function(result){
 											
 											Remote.ExpressCard.save(result);
